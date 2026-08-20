@@ -47,7 +47,7 @@ export function getAuthErrorMessage(error: unknown): string {
 
 async function loginRequest(credentials: LoginRequest): Promise<LoginResponse> {
   const { data } = await apiClient.post<LoginResponse>(
-    '/auth/login',
+    '/login',
     credentials,
   );
 
