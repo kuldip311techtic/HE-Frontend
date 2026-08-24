@@ -19,6 +19,7 @@ export function AppRoutes() {
           </ProtectedRoute>
         }
       >
+        <Route path="/admin" element={<SuperAdminDashboard />} />
         <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
         <Route
           path="/super-admin/manage-organizations"

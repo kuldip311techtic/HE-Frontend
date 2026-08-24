@@ -5,7 +5,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { LoginForm } from "@/components/LoginForm";
 import { getStoredToken } from "@/lib/utils";
@@ -20,9 +19,9 @@ export default function SuperAdminLogin() {
       <div className="w-full max-w-md">
         <Card className="shadow-md">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight">
               Super Admin Sign In
-            </CardTitle>
+            </h1>
             <CardDescription>
               Sign in to manage organizations, coaches, and players in Hoops
               Engine.
