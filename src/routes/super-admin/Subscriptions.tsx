@@ -21,8 +21,6 @@ import { useDeleteSubscription } from "@/hooks/useDeleteSubscription";
 import { useEditSubscription } from "@/hooks/useEditSubscription";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import {
-  formValuesToCreateRequest,
-  formValuesToUpdateRequest,
   getSubscriptionName,
   isSubscriptionActive,
 } from "@/lib/subscription-helpers";
@@ -46,7 +44,7 @@ export default function Subscriptions() {
   const total = data?.total ?? subscriptions.length;
 
   const handleCreateSubmit = (values: SubscriptionFormValues) => {
-    addSubscriptionMutation.mutate(formValuesToCreateRequest(values), {
+    addSubscriptionMutation.mutate(values, {
       onSuccess: () => {
         setIsCreateOpen(false);
       },
@@ -61,7 +59,7 @@ export default function Subscriptions() {
     editSubscriptionMutation.mutate(
       {
         id: editingSubscription.id,
-        payload: formValuesToUpdateRequest(values),
+        values,
       },
       {
         onSuccess: () => {

@@ -46,7 +46,7 @@ export interface UpdateSubscriptionRequest {
 
 export interface EditSubscriptionVariables {
   id: string;
-  payload: UpdateSubscriptionRequest;
+  values: SubscriptionFormValues;
 }
 
 export interface SubscriptionMutationResponse {

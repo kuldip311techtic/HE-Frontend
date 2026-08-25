@@ -1,16 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { formValuesToCreateRequest } from "@/lib/subscription-helpers";
 import { ApiClientError } from "@/services/api-client";
 import { createSubscription } from "@/services/super-admin-subscriptions";
-import type { CreateSubscriptionRequest } from "@/types/subscription";
+import type { SubscriptionFormValues } from "@/types/subscription";
 
 export function useAddSubscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CreateSubscriptionRequest) =>
-      createSubscription(payload),
+    mutationFn: (values: SubscriptionFormValues) =>
+      createSubscription(formValuesToCreateRequest(values)),
     onSuccess: (response) => {
       toast.success(response.message || "Subscription plan created successfully.");
       void queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
