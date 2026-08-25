@@ -6,6 +6,8 @@ import SuperAdminDashboard from "@/routes/super-admin/Dashboard";
 import SuperAdminLogin from "@/routes/super-admin/Login";
 import ManageOrganizations from "@/routes/super-admin/ManageOrganizations";
 import ManageUsers from "@/routes/super-admin/ManageUsers";
+import Subscriptions from "@/routes/super-admin/Subscriptions";
+import SupportRequests from "@/routes/super-admin/SupportRequests";
 
 export function AppRoutes() {
   return (
@@ -26,6 +28,14 @@ export function AppRoutes() {
           element={<ManageOrganizations />}
         />
         <Route path="/super-admin/manage-users" element={<ManageUsers />} />
+        <Route
+          path="/super-admin/subscriptions"
+          element={<Subscriptions />}
+        />
+        <Route
+          path="/super-admin/support-requests"
+          element={<SupportRequests />}
+        />
       </Route>
       <Route path="*" element={<Navigate to="/super-admin/login" replace />} />
     </Routes>

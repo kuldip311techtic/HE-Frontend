@@ -1,4 +1,10 @@
-import { Building2, LayoutDashboard, Users } from "lucide-react";
+import {
+  Building2,
+  CreditCard,
+  HeadphonesIcon,
+  LayoutDashboard,
+  Users,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
@@ -18,6 +24,16 @@ const navItems = [
     label: "Users",
     to: "/super-admin/manage-users",
     icon: Users,
+  },
+  {
+    label: "Subscriptions",
+    to: "/super-admin/subscriptions",
+    icon: CreditCard,
+  },
+  {
+    label: "Support Requests",
+    to: "/super-admin/support-requests",
+    icon: HeadphonesIcon,
   },
 ] as const;
 
