@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -182,10 +183,11 @@ export function SubscriptionForm({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input
+                <Textarea
                   placeholder="Brief description of the plan"
                   disabled={isLoading}
-                  aria-label="Subscription description"
+                  rows={4}
+                  className="min-h-[96px]"
                   {...field}
                 />
               </FormControl>

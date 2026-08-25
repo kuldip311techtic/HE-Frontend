@@ -56,7 +56,7 @@ export async function updateSubscription(
   payload: UpdateSubscriptionRequest,
 ): Promise<SubscriptionMutationResponse> {
   return apiRequest<SubscriptionMutationResponse>(
-    `/api/super-admin/subscriptions/${id}`,
+    `${SUPER_ADMIN_SUBSCRIPTIONS_PATH}/${id}`,
     {
       method: "PUT",
       body: payload,
@@ -69,7 +69,7 @@ export async function deleteSubscription(
   id: string,
 ): Promise<SubscriptionMutationResponse> {
   return apiRequest<SubscriptionMutationResponse>(
-    `/api/super-admin/subscriptions/${id}`,
+    `${SUPER_ADMIN_SUBSCRIPTIONS_PATH}/${id}`,
     {
       method: "DELETE",
       auth: true,

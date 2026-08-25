@@ -14,13 +14,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import {
   formatSupportRequestDate,
   getSupportRequestStatusLabel,
   getSupportRequestSubject,
   getSupportRequestUserLabel,
 } from "@/lib/support-request-helpers";
-import { cn } from "@/lib/utils";
 import { ApiClientError } from "@/services/api-client";
 import type {
   SupportRequest,
@@ -117,14 +117,12 @@ export function SupportRequestForm({
               <FormItem>
                 <FormLabel>Your Response</FormLabel>
                 <FormControl>
-                  <textarea
+                  <Textarea
                     placeholder="Enter your response to the user..."
                     disabled={isLoading}
                     aria-label="Support request response"
                     rows={5}
-                    className={cn(
-                      "flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                    )}
+                    className="min-h-[120px]"
                     {...field}
                   />
                 </FormControl>

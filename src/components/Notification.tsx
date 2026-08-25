@@ -16,7 +16,7 @@ const variantStyles: Record<
 > = {
   success: {
     container:
-      "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+      "border-success/30 bg-success/10 text-success-foreground dark:text-success",
     icon: CheckCircle2,
   },
   error: {
@@ -25,7 +25,7 @@ const variantStyles: Record<
   },
   warning: {
     container:
-      "border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-400",
+      "border-warning/30 bg-warning/10 text-warning-foreground dark:text-warning",
     icon: AlertTriangle,
   },
 };
