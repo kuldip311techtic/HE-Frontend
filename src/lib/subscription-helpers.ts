@@ -1,7 +1,9 @@
 import {
   SUBSCRIPTION_DURATIONS,
+  type CreateSubscriptionRequest,
   type Subscription,
   type SubscriptionFormValues,
+  type UpdateSubscriptionRequest,
 } from "@/types/subscription";
 
 export function getSubscriptionName(subscription: Subscription): string {
@@ -53,4 +55,21 @@ export function subscriptionToFormValues(
     duration: subscription.duration ?? "",
     description: subscription.description ?? "",
   };
+}
+
+export function formValuesToCreateRequest(
+  values: SubscriptionFormValues,
+): CreateSubscriptionRequest {
+  return {
+    name: values.name,
+    price: Number(values.price),
+    duration: values.duration,
+    description: values.description,
+  };
+}
+
+export function formValuesToUpdateRequest(
+  values: SubscriptionFormValues,
+): UpdateSubscriptionRequest {
+  return formValuesToCreateRequest(values);
 }

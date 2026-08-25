@@ -1,14 +1,14 @@
 import { apiRequest } from "@/services/api-client";
-import type {
-  CreateSubscriptionRequest,
-  Subscription,
-  SubscriptionListData,
-  SubscriptionListResponse,
-  SubscriptionMutationResponse,
-  UpdateSubscriptionRequest,
+import {
+  SUBSCRIPTION_API_PATH,
+  subscriptionDetailPath,
+  type CreateSubscriptionRequest,
+  type Subscription,
+  type SubscriptionListData,
+  type SubscriptionListResponse,
+  type SubscriptionMutationResponse,
+  type UpdateSubscriptionRequest,
 } from "@/types/subscription";
-
-const SUPER_ADMIN_SUBSCRIPTIONS_PATH = "/api/super-admin/subscriptions";
 
 function normalizeListData(
   data: SubscriptionListData | Subscription[],
@@ -28,7 +28,7 @@ function normalizeListData(
 
 export async function fetchSubscriptions(): Promise<SubscriptionListData> {
   const response = await apiRequest<SubscriptionListResponse>(
-    SUPER_ADMIN_SUBSCRIPTIONS_PATH,
+    SUBSCRIPTION_API_PATH,
     {
       method: "GET",
       auth: true,
@@ -42,7 +42,7 @@ export async function createSubscription(
   payload: CreateSubscriptionRequest,
 ): Promise<SubscriptionMutationResponse> {
   return apiRequest<SubscriptionMutationResponse>(
-    SUPER_ADMIN_SUBSCRIPTIONS_PATH,
+    SUBSCRIPTION_API_PATH,
     {
       method: "POST",
       body: payload,
@@ -56,7 +56,7 @@ export async function updateSubscription(
   payload: UpdateSubscriptionRequest,
 ): Promise<SubscriptionMutationResponse> {
   return apiRequest<SubscriptionMutationResponse>(
-    `${SUPER_ADMIN_SUBSCRIPTIONS_PATH}/${id}`,
+    subscriptionDetailPath(id),
     {
       method: "PUT",
       body: payload,
@@ -69,7 +69,7 @@ export async function deleteSubscription(
   id: string,
 ): Promise<SubscriptionMutationResponse> {
   return apiRequest<SubscriptionMutationResponse>(
-    `${SUPER_ADMIN_SUBSCRIPTIONS_PATH}/${id}`,
+    subscriptionDetailPath(id),
     {
       method: "DELETE",
       auth: true,

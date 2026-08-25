@@ -31,10 +31,10 @@
   }
 
   .dark {
-    --success: 142.1 76.2% 36.3%;
-    --success-foreground: 138.5 76.5% 96.7%;
-    --warning: 47.9 95.8% 53.1%;
-    --warning-foreground: 26 83.3% 14.1%;
+    --success: 158.1 64.4% 51.6%;
+    --success-foreground: 158.1 64.4% 51.6%;
+    --warning: 43.3 96.4% 56.3%;
+    --warning-foreground: 43.3 96.4% 56.3%;
   }
 
   * {

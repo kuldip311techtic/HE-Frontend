@@ -15,8 +15,7 @@ const variantStyles: Record<
   { container: string; icon: typeof AlertCircle }
 > = {
   success: {
-    container:
-      "border-success/30 bg-success/10 text-success-foreground dark:text-success",
+    container: "border-success/30 bg-success/10 text-success-foreground",
     icon: CheckCircle2,
   },
   error: {
@@ -24,8 +23,7 @@ const variantStyles: Record<
     icon: AlertCircle,
   },
   warning: {
-    container:
-      "border-warning/30 bg-warning/10 text-warning-foreground dark:text-warning",
+    container: "border-warning/30 bg-warning/10 text-warning-foreground",
     icon: AlertTriangle,
   },
 };

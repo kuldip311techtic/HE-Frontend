@@ -1,3 +1,11 @@
+export const SUBSCRIPTION_API_PATH = "/api/super-admin/subscriptions" as const;
+
+export function subscriptionDetailPath(
+  id: string,
+): `${typeof SUBSCRIPTION_API_PATH}/${string}` {
+  return `${SUBSCRIPTION_API_PATH}/${id}`;
+}
+
 export interface Subscription {
   id: string;
   name: string;
@@ -34,6 +42,11 @@ export interface UpdateSubscriptionRequest {
   price?: number;
   duration?: string;
   description?: string;
+}
+
+export interface EditSubscriptionVariables {
+  id: string;
+  payload: UpdateSubscriptionRequest;
 }
 
 export interface SubscriptionMutationResponse {

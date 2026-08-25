@@ -3,19 +3,14 @@ import { toast } from "sonner";
 
 import { ApiClientError } from "@/services/api-client";
 import { updateSubscription } from "@/services/super-admin-subscriptions";
-import type { UpdateSubscriptionRequest } from "@/types/subscription";
+import type { EditSubscriptionVariables } from "@/types/subscription";
 
 export function useEditSubscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: UpdateSubscriptionRequest;
-    }) => updateSubscription(id, payload),
+    mutationFn: ({ id, payload }: EditSubscriptionVariables) =>
+      updateSubscription(id, payload),
     onSuccess: (response) => {
       toast.success(response.message || "Subscription plan updated successfully.");
       void queryClient.invalidateQueries({ queryKey: ["subscriptions"] });

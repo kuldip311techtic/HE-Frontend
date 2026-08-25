@@ -21,19 +21,12 @@ import { useDeleteSubscription } from "@/hooks/useDeleteSubscription";
 import { useEditSubscription } from "@/hooks/useEditSubscription";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import {
+  formValuesToCreateRequest,
+  formValuesToUpdateRequest,
   getSubscriptionName,
   isSubscriptionActive,
 } from "@/lib/subscription-helpers";
 import type { Subscription, SubscriptionFormValues } from "@/types/subscription";
-
-function formValuesToPayload(values: SubscriptionFormValues) {
-  return {
-    name: values.name,
-    price: Number(values.price),
-    duration: values.duration,
-    description: values.description,
-  };
-}
 
 export default function Subscriptions() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -53,7 +46,7 @@ export default function Subscriptions() {
   const total = data?.total ?? subscriptions.length;
 
   const handleCreateSubmit = (values: SubscriptionFormValues) => {
-    addSubscriptionMutation.mutate(formValuesToPayload(values), {
+    addSubscriptionMutation.mutate(formValuesToCreateRequest(values), {
       onSuccess: () => {
         setIsCreateOpen(false);
       },
@@ -68,7 +61,7 @@ export default function Subscriptions() {
     editSubscriptionMutation.mutate(
       {
         id: editingSubscription.id,
-        payload: formValuesToPayload(values),
+        payload: formValuesToUpdateRequest(values),
       },
       {
         onSuccess: () => {
