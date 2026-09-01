@@ -63,20 +63,48 @@ function UsersByRolePage({ role, title, description }: UsersByRolePageProps) {
       navigate("/super-admin/login", { replace: true });
       return;
     }
-    void loadUsers();
-  }, [navigate, loadUsers]);
+
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const items = await getUsersList();
+        if (!cancelled) {
+          setUsers(
+            items.filter((user) => user.role.toLowerCase() === role)
+          );
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof ApiClientError
+              ? err.message
+              : err instanceof Error
+                ? err.message
+                : `Failed to load ${role}s.`
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, role]);
 
   const totalPages = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
   const paginated = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
+    const start = (currentPage - 1) * PAGE_SIZE;
     return users.slice(start, start + PAGE_SIZE);
-  }, [users, page]);
-
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
+  }, [users, currentPage]);
 
   const emptyLabel = role === "coach" ? "coaches" : "players";
 
@@ -131,7 +159,7 @@ function UsersByRolePage({ role, title, description }: UsersByRolePageProps) {
             </Table>
           </div>
           <Pagination
-            page={page}
+            page={currentPage}
             totalPages={totalPages}
             onPageChange={setPage}
             className="mt-4"

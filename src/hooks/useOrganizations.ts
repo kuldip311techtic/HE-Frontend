@@ -55,8 +55,38 @@ export function useOrganizations(): UseOrganizationsResult {
   }, []);
 
   useEffect(() => {
-    void refetch();
-  }, [refetch]);
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const data = await getOrganizationsList();
+        if (!cancelled) {
+          setOrganizations(data);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const message =
+            err instanceof ApiClientError
+              ? err.message
+              : err instanceof Error
+                ? err.message
+                : "Failed to load organizations.";
+          setError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const create = useCallback(
     async (data: CreateOrganizationRequest) => {

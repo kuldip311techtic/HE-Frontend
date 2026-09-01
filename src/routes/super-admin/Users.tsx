@@ -10,10 +10,12 @@ import { PageHeader } from "@/components/PageHeader";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import {
   UserForm,
-  buildCreateUserPayload,
-  buildUpdateUserPayload,
   type UserFormValues,
 } from "@/components/UserForm";
+import {
+  buildCreateUserPayload,
+  buildUpdateUserPayload,
+} from "@/components/user-form-payload";
 import { UserList } from "@/components/UserList";
 import { Button } from "@/components/ui/button";
 import {

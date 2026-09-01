@@ -4,12 +4,24 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
-const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
-const DropdownMenuGroup = DropdownMenuPrimitive.Group;
-const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
-const DropdownMenuSub = DropdownMenuPrimitive.Sub;
-const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
+const DropdownMenu = (
+  props: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Root>
+) => <DropdownMenuPrimitive.Root {...props} />;
+const DropdownMenuTrigger = (
+  props: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Trigger>
+) => <DropdownMenuPrimitive.Trigger {...props} />;
+const DropdownMenuGroup = (
+  props: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Group>
+) => <DropdownMenuPrimitive.Group {...props} />;
+const DropdownMenuPortal = (
+  props: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Portal>
+) => <DropdownMenuPrimitive.Portal {...props} />;
+const DropdownMenuSub = (
+  props: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Sub>
+) => <DropdownMenuPrimitive.Sub {...props} />;
+const DropdownMenuRadioGroup = (
+  props: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.RadioGroup>
+) => <DropdownMenuPrimitive.RadioGroup {...props} />;
 
 const DropdownMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,

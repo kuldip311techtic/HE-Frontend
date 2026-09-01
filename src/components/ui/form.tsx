@@ -156,6 +156,7 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
+      role="alert"
       className={cn("text-sm font-medium text-destructive", className)}
       {...props}
     >
@@ -166,7 +167,6 @@ const FormMessage = React.forwardRef<
 FormMessage.displayName = "FormMessage";
 
 export {
-  useFormField,
   Form,
   FormItem,
   FormLabel,

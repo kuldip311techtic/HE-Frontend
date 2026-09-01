@@ -4,9 +4,15 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Select = SelectPrimitive.Root;
-const SelectGroup = SelectPrimitive.Group;
-const SelectValue = SelectPrimitive.Value;
+const Select = (
+  props: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>
+) => <SelectPrimitive.Root {...props} />;
+const SelectGroup = (
+  props: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Group>
+) => <SelectPrimitive.Group {...props} />;
+const SelectValue = (
+  props: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Value>
+) => <SelectPrimitive.Value {...props} />;
 
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,

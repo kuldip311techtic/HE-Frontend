@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-import { ApiClientError } from "@/services/api-client";
+import { ApiClientError, setAuthToken } from "@/services/api-client";
 import { loginSuperAdmin } from "@/services/auth";
 import type { LoginRequest } from "@/types/super-admin";
 
@@ -24,7 +24,8 @@ export function useLogin(): UseLoginResult {
     setError(null);
 
     try {
-      await loginSuperAdmin(credentials);
+      const token = await loginSuperAdmin(credentials);
+      setAuthToken(token);
     } catch (err) {
       if (err instanceof ApiClientError) {
         setError(err.message);

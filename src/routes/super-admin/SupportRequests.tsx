@@ -94,20 +94,11 @@ export default function SupportRequestsPage() {
   }, [supportRequests, search, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
   const paginated = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
+    const start = (currentPage - 1) * PAGE_SIZE;
     return filtered.slice(start, start + PAGE_SIZE);
-  }, [filtered, page]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, statusFilter]);
-
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
+  }, [filtered, currentPage]);
 
   const handleRespond = async (values: ResponseFormValues) => {
     if (!respondTarget) return;
@@ -168,7 +159,10 @@ export default function SupportRequestsPage() {
               type="search"
               placeholder="Search by user or subject…"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               className="pl-9"
               aria-label="Search support requests"
             />
@@ -180,7 +174,10 @@ export default function SupportRequestsPage() {
             />
             <Select
               value={statusFilter}
-              onValueChange={(value: StatusFilter) => setStatusFilter(value)}
+              onValueChange={(value: StatusFilter) => {
+                setStatusFilter(value);
+                setPage(1);
+              }}
             >
               <SelectTrigger
                 className="w-full sm:w-[140px]"
@@ -230,7 +227,7 @@ export default function SupportRequestsPage() {
             onViewDetails={setDetailsTarget}
           />
           <Pagination
-            page={page}
+            page={currentPage}
             totalPages={totalPages}
             onPageChange={setPage}
             className="mt-4"

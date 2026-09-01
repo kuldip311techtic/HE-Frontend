@@ -82,8 +82,45 @@ export function useUsers(): UseUsersResult {
   }, [fetchUsers, page]);
 
   useEffect(() => {
-    void fetchUsers(page);
-  }, [fetchUsers, page]);
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const response = await listUsers({
+          page,
+          page_size: USERS_PAGE_SIZE,
+        });
+        if (!cancelled) {
+          setUsers(response.items);
+          setPagination(response.pagination ?? null);
+          if (response.roles?.length) {
+            setRoles(response.roles);
+          }
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const message =
+            err instanceof ApiClientError
+              ? err.message
+              : err instanceof Error
+                ? err.message
+                : "Failed to load users.";
+          setError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [page]);
 
   const create = useCallback(
     async (data: CreateUserRequest) => {

@@ -44,8 +44,38 @@ export function useSupportRequests(): UseSupportRequestsResult {
   }, []);
 
   useEffect(() => {
-    void refetch();
-  }, [refetch]);
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const data = await listSupportRequests();
+        if (!cancelled) {
+          setSupportRequests(data);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const message =
+            err instanceof ApiClientError
+              ? err.message
+              : err instanceof Error
+                ? err.message
+                : "Failed to load support requests.";
+          setError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const respond = useCallback(
     async (id: string, response: string) => {

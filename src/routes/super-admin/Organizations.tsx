@@ -71,20 +71,11 @@ export default function OrganizationsPage() {
   }, [organizations, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
   const paginated = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
+    const start = (currentPage - 1) * PAGE_SIZE;
     return filtered.slice(start, start + PAGE_SIZE);
-  }, [filtered, page]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
-
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
+  }, [filtered, currentPage]);
 
   const openCreate = () => {
     setFormMode("create");
@@ -183,7 +174,10 @@ export default function OrganizationsPage() {
             type="search"
             placeholder="Search organizations…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="pl-9"
             aria-label="Search organizations"
           />
@@ -236,7 +230,7 @@ export default function OrganizationsPage() {
             onRemove={setDeleteTarget}
           />
           <Pagination
-            page={page}
+            page={currentPage}
             totalPages={totalPages}
             onPageChange={setPage}
             className="mt-4"

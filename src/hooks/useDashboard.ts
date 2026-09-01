@@ -48,10 +48,42 @@ export function useDashboard(
   }, []);
 
   useEffect(() => {
-    if (enabled) {
-      void refetch(false);
+    if (!enabled) {
+      return;
     }
-  }, [enabled, refetch]);
+
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const response = await getDashboard();
+        if (!cancelled) {
+          setData(response);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const message =
+            err instanceof ApiClientError
+              ? err.message
+              : err instanceof Error
+                ? err.message
+                : "Failed to load dashboard.";
+          setError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled]);
 
   return { data, isLoading, error, refetch };
 }

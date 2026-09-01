@@ -53,8 +53,38 @@ export function useSubscriptions(): UseSubscriptionsResult {
   }, []);
 
   useEffect(() => {
-    void refetch();
-  }, [refetch]);
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const data = await listSubscriptions();
+        if (!cancelled) {
+          setSubscriptions(data);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const message =
+            err instanceof ApiClientError
+              ? err.message
+              : err instanceof Error
+                ? err.message
+                : "Failed to load subscription plans.";
+          setError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const create = useCallback(
     async (data: CreateSubscriptionRequest) => {

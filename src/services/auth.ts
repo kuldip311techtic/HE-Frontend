@@ -1,7 +1,6 @@
 import {
   apiRequest,
   clearAuthToken,
-  setAuthToken,
 } from "@/services/api-client";
 import type {
   LoginRequest,
@@ -29,7 +28,6 @@ export async function loginSuperAdmin(
     throw new Error("Login succeeded but no token was returned.");
   }
 
-  setAuthToken(token);
   return token;
 }
 
