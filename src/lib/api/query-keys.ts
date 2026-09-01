@@ -1,9 +1,10 @@
-export const API_ENDPOINTS = {
-  superAdminDashboard: '/api/v1/super-admin/dashboard',
-} as const;
-
 export const queryKeys = {
   superAdmin: {
-    dashboard: ['super-admin', 'dashboard'] as const,
+    login: ["super-admin", "login"] as const,
+    dashboard: ["super-admin", "dashboard"] as const,
+    users: (page: number, pageSize: number) =>
+      ["super-admin", "users", { page, pageSize }] as const,
+    organizations: (page: number, pageSize: number) =>
+      ["super-admin", "organizations", { page, pageSize }] as const,
   },
 } as const;

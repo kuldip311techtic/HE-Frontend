@@ -1,120 +1,72 @@
-import { NavLink } from 'react-router-dom';
 import {
   Building2,
+  CreditCard,
+  HeadphonesIcon,
   LayoutDashboard,
-  PanelLeftClose,
-  PanelLeftOpen,
   Users,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { Badge } from '@/components/ui/badge';
+} from "lucide-react";
+import { NavLink } from "react-router-dom";
 
-interface SidebarProps {
-  collapsed: boolean;
-  onToggle: () => void;
-}
+import { cn } from "@/lib/utils";
 
 const navItems = [
   {
-    label: 'Dashboard',
-    to: '/admin',
+    label: "Dashboard",
+    to: "/super-admin/dashboard",
     icon: LayoutDashboard,
-    end: true,
   },
   {
-    label: 'Organizations',
-    to: '/admin/organizations',
+    label: "Organizations",
+    to: "/super-admin/manage-organizations",
     icon: Building2,
-    end: false,
   },
   {
-    label: 'Users',
-    to: '/admin/users',
+    label: "Users",
+    to: "/super-admin/manage-users",
     icon: Users,
-    end: false,
+  },
+  {
+    label: "Subscriptions",
+    to: "/super-admin/subscriptions",
+    icon: CreditCard,
+  },
+  {
+    label: "Support Requests",
+    to: "/super-admin/support-requests",
+    icon: HeadphonesIcon,
   },
 ] as const;
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const { user } = useAuth();
-
+export function Sidebar() {
   return (
     <aside
-      className={cn(
-        'flex h-full flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-200',
-        collapsed ? 'w-16' : 'w-64',
-      )}
+      className="hidden w-64 shrink-0 border-r bg-card md:flex md:flex-col"
       aria-label="Admin navigation"
     >
-      <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
-        {!collapsed ? (
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold">HE Admin</span>
-            <span className="text-xs text-sidebar-foreground/70">
-              Super Admin
-            </span>
-          </div>
-        ) : (
-          <span className="mx-auto text-sm font-bold">HE</span>
-        )}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          onClick={onToggle}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {collapsed ? (
-            <PanelLeftOpen className="h-4 w-4" />
-          ) : (
-            <PanelLeftClose className="h-4 w-4" />
-          )}
-        </Button>
+      <div className="flex h-16 items-center border-b px-6">
+        <span className="text-lg font-semibold tracking-tight">
+          Hoops Engine
+        </span>
       </div>
-
-      <nav className="flex-1 space-y-1 p-3">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                  collapsed && 'justify-center px-2',
-                )
-              }
-            >
-              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {!collapsed ? <span>{item.label}</span> : null}
-              {!collapsed ? (
-                <span className="sr-only">{item.label}</span>
-              ) : (
-                <span className="sr-only">{item.label}</span>
-              )}
-            </NavLink>
-          );
-        })}
+      <nav className="flex flex-1 flex-col gap-1 p-4">
+        {navItems.map(({ label, to, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+              )
+            }
+          >
+            <Icon className="h-4 w-4" aria-hidden="true" />
+            {label}
+          </NavLink>
+        ))}
       </nav>
-
-      {!collapsed && user ? (
-        <div className="border-t border-sidebar-border p-4">
-          <p className="truncate text-sm font-medium">{user.name}</p>
-          <p className="truncate text-xs text-sidebar-foreground/70">
-            {user.email}
-          </p>
-          <Badge variant="secondary" className="mt-2 capitalize">
-            {user.role.replace('_', ' ')}
-          </Badge>
-        </div>
-      ) : null}
     </aside>
   );
 }
