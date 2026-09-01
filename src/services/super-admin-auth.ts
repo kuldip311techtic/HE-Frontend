@@ -6,7 +6,7 @@ import {
   type LoginResponse,
 } from "@/types/auth";
 
-const SUPER_ADMIN_LOGIN_PATH = "/api/super-admin/login";
+const SUPER_ADMIN_LOGIN_PATH = "/api/v1/auth/login";
 
 export async function loginSuperAdmin(
   credentials: LoginCredentials,
