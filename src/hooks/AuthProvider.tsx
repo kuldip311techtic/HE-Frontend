@@ -13,6 +13,7 @@ import {
   setStoredToken,
   setStoredUser,
 } from '@/lib/auth/storage';
+import { getAutoDemoSession } from '@/lib/dev-auth';
 import type { AuthSession } from '@/types/auth';
 import {
   AuthContext,
@@ -32,6 +33,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(storedUser);
+    } else {
+      const demoSession = getAutoDemoSession();
+      if (demoSession) {
+        setStoredToken(demoSession.token);
+        setStoredUser(demoSession.user);
+        setToken(demoSession.token);
+        setUser(demoSession.user);
+      }
     }
 
     setIsLoading(false);
