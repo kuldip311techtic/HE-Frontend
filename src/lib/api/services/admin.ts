@@ -29,6 +29,7 @@ import type {
   SubscriptionPlanRole,
   SubscriptionPlanUpdateRequest,
   SuperAdminDashboard,
+  SuperAdminProfile,
   SupportRequestCloseResponse,
   SupportRequestListResponse,
   SupportRequestRespondRequest,
@@ -96,6 +97,10 @@ export async function getSuperAdminDashboard(): Promise<SuperAdminDashboard> {
   return apiGet("/v1/super-admin/dashboard");
 }
 
+export async function getSuperAdminProfile(): Promise<SuperAdminProfile> {
+  return apiGet("/v1/super-admin/profile");
+}
+
 export async function getOrganizations(
   params?: ListQueryParams,
 ): Promise<PaginatedResponse<Organization>> {
@@ -154,21 +159,51 @@ export async function deleteSuperAdminUser(
   return apiDelete(`/v1/super-admin/users/${id}`);
 }
 
+async function withSubscriptionPathFallback<T>(
+  primary: () => Promise<T>,
+  fallback: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await primary();
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return fallback();
+    }
+    throw error;
+  }
+}
+
 export async function getSubscriptionPlans(
   role: SubscriptionPlanRole,
   params?: Omit<ListQueryParams, "role">,
 ): Promise<SubscriptionPlanListResponse> {
-  const response = await apiClient.get<SubscriptionPlanListResponse>(
-    "/super-admin/subscriptions",
-    { params: { ...buildParams(params), role } },
+  const queryParams = { ...buildParams(params), role };
+
+  return withSubscriptionPathFallback(
+    async () => {
+      const response = await apiClient.get<SubscriptionPlanListResponse>(
+        "/super-admin/subscriptions",
+        { params: queryParams },
+      );
+      return response.data;
+    },
+    async () => {
+      const response = await apiClient.get<SubscriptionPlanListResponse>(
+        "/v1/super-admin/subscription-plans",
+        { params: queryParams },
+      );
+      return response.data;
+    },
   );
-  return response.data;
 }
 
 export async function createSubscriptionPlan(
   data: SubscriptionPlanCreateRequest,
 ): Promise<SubscriptionPlanItem> {
-  return apiPost("/super-admin/subscriptions", data);
+  return withSubscriptionPathFallback(
+    () => apiPost("/super-admin/subscriptions", data),
+    () => apiPost("/v1/super-admin/subscription-plans", data),
+  );
 }
 
 export async function updateSubscriptionPlan(
@@ -176,12 +211,24 @@ export async function updateSubscriptionPlan(
   role: SubscriptionPlanRole,
   data: SubscriptionPlanUpdateRequest,
 ): Promise<SubscriptionPlanItem> {
-  const response = await apiClient.put<SubscriptionPlanItem>(
-    `/super-admin/subscriptions/${id}`,
-    data,
-    { params: { role } },
+  return withSubscriptionPathFallback(
+    async () => {
+      const response = await apiClient.put<SubscriptionPlanItem>(
+        `/super-admin/subscriptions/${id}`,
+        data,
+        { params: { role } },
+      );
+      return response.data;
+    },
+    async () => {
+      const response = await apiClient.put<SubscriptionPlanItem>(
+        `/v1/super-admin/subscription-plans/${id}`,
+        data,
+        { params: { role } },
+      );
+      return response.data;
+    },
   );
-  return response.data;
 }
 
 export async function deleteSubscriptionPlan(
@@ -191,18 +238,30 @@ export async function deleteSubscriptionPlan(
 ): Promise<SubscriptionPlanDeleteResponse> {
   const params: Record<string, string> = { role };
   if (replacementPlanId) params.replacement_plan_id = replacementPlanId;
-  const response = await apiClient.delete<SubscriptionPlanDeleteResponse>(
-    `/super-admin/subscriptions/${id}`,
-    { params },
+
+  return withSubscriptionPathFallback(
+    async () => {
+      const response = await apiClient.delete<SubscriptionPlanDeleteResponse>(
+        `/super-admin/subscriptions/${id}`,
+        { params },
+      );
+      return response.data;
+    },
+    async () => {
+      const response = await apiClient.delete<SubscriptionPlanDeleteResponse>(
+        `/v1/super-admin/subscription-plans/${id}`,
+        { params },
+      );
+      return response.data;
+    },
   );
-  return response.data;
 }
 
 export async function getSupportRequests(
   params?: ListQueryParams,
 ): Promise<SupportRequestListResponse> {
   const response = await apiClient.get<SupportRequestListResponse>(
-    "/super-admin/support-requests",
+    "/v1/support-requests",
     { params: buildParams(params) },
   );
   return response.data;
@@ -211,11 +270,11 @@ export async function getSupportRequests(
 export async function respondToSupportRequest(
   data: SupportRequestRespondRequest,
 ): Promise<SupportRequestRespondResponse> {
-  return apiPost("/super-admin/support-requests", data);
+  return apiPost("/v1/support-requests", data);
 }
 
 export async function closeSupportRequest(
   id: string,
 ): Promise<SupportRequestCloseResponse> {
-  return apiPut(`/super-admin/support-requests/${id}`);
+  return apiPut(`/v1/support-requests/${id}`);
 }

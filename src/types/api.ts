@@ -114,6 +114,18 @@ export interface OrganizationProfile {
   last_name: string;
 }
 
+export interface SuperAdminProfile {
+  id: string;
+  name: string;
+  email: string;
+  profile_image?: {
+    url: string | null;
+    original_name: string | null;
+    content_type: string | null;
+  } | null;
+  updated_at: string;
+}
+
 export interface SuperAdminDashboard {
   total_organizations: number;
   total_coaches: number;

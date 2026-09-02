@@ -7,6 +7,7 @@ import {
   updateSuperAdminUser,
 } from "@/lib/api/services/admin";
 import { getApiErrorMessage } from "@/lib/api/client";
+import { useSuperAdminQueryEnabled } from "@/hooks/useSuperAdminQueryEnabled";
 import type {
   AdminUserCreateRequest,
   AdminUserUpdateRequest,
@@ -14,9 +15,12 @@ import type {
 } from "@/types/api";
 
 export function useSuperAdminUsers(params: ListQueryParams) {
+  const enabled = useSuperAdminQueryEnabled();
+
   return useQuery({
     queryKey: ["super-admin", "users", params],
     queryFn: () => getSuperAdminUsers(params),
+    enabled,
   });
 }
 

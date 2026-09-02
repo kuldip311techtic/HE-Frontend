@@ -46,6 +46,8 @@ export function SupportRequestsPage() {
     {
       id: "name",
       header: "User name",
+      sortable: true,
+      getSortValue: (row) => row.name,
       cell: (row) => (
         <span className="font-outfit text-[14px] font-medium leading-[17.64px] text-white">
           {row.name}
@@ -55,6 +57,8 @@ export function SupportRequestsPage() {
     {
       id: "email",
       header: "Email",
+      sortable: true,
+      getSortValue: (row) => row.email,
       cell: (row) => (
         <span className="font-outfit text-[14px] font-normal leading-[17.64px] text-white">
           {row.email}
@@ -64,6 +68,8 @@ export function SupportRequestsPage() {
     {
       id: "subject",
       header: "Subject",
+      sortable: true,
+      getSortValue: (row) => row.subject,
       cell: (row) => (
         <span className="block max-w-[240px] truncate font-outfit text-[14px] font-normal leading-[17.64px] text-white sm:max-w-none">
           {row.subject}
@@ -73,6 +79,8 @@ export function SupportRequestsPage() {
     {
       id: "created_at",
       header: "Created",
+      sortable: true,
+      getSortValue: (row) => row.created_at,
       cell: (row) => (
         <span className="font-outfit text-[14px] font-normal leading-[17.64px] text-figma-muted">
           {formatDate(row.created_at)}

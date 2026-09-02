@@ -3,7 +3,9 @@ import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
   OrganizationFormDialog,
-  type OrganizationFormValues,
+  toOrganizationUpdatePayload,
+  type OrganizationCreateFormValues,
+  type OrganizationEditFormValues,
 } from "@/components/admin/OrganizationFormDialog";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
@@ -55,6 +57,8 @@ export function OrganizationsPage() {
     {
       id: "name",
       header: "Organization name",
+      sortable: true,
+      getSortValue: (row) => row.name,
       cell: (row) => (
         <span className="font-outfit text-[14px] font-medium leading-[17.64px] text-white">
           {row.name}
@@ -64,6 +68,8 @@ export function OrganizationsPage() {
     {
       id: "contact_email",
       header: "Contact email",
+      sortable: true,
+      getSortValue: (row) => row.contact_email,
       cell: (row) => (
         <span className="font-outfit text-[14px] font-normal leading-[17.64px] text-white">
           {row.contact_email}
@@ -73,6 +79,8 @@ export function OrganizationsPage() {
     {
       id: "phone_number",
       header: "Phone number",
+      sortable: true,
+      getSortValue: (row) => row.phone_number ?? "",
       cell: (row) => (
         <span className="font-outfit text-[14px] font-normal leading-[17.64px] text-figma-muted">
           {row.phone_number || "—"}
@@ -127,24 +135,29 @@ export function OrganizationsPage() {
     setDialogOpen(true);
   };
 
-  const handleSubmit = (values: OrganizationFormValues) => {
-    if (editingOrg) {
-      updateMutation.mutate(
-        { id: editingOrg.id, data: values },
-        {
-          onSuccess: () => {
-            setDialogOpen(false);
-            setEditingOrg(null);
-          },
-        },
-      );
-    } else {
-      createMutation.mutate(values, {
+  const handleCreateSubmit = (values: OrganizationCreateFormValues) => {
+    createMutation.mutate(values, {
+      onSuccess: () => {
+        setDialogOpen(false);
+      },
+    });
+  };
+
+  const handleEditSubmit = (values: OrganizationEditFormValues) => {
+    if (!editingOrg) return;
+
+    updateMutation.mutate(
+      {
+        id: editingOrg.id,
+        data: toOrganizationUpdatePayload(values, editingOrg),
+      },
+      {
         onSuccess: () => {
           setDialogOpen(false);
+          setEditingOrg(null);
         },
-      });
-    }
+      },
+    );
   };
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
@@ -192,16 +205,6 @@ export function OrganizationsPage() {
             Add organization
           </Button>
         }
-        primaryAction={
-          <Button
-            size="sm"
-            onClick={handleCreate}
-            className={adminPrimaryActionClass}
-          >
-            <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Add organization
-          </Button>
-        }
         pagination={{
           page,
           pageSize,
@@ -222,7 +225,8 @@ export function OrganizationsPage() {
         }}
         organization={editingOrg}
         isLoading={isSaving}
-        onSubmit={handleSubmit}
+        onCreateSubmit={handleCreateSubmit}
+        onEditSubmit={handleEditSubmit}
       />
 
       <ConfirmDialog

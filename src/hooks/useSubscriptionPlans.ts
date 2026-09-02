@@ -7,6 +7,7 @@ import {
   updateSubscriptionPlan,
 } from "@/lib/api/services/admin";
 import { getApiErrorMessage } from "@/lib/api/client";
+import { useSuperAdminQueryEnabled } from "@/hooks/useSuperAdminQueryEnabled";
 import type {
   ListQueryParams,
   SubscriptionPlanCreateRequest,
@@ -18,9 +19,12 @@ export function useSubscriptionPlans(
   role: SubscriptionPlanRole,
   params: Omit<ListQueryParams, "role">,
 ) {
+  const enabled = useSuperAdminQueryEnabled();
+
   return useQuery({
     queryKey: ["super-admin", "subscription-plans", role, params],
     queryFn: () => getSubscriptionPlans(role, params),
+    enabled,
   });
 }
 
@@ -35,9 +39,15 @@ export function useSubscriptionPlanMutations(role: SubscriptionPlanRole) {
   const createMutation = useMutation({
     mutationFn: (data: SubscriptionPlanCreateRequest) =>
       createSubscriptionPlan(data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       invalidate();
-      toast.success("Subscription plan created successfully.");
+      toast.success(
+        "message" in response &&
+          typeof response.message === "string" &&
+          response.message.trim()
+          ? response.message
+          : "Subscription plan created successfully.",
+      );
     },
     onError: (err) => toast.error(getApiErrorMessage(err)),
   });
@@ -50,9 +60,15 @@ export function useSubscriptionPlanMutations(role: SubscriptionPlanRole) {
       id: string;
       data: SubscriptionPlanUpdateRequest;
     }) => updateSubscriptionPlan(id, role, data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       invalidate();
-      toast.success("Changes saved successfully.");
+      toast.success(
+        "message" in response &&
+          typeof response.message === "string" &&
+          response.message.trim()
+          ? response.message
+          : "Changes saved successfully.",
+      );
     },
     onError: (err) => toast.error(getApiErrorMessage(err)),
   });

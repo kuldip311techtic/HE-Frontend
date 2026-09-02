@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { Search } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -21,11 +21,20 @@ import { EmptyState, ErrorMessage } from "@/components/ui/feedback";
 import { TablePagination, type PaginationState } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 
+export type SortDirection = "asc" | "desc";
+
+export interface DataTableSortState {
+  columnId: string;
+  direction: SortDirection;
+}
+
 export interface DataTableColumn<T> {
   id: string;
   header: string;
   cell: (row: T) => ReactNode;
   className?: string;
+  sortable?: boolean;
+  getSortValue?: (row: T) => string | number | null | undefined;
 }
 
 interface DataTableProps<T> {
@@ -51,7 +60,30 @@ interface DataTableProps<T> {
   onSearchChange?: (value: string) => void;
   toolbarFilters?: ReactNode;
   searchInputClassName?: string;
+  sort?: DataTableSortState | null;
+  onSortChange?: (sort: DataTableSortState | null) => void;
   className?: string;
+}
+
+function compareSortValues(
+  a: string | number | null | undefined,
+  b: string | number | null | undefined,
+  direction: SortDirection,
+): number {
+  const factor = direction === "asc" ? 1 : -1;
+
+  if (a == null && b == null) return 0;
+  if (a == null) return 1 * factor;
+  if (b == null) return -1 * factor;
+
+  if (typeof a === "number" && typeof b === "number") {
+    return (a - b) * factor;
+  }
+
+  return String(a).localeCompare(String(b), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  }) * factor;
 }
 
 export function DataTable<T>({
@@ -77,17 +109,40 @@ export function DataTable<T>({
   onSearchChange,
   toolbarFilters,
   searchInputClassName,
+  sort: controlledSort,
+  onSortChange,
   className,
 }: DataTableProps<T>) {
   const [internalSearch, setInternalSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [internalSort, setInternalSort] = useState<DataTableSortState | null>(
+    null,
+  );
   const search = searchValue ?? internalSearch;
+  const sort = controlledSort !== undefined ? controlledSort : internalSort;
 
   const handleSearchChange = (value: string) => {
     if (onSearchChange) {
       onSearchChange(value);
     } else {
       setInternalSearch(value);
+    }
+  };
+
+  const handleSortToggle = (column: DataTableColumn<T>) => {
+    if (!column.sortable || !column.getSortValue) return;
+
+    const nextSort: DataTableSortState | null =
+      sort?.columnId === column.id
+        ? sort.direction === "asc"
+          ? { columnId: column.id, direction: "desc" }
+          : null
+        : { columnId: column.id, direction: "asc" };
+
+    if (onSortChange) {
+      onSortChange(nextSort);
+    } else {
+      setInternalSort(nextSort);
     }
   };
 
@@ -113,17 +168,32 @@ export function DataTable<T>({
     return rows;
   }, [data, filter, filterFn, search, searchKeys, serverPagination]);
 
+  const sortedRows = useMemo(() => {
+    if (!sort) return filteredRows;
+
+    const column = columns.find((item) => item.id === sort.columnId);
+    if (!column?.sortable || !column.getSortValue) return filteredRows;
+
+    return [...filteredRows].sort((rowA, rowB) =>
+      compareSortValues(
+        column.getSortValue!(rowA),
+        column.getSortValue!(rowB),
+        sort.direction,
+      ),
+    );
+  }, [columns, filteredRows, sort]);
+
   const paginatedRows = useMemo(() => {
-    if (!pagination || serverPagination) return filteredRows;
+    if (!pagination || serverPagination) return sortedRows;
 
     const start = (pagination.page - 1) * pagination.pageSize;
-    return filteredRows.slice(start, start + pagination.pageSize);
-  }, [filteredRows, pagination, serverPagination]);
+    return sortedRows.slice(start, start + pagination.pageSize);
+  }, [sortedRows, pagination, serverPagination]);
 
   const effectivePagination: PaginationState | undefined = pagination
     ? {
         ...pagination,
-        total: serverPagination ? pagination.total : filteredRows.length,
+        total: serverPagination ? pagination.total : sortedRows.length,
       }
     : undefined;
 
@@ -171,17 +241,51 @@ export function DataTable<T>({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              {columns.map((column) => (
-                <TableHead
-                  key={column.id}
-                  className={cn(
-                    "h-10 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground",
-                    column.className,
-                  )}
-                >
-                  {column.header}
-                </TableHead>
-              ))}
+              {columns.map((column) => {
+                const isSorted = sort?.columnId === column.id;
+                const SortIcon = isSorted
+                  ? sort.direction === "asc"
+                    ? ArrowUp
+                    : ArrowDown
+                  : ArrowUpDown;
+
+                return (
+                  <TableHead
+                    key={column.id}
+                    className={cn(
+                      "h-10 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground",
+                      column.className,
+                    )}
+                  >
+                    {column.sortable && column.getSortValue ? (
+                      <button
+                        type="button"
+                        onClick={() => handleSortToggle(column)}
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-sm",
+                          "hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        )}
+                        aria-label={`Sort by ${column.header}${
+                          isSorted
+                            ? `, ${sort.direction === "asc" ? "ascending" : "descending"}`
+                            : ""
+                        }`}
+                      >
+                        <span>{column.header}</span>
+                        <SortIcon
+                          className={cn(
+                            "h-3.5 w-3.5 shrink-0",
+                            isSorted ? "text-foreground" : "opacity-50",
+                          )}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    ) : (
+                      column.header
+                    )}
+                  </TableHead>
+                );
+              })}
             </TableRow>
           </TableHeader>
           <TableBody>

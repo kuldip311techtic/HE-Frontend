@@ -82,6 +82,8 @@ export function SubscriptionsPage() {
     {
       id: "name",
       header: "Name",
+      sortable: true,
+      getSortValue: (row) => row.name,
       cell: (row) => (
         <div className="min-w-0">
           <span className="block truncate font-outfit text-[14px] font-medium leading-[17.64px] text-white">
@@ -98,6 +100,8 @@ export function SubscriptionsPage() {
     {
       id: "price",
       header: "Price",
+      sortable: true,
+      getSortValue: (row) => Number(row.price_amount),
       cell: (row) => (
         <span className="font-outfit text-[14px] font-normal leading-[17.64px] text-white">
           {row.currency} {row.price_amount}
@@ -107,6 +111,8 @@ export function SubscriptionsPage() {
     {
       id: "billing_frequency",
       header: "Duration",
+      sortable: true,
+      getSortValue: (row) => row.billing_frequency,
       cell: (row) => (
         <span className="font-outfit text-[14px] font-normal capitalize leading-[17.64px] text-white">
           {row.billing_frequency}
@@ -116,6 +122,8 @@ export function SubscriptionsPage() {
     {
       id: "status",
       header: "Status",
+      sortable: true,
+      getSortValue: (row) => row.status,
       cell: (row) => {
         const isActive = row.status === "active" || row.is_active;
         return (

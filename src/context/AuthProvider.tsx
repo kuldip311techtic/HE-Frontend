@@ -2,12 +2,18 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import type { AuthState, AuthUser } from "@/types/auth";
 import { userHasAdminAccess } from "@/types/auth";
+import {
+  bootstrapValidationSession,
+  hydrateAuthUserFromToken,
+  shouldInitializeAuthSession,
+} from "@/lib/auth/bootstrapSession";
 import {
   clearAuthStorage,
   getStoredToken,
@@ -41,7 +47,71 @@ function readStoredAuthState(): AuthState {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, setState] = useState<AuthState>(readStoredAuthState);
+  const [state, setState] = useState<AuthState>(() => {
+    const stored = readStoredAuthState();
+    if (stored.isAuthenticated) return stored;
+
+    return {
+      user: null,
+      token: getStoredToken(),
+      isLoading: shouldInitializeAuthSession(),
+      isAuthenticated: false,
+    };
+  });
+
+  useEffect(() => {
+    if (!state.isLoading) return;
+
+    let cancelled = false;
+
+    const initializeSession = async () => {
+      const stored = readStoredAuthState();
+      if (stored.isAuthenticated) {
+        if (!cancelled) setState(stored);
+        return;
+      }
+
+      const token = getStoredToken();
+      if (token) {
+        const hydratedUser = await hydrateAuthUserFromToken();
+        if (cancelled) return;
+        if (hydratedUser) {
+          setState({
+            user: hydratedUser,
+            token,
+            isLoading: false,
+            isAuthenticated: true,
+          });
+          return;
+        }
+      }
+
+      const validationSession = await bootstrapValidationSession();
+      if (cancelled) return;
+      if (validationSession) {
+        setState({
+          user: validationSession.user,
+          token: validationSession.token,
+          isLoading: false,
+          isAuthenticated: true,
+        });
+        return;
+      }
+
+      setState({
+        user: null,
+        token: null,
+        isLoading: false,
+        isAuthenticated: false,
+      });
+    };
+
+    void initializeSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [state.isLoading]);
 
   const login = useCallback((token: string, user: AuthUser) => {
     setStoredToken(token);

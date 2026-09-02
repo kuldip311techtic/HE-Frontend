@@ -29,7 +29,7 @@ export const adminFormLabelClass = cn(
 );
 
 export const adminFormMessageClass = cn(
-  "font-outfit text-[14px] font-medium leading-[17.64px] text-[#ff6b6b]",
+  "font-outfit text-[14px] font-medium leading-[17.64px] text-destructive",
 );
 
 export const adminToolbarSelectClass = cn(
@@ -60,7 +60,7 @@ export const adminMetricCardClass = cn(
 export const adminOutlineButtonClass = cn(
   "h-9 rounded-[10px] border border-figma-border bg-transparent px-[16px] shadow-none",
   "font-outfit text-[14px] font-medium leading-[17.64px] text-white",
-  "hover:border-figma-brand/50 hover:bg-[#1bc94f1a] hover:text-white",
+  "hover:border-figma-brand/50 hover:bg-[var(--figma-brand-subtle)] hover:text-white",
   "focus-visible:ring-2 focus-visible:ring-figma-brand focus-visible:ring-offset-2 focus-visible:ring-offset-figma-background",
   "active:bg-figma-accent/30 disabled:opacity-50",
   "[&_svg]:text-figma-bright",
@@ -70,7 +70,7 @@ export const adminModuleNavLinkClass = cn(
   "flex h-auto min-h-[44px] w-full flex-col items-start gap-[4px] rounded-[10px]",
   "border border-figma-border bg-figma-surface px-[16px] py-[12px] text-left shadow-none",
   "font-outfit transition-colors",
-  "hover:border-figma-brand/50 hover:bg-[#1bc94f1a]",
+  "hover:border-figma-brand/50 hover:bg-[var(--figma-brand-subtle)]",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand focus-visible:ring-offset-2 focus-visible:ring-offset-figma-background",
   "active:bg-figma-accent/30",
 );

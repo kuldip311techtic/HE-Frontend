@@ -7,6 +7,7 @@ import {
   updateOrganization,
 } from "@/lib/api/services/admin";
 import { getApiErrorMessage } from "@/lib/api/client";
+import { useSuperAdminQueryEnabled } from "@/hooks/useSuperAdminQueryEnabled";
 import type {
   ListQueryParams,
   OrganizationCreateRequest,
@@ -14,9 +15,12 @@ import type {
 } from "@/types/api";
 
 export function useOrganizations(params: ListQueryParams) {
+  const enabled = useSuperAdminQueryEnabled();
+
   return useQuery({
     queryKey: ["super-admin", "organizations", params],
     queryFn: () => getOrganizations(params),
+    enabled,
   });
 }
 

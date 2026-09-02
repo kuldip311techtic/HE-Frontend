@@ -75,6 +75,8 @@ export function UsersPage() {
     {
       id: "name",
       header: "Name",
+      sortable: true,
+      getSortValue: (row) => row.name,
       cell: (row) => (
         <span className="font-outfit text-[14px] font-medium leading-[17.64px] text-white">
           {row.name}
@@ -84,6 +86,8 @@ export function UsersPage() {
     {
       id: "email",
       header: "Email",
+      sortable: true,
+      getSortValue: (row) => row.email,
       cell: (row) => (
         <span className="font-outfit text-[14px] font-normal leading-[17.64px] text-white">
           {row.email}
@@ -93,6 +97,8 @@ export function UsersPage() {
     {
       id: "role",
       header: "Role",
+      sortable: true,
+      getSortValue: (row) => row.role,
       cell: (row) => (
         <Badge
           variant="secondary"

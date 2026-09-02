@@ -181,7 +181,7 @@ export function AdminLoginPage() {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="font-outfit text-[14px] font-medium leading-[17.64px] text-[#ff6b6b]" />
+                    <FormMessage className="font-outfit text-[14px] font-medium leading-[17.64px] text-destructive" />
                   </FormItem>
                 )}
               />
@@ -202,7 +202,7 @@ export function AdminLoginPage() {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="font-outfit text-[14px] font-medium leading-[17.64px] text-[#ff6b6b]" />
+                    <FormMessage className="font-outfit text-[14px] font-medium leading-[17.64px] text-destructive" />
                   </FormItem>
                 )}
               />

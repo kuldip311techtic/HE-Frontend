@@ -1,5 +1,6 @@
 import axios, { type AxiosError, type AxiosInstance } from "axios";
 import type { ApiErrorBody, ApiErrorDetail } from "@/types/api";
+import { isAuthBootstrapInProgress } from "@/lib/auth/bootstrapSession";
 import { clearAuthStorage, getStoredToken } from "@/lib/auth/storage";
 import { resolveApiBaseUrl } from "@/lib/api/resolve-base-url";
 
@@ -89,10 +90,14 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !isAuthBootstrapInProgress()) {
+      const pathname = window.location.pathname;
+      const isLoginRoute =
+        pathname === "/admin/login" || pathname === "/admin/unauthorized";
+
       clearAuthStorage();
-      if (window.location.pathname.startsWith("/admin")) {
-        window.location.href = "/admin/unauthorized";
+      if (pathname.startsWith("/admin") && !isLoginRoute) {
+        window.location.href = "/admin/login";
       }
     }
     return Promise.reject(error);
