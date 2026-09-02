@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorMessage } from "@/components/ui/feedback";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminDashboard } from "@/hooks/useAdminDashboard";
+import { useHasLiveApiAccess } from "@/hooks/useHasLiveApiAccess";
 import { useSessionDetail } from "@/hooks/useSessionDetail";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { extractSessionId } from "@/lib/api/session-utils";
@@ -42,8 +43,10 @@ function MetricCard({
 
 export function AdminDashboardPage() {
   const { user } = useAuth();
+  const hasLiveApiAccess = useHasLiveApiAccess();
   const isSuperAdmin =
     user?.role === "super_admin" || user?.roles.includes("super_admin");
+  const shouldFetchDashboard = isSuperAdmin && hasLiveApiAccess;
 
   const {
     data: dashboard,
@@ -51,9 +54,9 @@ export function AdminDashboardPage() {
     isError,
     error,
     refetch,
-  } = useAdminDashboard(isSuperAdmin);
+  } = useAdminDashboard(shouldFetchDashboard);
 
-  const sessionId = isSuperAdmin
+  const sessionId = shouldFetchDashboard
     ? (extractSessionId(dashboard?.link) ?? "1")
     : null;
 
@@ -69,7 +72,7 @@ export function AdminDashboardPage() {
     <div className="w-full space-y-[16px] font-outfit">
       <PageHeader title={pageTitle} description={pageDescription} />
 
-      {isSuperAdmin && isError && (
+      {shouldFetchDashboard && isError && (
         <ErrorMessage
           message={getApiErrorMessage(
             error,

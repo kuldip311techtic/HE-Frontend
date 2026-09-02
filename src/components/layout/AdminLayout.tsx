@@ -2,7 +2,6 @@ import { useState, type ReactNode } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
-import { usePlayerRoleSelection } from "@/hooks/usePlayerRoleSelection";
 
 const pageTitles: Record<string, string> = {
   "/admin": "Dashboard",
@@ -20,8 +19,6 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-
-  usePlayerRoleSelection();
 
   const title =
     pageTitles[location.pathname] ??

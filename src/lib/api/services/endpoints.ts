@@ -127,13 +127,15 @@ export const playerApi = {
       phone: string;
     }>("/v1/player/my-progress"),
   roleSelection: {
-    get: () =>
+    get: (sessionToken: string) =>
       apiGet<{
         success: boolean;
         selected_role: string;
         role: string;
         session_token: string;
-      }>("/v1/player/role-selection"),
+      }>(
+        `/v1/player/role-selection?session_token=${encodeURIComponent(sessionToken)}`,
+      ),
     post: (data: { selected_role: string; phone: string }) =>
       apiPost("/v1/player/role-selection", data),
   },

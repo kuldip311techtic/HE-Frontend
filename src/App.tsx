@@ -4,7 +4,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { AuthProvider } from "@/context/AuthProvider";
 import { AdminRoutes } from "@/routes/admin";
-import { AdminContractPrefetch } from "@/components/AdminContractPrefetch";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,7 +20,6 @@ export default function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <AdminContractPrefetch />
           <BrowserRouter>
             <Routes>
               <Route path="/admin/*" element={<AdminRoutes />} />

@@ -22,16 +22,10 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import type { AuthUser, UserRole } from "@/types/auth";
 import { userHasAdminAccess } from "@/types/auth";
+import { DEMO_AUTH_TOKEN } from "@/lib/auth/storage";
 import { cn } from "@/lib/utils";
 
 const loginSchema = z.object({
@@ -62,20 +56,17 @@ const loginButtonClassName = cn(
   "disabled:opacity-50",
 );
 
-/** Page-only select trigger to match dark inputs */
+/** Page-only select styling to match dark inputs */
 const loginSelectTriggerClassName = cn(
-  "h-[44px] rounded-[10px] border-figma-border bg-figma-surface-deep px-[14px]",
+  "h-[44px] w-full rounded-[10px] border border-figma-border bg-figma-surface-deep px-[14px]",
   "text-body-21 text-white",
-  "focus:ring-2 focus:ring-figma-brand-glow focus:ring-offset-0",
-  "[&>span]:text-body-21 [&>svg]:text-figma-muted",
+  "focus:ring-2 focus:ring-figma-brand-glow focus:ring-offset-0 focus:outline-none",
 );
 
-const loginSelectContentClassName = cn(
-  "border-figma-border bg-figma-surface-deep text-white",
-);
-
-const loginSelectItemClassName = cn(
-  "text-body-21 focus:bg-figma-brand-glow focus:text-white",
+/** Page-only native select to match dark inputs and satisfy form-label checks */
+const loginNativeSelectClassName = cn(
+  loginSelectTriggerClassName,
+  "cursor-pointer appearance-none pr-[36px]",
 );
 
 const ROLE_OPTIONS = [
@@ -93,36 +84,32 @@ interface RoleSelectFieldProps {
 
 function RoleSelectField({ value, onChange }: RoleSelectFieldProps) {
   const { formItemId } = useFormField();
-  const labelId = `${formItemId}-label`;
 
   return (
     <>
-      <FormLabel id={labelId} className="text-body-5 text-figma-muted">
+      <label htmlFor={formItemId} className="text-body-5 text-figma-muted">
         Role (demo)
-      </FormLabel>
-      <Select onValueChange={onChange} value={value}>
-        <FormControl>
-          <SelectTrigger
-            className={loginSelectTriggerClassName}
-            id={formItemId}
-            aria-label="Role (demo)"
-            aria-labelledby={labelId}
-          >
-            <SelectValue placeholder="Select a role" />
-          </SelectTrigger>
-        </FormControl>
-        <SelectContent className={loginSelectContentClassName}>
+      </label>
+      <FormControl>
+        <select
+          id={formItemId}
+          value={value}
+          onChange={(event) =>
+            onChange(event.target.value as LoginFormValues["role"])
+          }
+          className={loginNativeSelectClassName}
+        >
           {ROLE_OPTIONS.map((option) => (
-            <SelectItem
+            <option
               key={option.value}
               value={option.value}
-              className={loginSelectItemClassName}
+              className="bg-figma-surface-deep text-white"
             >
               {option.label}
-            </SelectItem>
+            </option>
           ))}
-        </SelectContent>
-      </Select>
+        </select>
+      </FormControl>
     </>
   );
 }
@@ -170,7 +157,7 @@ export function AdminLoginPage() {
         return;
       }
 
-      login("demo-admin-token", demoUser);
+      login(DEMO_AUTH_TOKEN, demoUser);
       toast.success("Signed in successfully.");
       navigate(from, { replace: true });
     } catch {

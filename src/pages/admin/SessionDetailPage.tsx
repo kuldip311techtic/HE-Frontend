@@ -4,12 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorMessage } from "@/components/ui/feedback";
 import { useSessionDetail } from "@/hooks/useSessionDetail";
+import { useHasLiveApiAccess } from "@/hooks/useHasLiveApiAccess";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 
 export function SessionDetailPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { data, isLoading, isError, error, refetch } = useSessionDetail(sessionId);
+  const hasLiveApiAccess = useHasLiveApiAccess();
+  const { data, isLoading, isError, error, refetch } = useSessionDetail(
+    hasLiveApiAccess ? sessionId : null,
+  );
 
   return (
     <div className="w-full space-y-[16px] font-outfit">

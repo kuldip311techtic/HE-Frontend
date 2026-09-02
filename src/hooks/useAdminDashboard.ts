@@ -6,5 +6,6 @@ export function useAdminDashboard(enabled = true) {
     queryKey: ["super-admin", "dashboard"],
     queryFn: getSuperAdminDashboard,
     enabled,
+    retry: false,
   });
 }
