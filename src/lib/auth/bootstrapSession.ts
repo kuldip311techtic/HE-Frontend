@@ -3,6 +3,8 @@ import { mapUserPublicToAuthUser } from "@/lib/auth/mapUserPublic";
 import { mapSuperAdminProfileToAuthUser } from "@/lib/auth/mapSuperAdminProfile";
 import {
   clearAuthStorage,
+  clearStoredToken,
+  clearStoredUser,
   getStoredToken,
   getStoredUser,
   setStoredToken,
@@ -57,7 +59,12 @@ export async function hydrateAuthUserFromToken(): Promise<AuthUser | null> {
       setStoredUser(authUser);
       return authUser;
     } catch {
-      clearAuthStorage();
+      if (!getValidationCredentials()) {
+        clearAuthStorage();
+      } else {
+        clearStoredToken();
+        clearStoredUser();
+      }
       return null;
     }
   });
