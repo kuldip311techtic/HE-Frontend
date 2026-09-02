@@ -85,7 +85,10 @@ apiClient.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response?.status === 401) {
       clearAuthStorage();
-      if (window.location.pathname.startsWith("/admin")) {
+      const path = window.location.pathname;
+      const isPublicAdminRoute =
+        path === "/admin/login" || path === "/admin/unauthorized";
+      if (path.startsWith("/admin") && !isPublicAdminRoute) {
         window.location.href = "/admin/unauthorized";
       }
     }

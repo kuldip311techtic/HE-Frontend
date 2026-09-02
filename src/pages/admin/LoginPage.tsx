@@ -104,6 +104,8 @@ function RoleSelectField({ value, onChange }: RoleSelectFieldProps) {
         <FormControl>
           <SelectTrigger
             className={loginSelectTriggerClassName}
+            id={formItemId}
+            aria-label="Role (demo)"
             aria-labelledby={labelId}
           >
             <SelectValue placeholder="Select a role" />
