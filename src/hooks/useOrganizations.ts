@@ -21,6 +21,7 @@ export function useOrganizations(params: ListQueryParams) {
     queryKey: ["super-admin", "organizations", params],
     queryFn: () => getOrganizations(params),
     enabled,
+    retry: false,
   });
 }
 

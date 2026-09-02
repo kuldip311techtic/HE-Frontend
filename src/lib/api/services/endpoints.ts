@@ -126,15 +126,15 @@ export const playerApi = {
       phone: string;
     }>("/player/my-progress"),
   roleSelection: {
-    get: () =>
+    get: (sessionToken: string) =>
       apiGet<{
         success: boolean;
         selected_role: string;
         role: string;
         session_token: string;
-      }>("/api/v1/player/role-selection"),
-    post: (data: { selected_role: string; phone: string }) =>
-      apiPost("/api/v1/player/role-selection", data),
+      }>(`/v1/player/role-selection?session_token=${encodeURIComponent(sessionToken)}`),
+    post: (data: { selected_role: string; phone?: string }) =>
+      apiPost("/v1/player/role-selection", data),
   },
   submitDrill: (data: unknown) => apiPost("/player/drill-submissions", data),
   resetDrills: (data?: unknown) => apiPost("/player/drills/reset", data),

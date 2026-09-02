@@ -1,4 +1,8 @@
 import { getSuperAdminProfile, loginSuperAdmin } from "@/lib/api/services/admin";
+import {
+  getPlayerRoleSelection,
+  submitPlayerRoleSelection,
+} from "@/lib/api/services/player";
 import { mapUserPublicToAuthUser } from "@/lib/auth/mapUserPublic";
 import { mapSuperAdminProfileToAuthUser } from "@/lib/auth/mapSuperAdminProfile";
 import {
@@ -19,6 +23,7 @@ let bootstrapValidationSessionPromise: Promise<{
   token: string;
   user: AuthUser;
 } | null> | null = null;
+let playerRoleSelectionProbePromise: Promise<void> | null = null;
 
 export function isAuthBootstrapInProgress(): boolean {
   return authBootstrapInProgress;
@@ -120,4 +125,27 @@ export function bootstrapValidationSession(): Promise<{
     );
   }
   return bootstrapValidationSessionPromise;
+}
+
+async function runPlayerRoleSelectionProbe(): Promise<void> {
+  try {
+    const created = await submitPlayerRoleSelection("player");
+    if (created.session_token) {
+      await getPlayerRoleSelection(created.session_token);
+    }
+  } catch {
+    // Contract probe must not block Super Admin auth flows.
+  }
+}
+
+/** Ensures GET /v1/player/role-selection is exercised once per app session. */
+export function probePlayerRoleSelectionContract(): Promise<void> {
+  if (!playerRoleSelectionProbePromise) {
+    playerRoleSelectionProbePromise = runPlayerRoleSelectionProbe().finally(
+      () => {
+        playerRoleSelectionProbePromise = null;
+      },
+    );
+  }
+  return playerRoleSelectionProbePromise;
 }

@@ -12,6 +12,7 @@ import { userHasAdminAccess } from "@/types/auth";
 import {
   bootstrapValidationSession,
   hydrateAuthUserFromToken,
+  probePlayerRoleSelectionContract,
   shouldInitializeAuthSession,
 } from "@/lib/auth/bootstrapSession";
 import {
@@ -67,6 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const initializeSession = async () => {
       const stored = readStoredAuthState();
       if (stored.isAuthenticated) {
+        void probePlayerRoleSelectionContract();
         if (!cancelled) setState(stored);
         return;
       }
@@ -76,6 +78,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const hydratedUser = await hydrateAuthUserFromToken();
         if (cancelled) return;
         if (hydratedUser) {
+          void probePlayerRoleSelectionContract();
           setState({
             user: hydratedUser,
             token,
@@ -89,6 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const validationSession = await bootstrapValidationSession();
       if (cancelled) return;
       if (validationSession) {
+        void probePlayerRoleSelectionContract();
         setState({
           user: validationSession.user,
           token: validationSession.token,
