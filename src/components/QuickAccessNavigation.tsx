@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { NavigationLink } from "@/components/NavigationLink";
@@ -34,6 +36,57 @@ function getErrorMessage(error: unknown): string {
   }
 
   return "Failed to load quick access links.";
+}
+
+function logQuickAccessError(error: unknown): void {
+  if (error instanceof ApiClientError) {
+    console.error("Failed to load quick access links:", {
+      message: error.message,
+      status: error.status,
+      description: error.description,
+    });
+    return;
+  }
+
+  if (error instanceof Error) {
+    console.error("Failed to load quick access links:", error.message);
+    return;
+  }
+
+  console.error("Failed to load quick access links:", error);
+}
+
+interface QuickAccessErrorPanelProps {
+  error: unknown;
+  onRetry: () => void;
+  isRetrying: boolean;
+}
+
+function QuickAccessErrorPanel({
+  error,
+  onRetry,
+  isRetrying,
+}: QuickAccessErrorPanelProps) {
+  useEffect(() => {
+    logQuickAccessError(error);
+  }, [error]);
+
+  return (
+    <Card>
+      <CardContent className="space-y-4 pt-6">
+        <ErrorMessage message={getErrorMessage(error)} />
+        <Button
+          variant="outline"
+          onClick={onRetry}
+          disabled={isRetrying}
+          className="min-h-11"
+          aria-label="Retry loading quick access links"
+        >
+          Retry
+        </Button>
+      </CardContent>
+    </Card>
+  );
 }
 
 export function QuickAccessNavigation() {
@@ -73,20 +126,11 @@ export function QuickAccessNavigation() {
             Jump to core Super Admin modules.
           </p>
         </div>
-        <Card>
-          <CardContent className="space-y-4 pt-6">
-            <ErrorMessage message={getErrorMessage(error)} />
-            <Button
-              variant="outline"
-              onClick={() => refetch()}
-              disabled={isRetrying}
-              className="min-h-11"
-              aria-label="Retry loading quick access links"
-            >
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
+        <QuickAccessErrorPanel
+          error={error}
+          onRetry={() => refetch()}
+          isRetrying={isRetrying}
+        />
       </section>
     );
   }

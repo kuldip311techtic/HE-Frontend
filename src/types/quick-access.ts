@@ -1,3 +1,10 @@
+/**
+ * API contract: GET /api/super-admin/quick-access
+ * - Auth: Bearer token (super-admin session)
+ * - Success (200): `QuickAccessLinkApiItem[]` or `QuickAccessResponse` envelope
+ *   (`data`, `items`, `links`, or `results`)
+ * - Normalized client-side to `QuickAccessLink[]` by `fetchQuickAccessLinks`
+ */
 export const QUICK_ACCESS_API_PATH = "/api/super-admin/quick-access" as const;
 
 export type QuickAccessLinkStatus =
