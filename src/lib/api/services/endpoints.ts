@@ -18,10 +18,11 @@ export const coachApi = {
       "/v1/coach/cancel-verification",
       data,
     ),
-  continueVerification: (otp_code: string) =>
-    apiPost<{ success: boolean; message: string }>(
-      "/v1/coach/continue-verification",
-      { otp_code },
+  continueVerification: (phone?: string) =>
+    apiGet<{ success: boolean; message: string }>(
+      phone
+        ? `/v1/coach/continue-verification?phone=${encodeURIComponent(phone)}`
+        : "/v1/coach/continue-verification",
     ),
   createPracticePlan: (data: unknown) =>
     apiPost("/v1/coach/practice-plans", data),
@@ -51,12 +52,12 @@ export const sessionApi = {
 export const drillApi = {
   list: () =>
     apiGet<{ success: boolean; drills: { id: string; name: string }[] }>(
-      "/drills",
+      "/v1/drills",
     ),
   create: (data: { drill_name: string; drill_category: string }) =>
-    apiPost<{ success: boolean; id: string }>("/drills", data),
+    apiPost<{ success: boolean; id: string }>("/v1/drills", data),
   delete: (id: string) =>
-    apiDelete<{ success: boolean }>(`/drills/${id}`),
+    apiDelete<{ success: boolean }>(`/v1/drills/${id}`),
   searchPlayers: (data: {
     search_query?: string;
     full_name?: string;
@@ -91,14 +92,14 @@ export const playerApi = {
         status: string;
         time_remaining: string;
       }[];
-    }>("/player/drills"),
+    }>("/v1/player/drills"),
   startDrill: (phone: string) =>
     apiPost<{
       success: boolean;
       status: string;
       time_remaining: string;
       drill_id: string;
-    }>("/player/drills/start", { phone }),
+    }>("/v1/player/drills/start", { phone }),
   playDrill: (id: string, phone: string) =>
     apiPost<{
       success: boolean;
@@ -106,10 +107,10 @@ export const playerApi = {
       status: string;
       timer: string;
       progress: number;
-    }>(`/player/drills/${id}/play`, { phone }),
+    }>(`/v1/player/drills/${id}/play`, { phone }),
   updateTimer: (id: string, timer: string) =>
     apiPut<{ success: boolean; status: string; time_remaining: string }>(
-      `/player/drills/${id}/timer`,
+      `/v1/player/drills/${id}/timer`,
       { timer },
     ),
   myProgress: () =>
@@ -124,7 +125,7 @@ export const playerApi = {
       makes: number;
       shooting_percentage: string;
       phone: string;
-    }>("/player/my-progress"),
+    }>("/v1/player/my-progress"),
   roleSelection: {
     get: () =>
       apiGet<{
@@ -136,29 +137,30 @@ export const playerApi = {
     post: (data: { selected_role: string; phone: string }) =>
       apiPost("/v1/player/role-selection", data),
   },
-  submitDrill: (data: unknown) => apiPost("/player/drill-submissions", data),
-  resetDrills: (data?: unknown) => apiPost("/player/drills/reset", data),
+  submitDrill: (data: unknown) =>
+    apiPost("/v1/player/drill-submissions", data),
+  resetDrills: (data?: unknown) => apiPost("/v1/player/drills/reset", data),
 };
 
 /** Practice plan endpoints */
 export const practicePlanApi = {
   list: () =>
-    apiGet<{ plans: unknown[] }>("/practice-plans"),
-  create: (data: unknown) => apiPost("/practice-plans", data),
+    apiGet<{ plans: unknown[] }>("/v1/practice-plans"),
+  create: (data: unknown) => apiPost("/v1/practice-plans", data),
 };
 
 /** Support endpoints */
 export const supportApi = {
   contact: (data: unknown) => apiPost("/v1/support/contact", data),
-  inquiries: (data: unknown) => apiPost("/support/inquiries", data),
+  inquiries: (data: unknown) => apiPost("/v1/support/inquiries", data),
 };
 
 /** Verification endpoints */
 export const verificationApi = {
   resendCode: (data: unknown) =>
-    apiPost("/v1/verification/resend-verification-code", data),
+    apiPost("/v1/resend-verification-code", data),
   verifyEmail: (data: unknown) =>
-    apiPost("/v1/verification/verify-email", data),
+    apiPost("/v1/verify-email", data),
   resetPassword: (data: unknown) =>
     apiPost("/v1/reset-password", data),
 };

@@ -15,7 +15,7 @@ export function AdminDashboardPage() {
     : `Welcome back, ${user?.firstName ?? "Admin"}. Manage your organization, teams, and coaches from this workspace.`;
 
   return (
-    <div className="w-full space-y-[16px]">
+    <div className="w-full space-y-[16px] font-outfit">
       <PageHeader title={pageTitle} description={pageDescription} />
 
       <Card className="border-border bg-card">
@@ -24,45 +24,56 @@ export function AdminDashboardPage() {
             <Shield className="h-6 w-6 text-primary" aria-hidden="true" />
           </div>
           <div>
-            <CardTitle className="text-[18px] font-semibold leading-[22.68px]">
-              Admin panel ready
+            <CardTitle className="text-body-25 text-foreground">
+              Welcome to Hoops Engine Admin
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Protected routing, API client, and layout shell are configured.
+            <p className="text-body-sm text-muted-foreground">
+              Your admin workspace is ready. Use the sidebar to manage your
+              organization and settings.
             </p>
           </div>
         </CardHeader>
         <CardContent className="space-y-[12px]">
-          <p className="text-[16px] font-normal leading-[22px] text-foreground">
-            This is the protected placeholder route for JAW-9579. Feature modules
-            such as organizations, users, and analytics will connect to backend
-            endpoints in follow-on tickets.
+          <p className="text-body-21 text-foreground">
+            {isSuperAdmin
+              ? "You have platform-wide access. Analytics, organizations, and user management will be available from this dashboard as modules are enabled."
+              : "You can manage your organization profile, teams, and coaches from the navigation. Changes you make here apply across your organization."}
           </p>
           <div className="flex flex-wrap items-center gap-[10px]">
-            <Badge variant="secondary" className="capitalize">
+            <Badge variant="secondary" className="text-body-sm capitalize">
               {user?.role.replace(/_/g, " ")}
             </Badge>
-            <Badge variant="outline">API client configured</Badge>
+            <Badge variant="outline" className="text-body-sm">
+              Admin access active
+            </Badge>
           </div>
         </CardContent>
       </Card>
 
       <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg">Account overview</CardTitle>
+          <CardTitle className="text-body-25 text-foreground">
+            Account overview
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Account email</span>
-            <span className="font-medium">{user?.email}</span>
+        <CardContent className="space-y-[12px]">
+          <div className="flex items-center justify-between">
+            <span className="font-lato text-body-5 text-muted-foreground">
+              Account email
+            </span>
+            <span className="text-body-13 text-foreground">{user?.email}</span>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Admin access</span>
-            <Badge>Active</Badge>
+          <div className="flex items-center justify-between">
+            <span className="font-lato text-body-5 text-muted-foreground">
+              Admin access
+            </span>
+            <Badge className="text-body-sm">Active</Badge>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Signed in as</span>
-            <span className="font-medium">
+          <div className="flex items-center justify-between">
+            <span className="font-lato text-body-5 text-muted-foreground">
+              Signed in as
+            </span>
+            <span className="text-body-13 text-foreground">
               {user?.firstName} {user?.lastName}
             </span>
           </div>

@@ -21,6 +21,13 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import type { AuthUser, UserRole } from "@/types/auth";
 import { userHasAdminAccess } from "@/types/auth";
@@ -54,12 +61,29 @@ const loginButtonClassName = cn(
   "disabled:opacity-50",
 );
 
-/** Page-only select to match dark inputs */
-const loginSelectClassName = cn(
-  "flex h-[44px] w-full rounded-[10px] border border-figma-border bg-figma-surface-deep px-[14px]",
+/** Page-only select trigger to match dark inputs */
+const loginSelectTriggerClassName = cn(
+  "h-[44px] rounded-[10px] border-figma-border bg-figma-surface-deep px-[14px]",
   "text-body-21 text-white",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand-glow focus-visible:ring-offset-0",
+  "focus:ring-2 focus:ring-figma-brand-glow focus:ring-offset-0",
+  "[&>span]:text-body-21 [&>svg]:text-figma-muted",
 );
+
+const loginSelectContentClassName = cn(
+  "border-figma-border bg-figma-surface-deep text-white",
+);
+
+const loginSelectItemClassName = cn(
+  "text-body-21 focus:bg-figma-brand-glow focus:text-white",
+);
+
+const ROLE_OPTIONS = [
+  { value: "organization_admin", label: "Organization Admin" },
+  { value: "super_admin", label: "Super Admin" },
+  { value: "admin", label: "Admin" },
+  { value: "coach", label: "Coach (denied)" },
+  { value: "player", label: "Player (denied)" },
+] as const;
 
 export function AdminLoginPage() {
   const { login, isAuthenticated, hasAdminAccess } = useAuth();
@@ -116,24 +140,15 @@ export function AdminLoginPage() {
 
   return (
     <div className="relative flex min-h-screen bg-figma-background font-outfit">
-      {/* Radial glow layers — project background treatment */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="login-bg-glow pointer-events-none absolute inset-0"
         aria-hidden="true"
-        style={{
-          background: [
-            "radial-gradient(ellipse 55% 45% at 78% 42%, rgba(134, 211, 31, 0.18) 0%, transparent 68%)",
-            "radial-gradient(ellipse 42% 38% at 18% 72%, rgba(27, 201, 79, 0.12) 0%, transparent 62%)",
-            "radial-gradient(ellipse 30% 28% at 52% 12%, rgba(68, 81, 84, 0.22) 0%, transparent 70%)",
-            "linear-gradient(180deg, #081410 0%, #0b1f12 48%, #081410 100%)",
-          ].join(", "),
-        }}
       />
 
-      <div className="relative z-10 flex w-full flex-col lg:flex-row">
-        {/* Form column — fixed width, do not widen */}
-        <div className="flex w-full shrink-0 flex-col justify-center px-[24px] py-[32px] lg:w-[420px] lg:max-w-[420px] lg:px-[24px] lg:py-[32px]">
-          <Card className="w-full border-figma-border bg-figma-surface shadow-none">
+      <div className="relative z-10 flex w-full flex-col lg:min-h-screen lg:flex-row">
+        {/* Form column — fixed width on desktop, centered full-screen on mobile */}
+        <div className="flex min-h-screen w-full shrink-0 flex-col items-center justify-center px-[24px] py-[32px] lg:min-h-0 lg:w-[420px] lg:max-w-[420px] lg:items-stretch lg:justify-center lg:px-[24px] lg:py-[32px]">
+          <Card className="w-full max-w-md border-figma-border bg-figma-surface shadow-none">
             <CardHeader className="space-y-[12px] px-[20px] pt-[24px] text-center">
               <div className="mx-auto flex h-[48px] w-[48px] items-center justify-center rounded-[100px] bg-figma-brand-glow">
                 <Shield
@@ -205,20 +220,30 @@ export function AdminLoginPage() {
                         <FormLabel className="text-body-5 text-figma-muted">
                           Role (demo)
                         </FormLabel>
-                        <FormControl>
-                          <select
-                            className={loginSelectClassName}
-                            {...field}
-                          >
-                            <option value="organization_admin">
-                              Organization Admin
-                            </option>
-                            <option value="super_admin">Super Admin</option>
-                            <option value="admin">Admin</option>
-                            <option value="coach">Coach (denied)</option>
-                            <option value="player">Player (denied)</option>
-                          </select>
-                        </FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              className={loginSelectTriggerClassName}
+                            >
+                              <SelectValue placeholder="Select a role" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className={loginSelectContentClassName}>
+                            {ROLE_OPTIONS.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                                className={loginSelectItemClassName}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage className="text-body-sm text-figma-danger" />
                       </FormItem>
                     )}

@@ -213,4 +213,29 @@
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--muted)) transparent;
   }
+
+  .login-bg-glow {
+    background:
+      radial-gradient(
+        ellipse 55% 45% at 78% 42%,
+        color-mix(in srgb, var(--figma-brand) 18%, transparent) 0%,
+        transparent 68%
+      ),
+      radial-gradient(
+        ellipse 42% 38% at 18% 72%,
+        color-mix(in srgb, var(--figma-primary-bright) 12%, transparent) 0%,
+        transparent 62%
+      ),
+      radial-gradient(
+        ellipse 30% 28% at 52% 12%,
+        color-mix(in srgb, var(--figma-accent) 22%, transparent) 0%,
+        transparent 70%
+      ),
+      linear-gradient(
+        180deg,
+        var(--figma-background) 0%,
+        var(--figma-surface-deep) 48%,
+        var(--figma-background) 100%
+      );
+  }
 }
