@@ -14,6 +14,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from "@/components/ui/form";
 import {
   Card,
@@ -84,6 +85,45 @@ const ROLE_OPTIONS = [
   { value: "coach", label: "Coach (denied)" },
   { value: "player", label: "Player (denied)" },
 ] as const;
+
+interface RoleSelectFieldProps {
+  value: LoginFormValues["role"];
+  onChange: (value: LoginFormValues["role"]) => void;
+}
+
+function RoleSelectField({ value, onChange }: RoleSelectFieldProps) {
+  const { formItemId } = useFormField();
+  const labelId = `${formItemId}-label`;
+
+  return (
+    <>
+      <FormLabel id={labelId} className="text-body-5 text-figma-muted">
+        Role (demo)
+      </FormLabel>
+      <Select onValueChange={onChange} value={value}>
+        <FormControl>
+          <SelectTrigger
+            className={loginSelectTriggerClassName}
+            aria-labelledby={labelId}
+          >
+            <SelectValue placeholder="Select a role" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent className={loginSelectContentClassName}>
+          {ROLE_OPTIONS.map((option) => (
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              className={loginSelectItemClassName}
+            >
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+  );
+}
 
 export function AdminLoginPage() {
   const { login, isAuthenticated, hasAdminAccess } = useAuth();
@@ -217,33 +257,10 @@ export function AdminLoginPage() {
                     name="role"
                     render={({ field }) => (
                       <FormItem className="space-y-[10px]">
-                        <FormLabel className="text-body-5 text-figma-muted">
-                          Role (demo)
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                        <RoleSelectField
                           value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              className={loginSelectTriggerClassName}
-                            >
-                              <SelectValue placeholder="Select a role" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className={loginSelectContentClassName}>
-                            {ROLE_OPTIONS.map((option) => (
-                              <SelectItem
-                                key={option.value}
-                                value={option.value}
-                                className={loginSelectItemClassName}
-                              >
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          onChange={field.onChange}
+                        />
                         <FormMessage className="text-body-sm text-figma-danger" />
                       </FormItem>
                     )}

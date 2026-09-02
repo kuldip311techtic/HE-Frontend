@@ -4,6 +4,8 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { AdminDashboardPage } from "@/pages/admin/DashboardPage";
 import { AdminLoginPage } from "@/pages/admin/LoginPage";
+import { SessionDetailPage } from "@/pages/admin/SessionDetailPage";
+import { SettingsPage } from "@/pages/admin/SettingsPage";
 import { UnauthorizedPage } from "@/pages/admin/UnauthorizedPage";
 
 export function AdminRoutes() {
@@ -21,6 +23,11 @@ export function AdminRoutes() {
         }
       >
         <Route index element={<AdminDashboardPage />} />
+        <Route path="dashboard" element={<AdminDashboardPage />} />
+        <Route
+          path="sessions/:sessionId"
+          element={<SessionDetailPage />}
+        />
         <Route
           path="organization"
           element={
@@ -39,15 +46,7 @@ export function AdminRoutes() {
             />
           }
         />
-        <Route
-          path="settings"
-          element={
-            <PageHeader
-              title="Settings"
-              description="Configure admin panel preferences and account settings."
-            />
-          }
-        />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/admin" replace />} />
