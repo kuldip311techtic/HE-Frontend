@@ -1,5 +1,5 @@
 import axios, { type AxiosError, type AxiosInstance } from "axios";
-import type { ApiErrorBody } from "@/types/api";
+import type { ApiErrorBody, ApiErrorDetail } from "@/types/api";
 import { clearAuthStorage, getStoredToken } from "@/lib/auth/storage";
 import { resolveApiBaseUrl } from "@/lib/api/resolve-base-url";
 
@@ -34,6 +34,20 @@ export function getApiErrorMessage(
 
   if (status >= 500) {
     return fallback;
+  }
+
+  const nestedError = data?.error;
+  if (
+    nestedError &&
+    typeof nestedError === "object" &&
+    "message" in nestedError
+  ) {
+    const envelope = nestedError as ApiErrorDetail;
+    if (typeof envelope.message === "string" && envelope.message.trim()) {
+      const firstDetail = envelope.details?.[0];
+      if (firstDetail?.message) return firstDetail.message;
+      return envelope.message;
+    }
   }
 
   if (typeof data?.message === "string" && data.message.trim()) {

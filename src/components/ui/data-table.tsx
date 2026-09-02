@@ -46,6 +46,11 @@ interface DataTableProps<T> {
   pagination?: PaginationState;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
+  serverPagination?: boolean;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  toolbarFilters?: ReactNode;
+  searchInputClassName?: string;
   className?: string;
 }
 
@@ -67,15 +72,29 @@ export function DataTable<T>({
   pagination,
   onPageChange,
   onPageSizeChange,
+  serverPagination = false,
+  searchValue,
+  onSearchChange,
+  toolbarFilters,
+  searchInputClassName,
   className,
 }: DataTableProps<T>) {
-  const [search, setSearch] = useState("");
+  const [internalSearch, setInternalSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const search = searchValue ?? internalSearch;
+
+  const handleSearchChange = (value: string) => {
+    if (onSearchChange) {
+      onSearchChange(value);
+    } else {
+      setInternalSearch(value);
+    }
+  };
 
   const filteredRows = useMemo(() => {
     let rows = data;
 
-    if (search.trim() && searchKeys.length > 0) {
+    if (!serverPagination && search.trim() && searchKeys.length > 0) {
       const query = search.trim().toLowerCase();
       rows = rows.filter((row) =>
         searchKeys.some((key) => {
@@ -92,17 +111,20 @@ export function DataTable<T>({
     }
 
     return rows;
-  }, [data, filter, filterFn, search, searchKeys]);
+  }, [data, filter, filterFn, search, searchKeys, serverPagination]);
 
   const paginatedRows = useMemo(() => {
-    if (!pagination) return filteredRows;
+    if (!pagination || serverPagination) return filteredRows;
 
     const start = (pagination.page - 1) * pagination.pageSize;
     return filteredRows.slice(start, start + pagination.pageSize);
-  }, [filteredRows, pagination]);
+  }, [filteredRows, pagination, serverPagination]);
 
   const effectivePagination: PaginationState | undefined = pagination
-    ? { ...pagination, total: filteredRows.length }
+    ? {
+        ...pagination,
+        total: serverPagination ? pagination.total : filteredRows.length,
+      }
     : undefined;
 
   return (
@@ -115,12 +137,14 @@ export function DataTable<T>({
           />
           <Input
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => handleSearchChange(event.target.value)}
             placeholder={searchPlaceholder}
-            className="h-9 bg-background pl-9"
+            className={cn("h-9 bg-background pl-9", searchInputClassName)}
             aria-label={searchPlaceholder}
           />
         </div>
+
+        {toolbarFilters}
 
         {filterOptions && filterOptions.length > 0 && (
           <Select value={filter} onValueChange={setFilter}>

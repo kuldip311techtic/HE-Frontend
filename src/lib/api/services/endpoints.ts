@@ -163,15 +163,24 @@ export const verificationApi = {
     apiPost("/api/v1/reset-password", data),
 };
 
-/** Super admin endpoints */
+/** Super admin endpoints — paths relative to /api baseURL (see admin.ts for full CRUD) */
 export const superAdminApi = {
+  login: (data: unknown) => apiPost("/super-admin/login", data),
   organizations: {
-    list: () => apiGet("/super-admin/organizations"),
-    create: (data: unknown) => apiPost("/super-admin/organizations", data),
+    list: () => apiGet("/v1/super-admin/organizations"),
+    create: (data: unknown) => apiPost("/v1/super-admin/organizations", data),
   },
   users: {
-    list: () => apiGet("/super-admin/users"),
-    create: (data: unknown) => apiPost("/super-admin/users", data),
+    list: () => apiGet("/v1/super-admin/users"),
+    create: (data: unknown) => apiPost("/v1/super-admin/users", data),
   },
-  dashboard: () => apiGet("/api/v1/super-admin/dashboard"),
+  subscriptions: {
+    list: () => apiGet("/super-admin/subscriptions"),
+    create: (data: unknown) => apiPost("/super-admin/subscriptions", data),
+  },
+  supportRequests: {
+    list: () => apiGet("/super-admin/support-requests"),
+    respond: (data: unknown) => apiPost("/super-admin/support-requests", data),
+  },
+  dashboard: () => apiGet("/v1/super-admin/dashboard"),
 };

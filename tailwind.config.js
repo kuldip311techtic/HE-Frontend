@@ -6,8 +6,18 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Outfit", "system-ui", "sans-serif"],
+        outfit: ["Outfit", "system-ui", "sans-serif"],
+        inter: ["Inter", "system-ui", "sans-serif"],
+        lato: ["Lato", "system-ui", "sans-serif"],
       },
       colors: {
+        "figma-accent": "var(--figma-accent)",
+        "figma-brand": "var(--figma-brand)",
+        "figma-border": "var(--figma-border)",
+        "figma-background": "var(--figma-background)",
+        "figma-surface": "var(--figma-surface)",
+        "figma-muted": "var(--figma-muted)",
+        "figma-bright": "var(--figma-primary-bright)",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import {
   Building2,
+  CreditCard,
+  HeadphonesIcon,
   LayoutDashboard,
   Settings,
   Users,
@@ -19,7 +21,8 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  roles?: string[];
+  superAdminOnly?: boolean;
+  orgAdminOnly?: boolean;
 }
 
 const navItems: NavItem[] = [
@@ -29,14 +32,40 @@ const navItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
+    label: "Organizations",
+    href: "/admin/organization",
+    icon: Building2,
+    superAdminOnly: true,
+  },
+  {
+    label: "Users",
+    href: "/admin/users",
+    icon: Users,
+    superAdminOnly: true,
+  },
+  {
+    label: "Subscriptions",
+    href: "/admin/subscriptions",
+    icon: CreditCard,
+    superAdminOnly: true,
+  },
+  {
+    label: "Support Requests",
+    href: "/admin/support-requests",
+    icon: HeadphonesIcon,
+    superAdminOnly: true,
+  },
+  {
     label: "Organization",
     href: "/admin/organization",
     icon: Building2,
+    orgAdminOnly: true,
   },
   {
     label: "Teams",
     href: "/admin/teams",
     icon: Users,
+    orgAdminOnly: true,
   },
   {
     label: "Settings",
@@ -48,10 +77,13 @@ const navItems: NavItem[] = [
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user } = useAuth();
 
+  const isSuperAdmin =
+    user?.role === "super_admin" || user?.roles.includes("super_admin");
+
   const visibleItems = navItems.filter((item) => {
-    if (!item.roles) return true;
-    if (!user) return false;
-    return item.roles.includes(user.role) || user.roles.some((r) => item.roles?.includes(r));
+    if (item.superAdminOnly && !isSuperAdmin) return false;
+    if (item.orgAdminOnly && isSuperAdmin) return false;
+    return true;
   });
 
   return (
@@ -94,7 +126,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 scrollbar-thin">
           {visibleItems.map((item) => (
             <NavLink
-              key={item.href}
+              key={item.href + item.label}
               to={item.href}
               end={item.href === "/admin"}
               onClick={onClose}

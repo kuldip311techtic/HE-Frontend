@@ -4,14 +4,25 @@
 
 @layer base {
   :root {
+    /* Figma exact hex tokens */
+    --figma-accent: #445154;
+    --figma-brand: #86d31f;
+    --figma-border: #0d1612;
+    --figma-background: #081410;
+    --figma-surface: #13291b;
+    --figma-muted: #9ca3af;
+    --figma-primary-bright: #4bcd39;
+    --figma-brand-subtle: #1bc94f1a;
+    --figma-brand-glow: #1bc94f1f;
+
     --background: 156 60% 4%;
     --foreground: 0 0% 100%;
     --card: 220 26% 14%;
     --card-foreground: 0 0% 100%;
     --popover: 220 26% 14%;
     --popover-foreground: 0 0% 100%;
-    --primary: 112 58% 51%;
-    --primary-foreground: 156 60% 4%;
+    --primary: 84 74% 48%;
+    --primary-foreground: 156 26% 7%;
     --secondary: 220 26% 18%;
     --secondary-foreground: 0 0% 100%;
     --muted: 220 26% 18%;
@@ -20,14 +31,14 @@
     --accent-foreground: 0 0% 100%;
     --destructive: 0 100% 71%;
     --destructive-foreground: 0 0% 100%;
-    --border: 156 40% 6%;
+    --border: 156 26% 7%;
     --input: 220 26% 18%;
-    --ring: 112 58% 51%;
-    --radius: 0.5rem;
+    --ring: 84 74% 48%;
+    --radius: 0.625rem;
     --sidebar: 220 26% 10%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-border: 215 28% 17%;
-    --sidebar-accent: 112 58% 51%;
+    --sidebar-accent: 84 74% 48%;
   }
 
   * {
@@ -35,7 +46,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: "Outfit", system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }

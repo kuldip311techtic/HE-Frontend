@@ -4,7 +4,11 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { AdminDashboardPage } from "@/pages/admin/DashboardPage";
 import { AdminLoginPage } from "@/pages/admin/LoginPage";
+import { OrganizationsPage } from "@/pages/admin/OrganizationsPage";
+import { SubscriptionsPage } from "@/pages/admin/SubscriptionsPage";
+import { SupportRequestsPage } from "@/pages/admin/SupportRequestsPage";
 import { UnauthorizedPage } from "@/pages/admin/UnauthorizedPage";
+import { UsersPage } from "@/pages/admin/UsersPage";
 
 export function AdminRoutes() {
   return (
@@ -21,15 +25,10 @@ export function AdminRoutes() {
         }
       >
         <Route index element={<AdminDashboardPage />} />
-        <Route
-          path="organization"
-          element={
-            <PageHeader
-              title="Organization"
-              description="Manage your organization profile and settings."
-            />
-          }
-        />
+        <Route path="organization" element={<OrganizationsPage />} />
+        <Route path="users" element={<UsersPage />} />
+        <Route path="subscriptions" element={<SubscriptionsPage />} />
+        <Route path="support-requests" element={<SupportRequestsPage />} />
         <Route
           path="teams"
           element={

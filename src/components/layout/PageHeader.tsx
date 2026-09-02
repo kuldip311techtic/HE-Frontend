@@ -6,6 +6,8 @@ interface PageHeaderProps {
   description?: string;
   action?: ReactNode;
   className?: string;
+  titleClassName?: string;
+  descriptionClassName?: string;
 }
 
 export function PageHeader({
@@ -13,6 +15,8 @@ export function PageHeader({
   description,
   action,
   className,
+  titleClassName,
+  descriptionClassName,
 }: PageHeaderProps) {
   return (
     <div
@@ -24,12 +28,22 @@ export function PageHeader({
       <div className="min-w-0 space-y-1">
         <h1
           id="page-heading"
-          className="text-2xl font-semibold tracking-tight text-foreground"
+          className={cn(
+            "font-outfit text-2xl font-semibold tracking-tight text-foreground",
+            titleClassName,
+          )}
         >
           {title}
         </h1>
         {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p
+            className={cn(
+              "font-outfit text-sm text-muted-foreground",
+              descriptionClassName,
+            )}
+          >
+            {description}
+          </p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
