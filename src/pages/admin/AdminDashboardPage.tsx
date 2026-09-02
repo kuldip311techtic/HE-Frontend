@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { Building2, Users, UserCheck, Activity } from 'lucide-react';
-import { PageHeader } from '@/components/shared/PageHeader';
 import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { LoadingIndicator } from '@/components/ui/LoadingIndicator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,11 +53,18 @@ export function AdminDashboardPage() {
   const orgName = data?.profile?.organization_name ?? 'Your Organization';
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Dashboard"
-        description={`Welcome to the ${orgName} admin panel.`}
-      />
+    <div className="w-full space-y-6">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Organization Admin Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Welcome to the {orgName} admin panel. Monitor organization metrics
+            and manage teams, coaches, and settings.
+          </p>
+        </div>
+      </header>
 
       {isError && (
         <ErrorMessage

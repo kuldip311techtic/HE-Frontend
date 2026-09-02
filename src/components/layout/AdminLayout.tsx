@@ -14,7 +14,7 @@ export function AdminLayout() {
       />
       <div className="flex flex-1 flex-col min-w-0">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-auto px-6 py-4">
+        <main className="flex-1 w-full min-w-0 overflow-auto px-6 py-4">
           <Outlet />
         </main>
       </div>

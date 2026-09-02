@@ -1,7 +1,5 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -15,39 +13,21 @@ import {
   setStoredToken,
   setStoredUser,
 } from '@/lib/auth/storage';
-import type { AuthSession, AuthUser, UserRole } from '@/types/auth';
-
-interface AuthContextValue {
-  user: AuthUser | null;
-  token: string | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  login: (session: AuthSession) => void;
-  logout: () => void;
-  setDemoAdminSession: () => void;
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null);
-
-const DEMO_ADMIN_USER: AuthUser = {
-  id: 'demo-admin-1',
-  email: 'admin@hoopsengine.com',
-  firstName: 'Alex',
-  lastName: 'Morgan',
-  name: 'Alex Morgan',
-  role: 'organization_admin',
-  roles: ['organization_admin'],
-};
+import type { AuthSession } from '@/types/auth';
+import {
+  AuthContext,
+  DEMO_ADMIN_USER,
+  type AuthContextValue,
+} from '@/hooks/auth-context';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthContextValue['user']>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const storedToken = getStoredToken();
-    const storedUser = getStoredUser<AuthUser>();
+    const storedUser = getStoredUser<AuthContextValue['user']>();
 
     if (storedToken && storedUser) {
       setToken(storedToken);
@@ -97,19 +77,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
   );
-}
-
-export function useAuth(): AuthContextValue {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
-
-export function useHasRole(role: UserRole): boolean {
-  const { user } = useAuth();
-  if (!user) return false;
-  const roles = user.roles?.length ? user.roles : [user.role];
-  return roles.includes(role);
 }
