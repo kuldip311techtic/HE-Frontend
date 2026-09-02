@@ -4,7 +4,7 @@ import { UserPlus } from 'lucide-react';
 
 export function InviteCoachPage() {
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Invite Coach"
         description="Send invitations to coaches to join your organization."

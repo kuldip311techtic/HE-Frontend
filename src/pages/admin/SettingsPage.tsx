@@ -7,7 +7,7 @@ export function SettingsPage() {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Settings"
         description="Manage your admin account settings."

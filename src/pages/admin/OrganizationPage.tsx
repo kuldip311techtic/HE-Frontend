@@ -16,7 +16,7 @@ export function OrganizationPage() {
   const profile = data?.profile;
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       <PageHeader
         title="Organization Profile"
         description="View your organization's profile information."

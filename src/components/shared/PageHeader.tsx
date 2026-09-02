@@ -15,9 +15,9 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <div
+    <header
       className={cn(
-        'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
+        'flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
         className,
       )}
     >
@@ -30,6 +30,6 @@ export function PageHeader({
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
-    </div>
+    </header>
   );
 }
