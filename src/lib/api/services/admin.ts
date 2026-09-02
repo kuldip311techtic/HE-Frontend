@@ -50,17 +50,7 @@ function buildParams(params?: ListQueryParams): Record<string, string | number> 
 export async function loginSuperAdmin(
   body: LoginRequest,
 ): Promise<LoginResponse> {
-  try {
-    return await apiPost<LoginResponse, LoginRequest>(
-      "/super-admin/login",
-      body,
-    );
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return apiPost<LoginResponse, LoginRequest>("/v1/auth/login", body);
-    }
-    throw error;
-  }
+  return apiPost<LoginResponse, LoginRequest>("/v1/auth/login", body);
 }
 
 export async function getOrganizationProfile(): Promise<{
@@ -182,14 +172,14 @@ export async function getSubscriptionPlans(
   return withSubscriptionPathFallback(
     async () => {
       const response = await apiClient.get<SubscriptionPlanListResponse>(
-        "/super-admin/subscriptions",
+        "/v1/super-admin/subscription-plans",
         { params: queryParams },
       );
       return response.data;
     },
     async () => {
       const response = await apiClient.get<SubscriptionPlanListResponse>(
-        "/v1/super-admin/subscription-plans",
+        "/super-admin/subscriptions",
         { params: queryParams },
       );
       return response.data;
@@ -201,8 +191,8 @@ export async function createSubscriptionPlan(
   data: SubscriptionPlanCreateRequest,
 ): Promise<SubscriptionPlanItem> {
   return withSubscriptionPathFallback(
-    () => apiPost("/super-admin/subscriptions", data),
     () => apiPost("/v1/super-admin/subscription-plans", data),
+    () => apiPost("/super-admin/subscriptions", data),
   );
 }
 
@@ -214,7 +204,7 @@ export async function updateSubscriptionPlan(
   return withSubscriptionPathFallback(
     async () => {
       const response = await apiClient.put<SubscriptionPlanItem>(
-        `/super-admin/subscriptions/${id}`,
+        `/v1/super-admin/subscription-plans/${id}`,
         data,
         { params: { role } },
       );
@@ -222,7 +212,7 @@ export async function updateSubscriptionPlan(
     },
     async () => {
       const response = await apiClient.put<SubscriptionPlanItem>(
-        `/v1/super-admin/subscription-plans/${id}`,
+        `/super-admin/subscriptions/${id}`,
         data,
         { params: { role } },
       );
@@ -242,14 +232,14 @@ export async function deleteSubscriptionPlan(
   return withSubscriptionPathFallback(
     async () => {
       const response = await apiClient.delete<SubscriptionPlanDeleteResponse>(
-        `/super-admin/subscriptions/${id}`,
+        `/v1/super-admin/subscription-plans/${id}`,
         { params },
       );
       return response.data;
     },
     async () => {
       const response = await apiClient.delete<SubscriptionPlanDeleteResponse>(
-        `/v1/super-admin/subscription-plans/${id}`,
+        `/super-admin/subscriptions/${id}`,
         { params },
       );
       return response.data;

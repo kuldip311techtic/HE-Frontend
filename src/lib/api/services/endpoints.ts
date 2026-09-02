@@ -165,7 +165,7 @@ export const verificationApi = {
 
 /** Super admin endpoints — paths relative to /api baseURL (see admin.ts for full CRUD) */
 export const superAdminApi = {
-  login: (data: unknown) => apiPost("/super-admin/login", data),
+  login: (data: unknown) => apiPost("/v1/auth/login", data),
   organizations: {
     list: () => apiGet("/v1/super-admin/organizations"),
     create: (data: unknown) => apiPost("/v1/super-admin/organizations", data),
@@ -175,8 +175,8 @@ export const superAdminApi = {
     create: (data: unknown) => apiPost("/v1/super-admin/users", data),
   },
   subscriptions: {
-    list: () => apiGet("/super-admin/subscriptions"),
-    create: (data: unknown) => apiPost("/super-admin/subscriptions", data),
+    list: () => apiGet("/v1/super-admin/subscription-plans"),
+    create: (data: unknown) => apiPost("/v1/super-admin/subscription-plans", data),
   },
   supportRequests: {
     list: () => apiGet("/super-admin/support-requests"),

@@ -14,6 +14,11 @@ import type { AuthUser } from "@/types/auth";
 import { userHasAdminAccess } from "@/types/auth";
 
 let authBootstrapInProgress = false;
+let hydrateAuthUserPromise: Promise<AuthUser | null> | null = null;
+let bootstrapValidationSessionPromise: Promise<{
+  token: string;
+  user: AuthUser;
+} | null> | null = null;
 
 export function isAuthBootstrapInProgress(): boolean {
   return authBootstrapInProgress;
@@ -44,7 +49,7 @@ export function shouldInitializeAuthSession(): boolean {
   return Boolean(token || getValidationCredentials());
 }
 
-export async function hydrateAuthUserFromToken(): Promise<AuthUser | null> {
+async function runHydrateAuthUserFromToken(): Promise<AuthUser | null> {
   const token = getStoredToken();
   if (!token) return null;
 
@@ -70,7 +75,16 @@ export async function hydrateAuthUserFromToken(): Promise<AuthUser | null> {
   });
 }
 
-export async function bootstrapValidationSession(): Promise<{
+export function hydrateAuthUserFromToken(): Promise<AuthUser | null> {
+  if (!hydrateAuthUserPromise) {
+    hydrateAuthUserPromise = runHydrateAuthUserFromToken().finally(() => {
+      hydrateAuthUserPromise = null;
+    });
+  }
+  return hydrateAuthUserPromise;
+}
+
+async function runBootstrapValidationSession(): Promise<{
   token: string;
   user: AuthUser;
 } | null> {
@@ -92,4 +106,18 @@ export async function bootstrapValidationSession(): Promise<{
       return null;
     }
   });
+}
+
+export function bootstrapValidationSession(): Promise<{
+  token: string;
+  user: AuthUser;
+} | null> {
+  if (!bootstrapValidationSessionPromise) {
+    bootstrapValidationSessionPromise = runBootstrapValidationSession().finally(
+      () => {
+        bootstrapValidationSessionPromise = null;
+      },
+    );
+  }
+  return bootstrapValidationSessionPromise;
 }
