@@ -35,7 +35,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           title={title}
         />
 
-        <main className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin">
+        <main
+          id="main-content"
+          aria-labelledby="page-heading"
+          className="flex-1 w-full min-w-0 overflow-y-auto px-6 py-4 scrollbar-thin"
+        >
           {children ?? <Outlet />}
         </main>
       </div>

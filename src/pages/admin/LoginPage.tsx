@@ -20,7 +20,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import type { AuthUser, UserRole } from "@/types/auth";
@@ -98,7 +97,9 @@ export function AdminLoginPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
             <Shield className="h-6 w-6 text-primary" aria-hidden="true" />
           </div>
-          <CardTitle className="text-2xl">Admin Sign In</CardTitle>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">
+            Admin Sign In
+          </h1>
           <CardDescription>
             Sign in with your organization admin credentials to access the
             admin panel.

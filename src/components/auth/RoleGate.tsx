@@ -26,7 +26,8 @@ export function RoleGate({
         role="status"
         aria-label="Loading authentication"
       >
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <h1 className="sr-only">Admin Panel</h1>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
       </div>
     );
   }

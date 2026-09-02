@@ -171,7 +171,7 @@ export function AdminDashboardPage() {
     : `Welcome back, ${user?.firstName}. Manage your organization, teams, and coaches from the admin panel.`;
 
   return (
-    <div className="w-full space-y-5">
+    <div className="w-full space-y-4">
       <PageHeader
         title={pageTitle}
         description={pageDescription}
@@ -292,11 +292,11 @@ export function AdminDashboardPage() {
 
 export function AdminDashboardSkeleton() {
   return (
-    <div className="w-full space-y-5">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-4 w-96" />
-      </div>
+    <div className="w-full space-y-4">
+      <PageHeader
+        title="Admin Dashboard"
+        description="Loading dashboard data…"
+      />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-28 rounded-lg" />

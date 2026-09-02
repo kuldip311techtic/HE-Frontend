@@ -43,7 +43,7 @@ export function TablePagination({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
     >
@@ -58,7 +58,7 @@ export function TablePagination({
           value={String(pageSize)}
           onValueChange={(value) => onPageSizeChange(Number(value))}
         >
-          <SelectTrigger className="h-8 w-[110px] bg-background text-xs">
+          <SelectTrigger className="h-8 w-[110px] border-border bg-background text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -91,7 +91,7 @@ export function TablePagination({
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="min-w-[4.5rem] text-center text-xs text-muted-foreground">
+          <span className="min-w-[4.5rem] text-center text-xs font-medium text-foreground">
             {page} / {totalPages}
           </span>
           <Button

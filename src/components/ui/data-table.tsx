@@ -107,41 +107,39 @@ export function DataTable<T>({
 
   return (
     <div className={cn("w-full space-y-3", className)}>
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative w-full sm:max-w-xs">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={searchPlaceholder}
-              className="h-9 bg-background pl-9"
-              aria-label={searchPlaceholder}
-            />
-          </div>
-
-          {filterOptions && filterOptions.length > 0 && (
-            <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="h-9 w-full bg-background sm:w-[160px]">
-                <SelectValue placeholder={filterLabel} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All {filterLabel.toLowerCase()}</SelectItem>
-                {filterOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-3">
+        <div className="relative min-w-0 flex-1 md:max-w-sm">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={searchPlaceholder}
+            className="h-9 bg-background pl-9"
+            aria-label={searchPlaceholder}
+          />
         </div>
 
+        {filterOptions && filterOptions.length > 0 && (
+          <Select value={filter} onValueChange={setFilter}>
+            <SelectTrigger className="h-9 w-full shrink-0 bg-background md:w-[160px]">
+              <SelectValue placeholder={filterLabel} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All {filterLabel.toLowerCase()}</SelectItem>
+              {filterOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
         {primaryAction && (
-          <div className="flex shrink-0 justify-end">{primaryAction}</div>
+          <div className="flex shrink-0 md:ml-auto">{primaryAction}</div>
         )}
       </div>
 
@@ -214,9 +212,8 @@ export function DataTable<T>({
 
         {effectivePagination &&
           onPageChange &&
-          onPageSizeChange &&
-          !error && (
-            <div className="px-3 pb-3">
+          onPageSizeChange && (
+            <div className="border-t border-border px-3 py-2">
               <TablePagination
                 pagination={effectivePagination}
                 onPageChange={onPageChange}

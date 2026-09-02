@@ -6,7 +6,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 
 export function UnauthorizedPage() {
@@ -20,7 +19,9 @@ export function UnauthorizedPage() {
               aria-hidden="true"
             />
           </div>
-          <CardTitle>Access Denied</CardTitle>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">
+            Access Denied
+          </h1>
           <CardDescription>
             You do not have permission to access the admin panel. Only
             Organization Admin and Super Admin roles are allowed.
