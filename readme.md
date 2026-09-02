@@ -52,7 +52,7 @@ tests/            unit tests
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VITE_API_BASE_URL` | `http://localhost:3300/api` | Backend API base URL |
+| `VITE_API_BASE_URL` | `/api` | Backend API base URL (proxied in dev/preview) |
 
 ## Demo sign-in
 

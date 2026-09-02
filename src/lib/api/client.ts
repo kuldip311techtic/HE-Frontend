@@ -1,9 +1,9 @@
 import axios, { type AxiosError, type AxiosInstance } from "axios";
 import type { ApiErrorBody } from "@/types/api";
 import { clearAuthStorage, getStoredToken } from "@/lib/auth/storage";
+import { resolveApiBaseUrl } from "@/lib/api/resolve-base-url";
 
-const baseURL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3300/api";
+const baseURL = resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 export function getApiErrorMessage(
   err: unknown,

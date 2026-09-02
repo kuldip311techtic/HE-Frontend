@@ -47,7 +47,7 @@ export function Header({ onMenuClick, title = "Admin Panel" }: HeaderProps) {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+          <span className="text-lg font-semibold text-foreground">{title}</span>
         </div>
 
         <DropdownMenu>
