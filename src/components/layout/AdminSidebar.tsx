@@ -1,33 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import {
-  Building2,
-  CreditCard,
-  LayoutDashboard,
-  LifeBuoy,
-  Users,
-} from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
+import { SIDEBAR_NAV_ITEMS, isAdminRouteImplemented } from '@/lib/navigation/admin-routes';
 
 interface AdminSidebarProps {
   id?: string;
   className?: string;
   onNavigate?: () => void;
 }
-
-interface NavItem {
-  label: string;
-  href?: string;
-  icon: React.ComponentType<{ className?: string }>;
-  disabled?: boolean;
-}
-
-const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Organizations', icon: Building2, disabled: true },
-  { label: 'Users', icon: Users, disabled: true },
-  { label: 'Subscriptions', icon: CreditCard, disabled: true },
-  { label: 'Support', icon: LifeBuoy, disabled: true },
-];
 
 export function AdminSidebar({ id, className, onNavigate }: AdminSidebarProps) {
   return (
@@ -43,10 +22,11 @@ export function AdminSidebar({ id, className, onNavigate }: AdminSidebarProps) {
         <p className="font-outfit text-body-sm text-muted-foreground">Admin Panel</p>
       </div>
       <nav aria-label="Admin navigation" className="flex-1 space-y-1 px-3 py-4">
-        {navItems.map((item) => {
+        {SIDEBAR_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
+          const isImplemented = isAdminRouteImplemented(item.targetPath);
 
-          if (item.disabled || !item.href) {
+          if (!isImplemented) {
             return (
               <span
                 key={item.label}
@@ -62,8 +42,8 @@ export function AdminSidebar({ id, className, onNavigate }: AdminSidebarProps) {
           return (
             <NavLink
               key={item.label}
-              to={item.href}
-              end={item.href === '/admin'}
+              to={item.targetPath}
+              end={item.targetPath === '/admin'}
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(

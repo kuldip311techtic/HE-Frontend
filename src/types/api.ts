@@ -9,6 +9,11 @@ export interface ErrorResponse {
   error: ErrorDetail;
 }
 
+export interface QuickAccessLinkItem {
+  module: string;
+  link: string;
+}
+
 export interface DashboardAnalyticsResponse {
   total_organizations: number;
   total_coaches: number;
