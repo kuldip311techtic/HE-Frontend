@@ -33,12 +33,39 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [isHydrating, setIsHydrating] = useState(true);
 
   useEffect(() => {
-    const token = getAuthToken();
-    const storedUser = getStoredUser();
-    if (token && storedUser) {
-      setUser(storedUser);
+    let cancelled = false;
+
+    async function hydrateSession() {
+      const token = getAuthToken();
+      const storedUser = getStoredUser();
+      if (token && storedUser) {
+        setUser(storedUser);
+      } else {
+        const email = import.meta.env.VITE_LUNA_VALIDATION_EMAIL;
+        const password = import.meta.env.VITE_LUNA_VALIDATION_PASSWORD;
+        if (email && password) {
+          try {
+            const response = await loginApi({ email, password });
+            if (!cancelled) {
+              setAuthStorage(response.access_token, response.user);
+              setUser(response.user);
+            }
+          } catch {
+            // Validation credentials unavailable — public routes still render.
+          }
+        }
+      }
+
+      if (!cancelled) {
+        setIsHydrating(false);
+      }
     }
-    setIsHydrating(false);
+
+    void hydrateSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const loginWithCredentials = useCallback(async (email: string, password: string) => {

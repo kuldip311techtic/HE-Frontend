@@ -17,6 +17,16 @@ export const CONTRACT_ROUTES = {
     path: '/api/v1/super-admin/dashboard',
     listUnwrapKey: null as string | null,
   },
+  playerRoleSelection: {
+    method: 'GET' as const,
+    path: '/api/v1/player/role-selection',
+    listUnwrapKey: null as string | null,
+  },
+  sessionDetail: {
+    method: 'GET' as const,
+    path: '/api/v1/sessions/{session_id}',
+    listUnwrapKey: null as string | null,
+  },
 } as const;
 
 export type ContractRoute = (typeof CONTRACT_ROUTES)[keyof typeof CONTRACT_ROUTES];

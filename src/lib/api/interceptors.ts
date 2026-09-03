@@ -15,7 +15,10 @@ export function setupApiInterceptors(): void {
     (response) => response,
     (error) => {
       if (error.response?.status === 401) {
-        clearAuthStorage();
+        const hadAuthHeader = Boolean(error.config?.headers?.Authorization);
+        if (hadAuthHeader) {
+          clearAuthStorage();
+        }
       }
       return Promise.reject(error);
     },
