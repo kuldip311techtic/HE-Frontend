@@ -1,0 +1,289 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Figma exact hex tokens (GLOBAL DESIGN TOKENS) */
+    --figma-accent: #445154;
+    --figma-brand: #86d31f;
+    --figma-border: #0d1612;
+    --token-accent: #445154;
+    --token-brand: #86d31f;
+    --token-border: #0d1612;
+    --figma-background: #081410;
+    --figma-background-fa: #081410fa;
+    --figma-surface: #13291b;
+    --figma-surface-deep: #0b1f12;
+    --figma-muted: #9ca3af;
+    --figma-primary-bright: #4bcd39;
+    --figma-brand-subtle: #1bc94f1a;
+    --figma-brand-glow: #1bc94f1f;
+    --figma-danger: #ff6b6b;
+    --figma-danger-subtle: #ff41411f;
+    --figma-danger-muted: #ff414114;
+    --figma-gold-subtle: #ffd70033;
+    --figma-gold-muted: #ffd70014;
+    --figma-silver-subtle: #c0c0c033;
+    --figma-silver-muted: #c0c0c014;
+    --figma-bronze-subtle: #cd7f3233;
+    --figma-bronze-muted: #cd7f3214;
+    --figma-info: #3b82f6;
+    --figma-overlay: #030a077f;
+    --figma-warning: #ffb84d;
+    --figma-error-deep: #1c0505;
+
+    /* Semantic HSL tokens mapped to project palette */
+    --background: 156 60% 4%;
+    --foreground: 0 0% 100%;
+    --card: 152 33% 12%;
+    --card-foreground: 0 0% 100%;
+    --popover: 152 33% 12%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 112 58% 51%;
+    --primary-foreground: 156 60% 4%;
+    --secondary: 188 9% 29%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 152 20% 18%;
+    --muted-foreground: 218 11% 65%;
+    --accent: 188 9% 29%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 71%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 156 40% 6%;
+    --input: 152 20% 18%;
+    --ring: 112 58% 51%;
+    --radius: 0.625rem;
+    --sidebar: 152 33% 10%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-border: 156 40% 6%;
+    --sidebar-accent: 112 58% 51%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-outfit antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .font-outfit {
+    font-family: "Outfit", sans-serif;
+  }
+
+  .font-lato {
+    font-family: "Lato", sans-serif;
+  }
+
+  .font-inter {
+    font-family: "Inter", sans-serif;
+  }
+
+  /* Figma type ramp */
+  .text-body-10 {
+    font-family: "Outfit", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 20.16px;
+    letter-spacing: 0;
+  }
+
+  .text-body-13 {
+    font-family: "Outfit", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20.16px;
+    letter-spacing: 0;
+  }
+
+  .text-body-21 {
+    font-family: "Outfit", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0;
+  }
+
+  .text-body-25 {
+    font-family: "Outfit", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 22.68px;
+    letter-spacing: 0;
+  }
+
+  .text-body-29 {
+    font-family: "Outfit", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20.16px;
+    letter-spacing: 0;
+  }
+
+  .text-body-33 {
+    font-family: "Outfit", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 20.16px;
+    letter-spacing: 0;
+  }
+
+  .text-body-34 {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 19.36px;
+    letter-spacing: 0;
+  }
+
+  .text-body-4 {
+    font-family: "Outfit", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 22.68px;
+    letter-spacing: 0;
+  }
+
+  .text-body-42 {
+    font-family: "Outfit", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 22.68px;
+    letter-spacing: 0;
+  }
+
+  .text-body-5 {
+    font-family: "Lato", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 19.2px;
+    letter-spacing: 0;
+  }
+
+  .text-body-51 {
+    font-family: "Outfit", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 22px;
+    letter-spacing: 0;
+  }
+
+  .text-body-53 {
+    font-family: "Inter", sans-serif;
+    font-size: 18.05px;
+    font-weight: 400;
+    line-height: 21.84px;
+    letter-spacing: 0;
+  }
+
+  .text-body-56 {
+    font-family: "Outfit", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 25.2px;
+    letter-spacing: 0;
+  }
+
+  .text-body-71 {
+    font-family: "Inter", sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 21.78px;
+    letter-spacing: 0;
+  }
+
+  .text-body-9 {
+    font-family: "Outfit", sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 22.68px;
+    letter-spacing: 0.18px;
+  }
+
+  .text-body-sm {
+    font-family: "Outfit", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 17.64px;
+    letter-spacing: 0;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+
+  .login-bg-glow {
+    background:
+      radial-gradient(
+        ellipse 58% 48% at 82% 38%,
+        color-mix(in srgb, #86d31f 28%, transparent) 0%,
+        color-mix(in srgb, #86d31f 8%, transparent) 42%,
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 46% 40% at 14% 68%,
+        color-mix(in srgb, #4bcd39 16%, transparent) 0%,
+        transparent 64%
+      ),
+      radial-gradient(
+        ellipse 36% 32% at 48% 8%,
+        color-mix(in srgb, #445154 30%, transparent) 0%,
+        transparent 68%
+      ),
+      radial-gradient(
+        ellipse 24% 22% at 62% 88%,
+        color-mix(in srgb, #86d31f 12%, transparent) 0%,
+        transparent 70%
+      ),
+      linear-gradient(
+        180deg,
+        #081410 0%,
+        #0b1f12 48%,
+        #081410 100%
+      );
+  }
+
+  /* Login page — page-local input/button/select overrides (dark fill, dark CTA label) */
+  .login-page input[type="email"],
+  .login-page input[type="password"],
+  .login-page [data-login-field="true"] {
+    background-color: #0b1f12 !important;
+    border-color: #0d1612 !important;
+    color: #ffffff !important;
+    font-family: "Outfit", sans-serif !important;
+  }
+
+  .login-page input[type="email"]::placeholder,
+  .login-page input[type="password"]::placeholder {
+    color: #445154 !important;
+    font-family: "Outfit", sans-serif !important;
+  }
+
+  .login-page .login-submit-btn {
+    background-color: #86d31f !important;
+    border-color: #0d1612 !important;
+    color: #0d1612 !important;
+    font-family: "Outfit", sans-serif !important;
+  }
+
+  .login-page .login-submit-btn:hover,
+  .login-page .login-submit-btn:focus-visible,
+  .login-page .login-submit-btn:active {
+    background-color: color-mix(in srgb, #86d31f 90%, #0d1612) !important;
+    color: #0d1612 !important;
+  }
+
+  .login-page .login-submit-btn svg {
+    color: #0d1612 !important;
+  }
+
+  .login-page .login-field-label {
+    font-family: "Lato", sans-serif !important;
+    color: #445154 !important;
+  }
+}
