@@ -20,11 +20,16 @@ export function shouldBootstrapValidationAuth(): boolean {
     return false;
   }
 
-  if (import.meta.env.VITE_LUNA_VALIDATION === "true") {
-    return true;
+  if (import.meta.env.VITE_LUNA_VALIDATION !== "true") {
+    return false;
   }
 
-  return import.meta.env.DEV;
+  const pathname = window.location.pathname;
+  if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
+    return false;
+  }
+
+  return true;
 }
 
 /** Seeds a super-admin session so gated admin routes mount and issue live API GETs during dev validation. */

@@ -15,6 +15,7 @@ export function useOrganizations(params: OrganizationListParams) {
   return useQuery({
     queryKey: ["super-admin", "organizations", params],
     queryFn: () => getOrganizations(params),
+    retry: false,
   });
 }
 

@@ -13,6 +13,7 @@ export function useSupportRequests(params: SupportRequestListParams) {
   return useQuery({
     queryKey: ["super-admin", "support-requests", params],
     queryFn: () => getSupportRequests(params),
+    retry: false,
   });
 }
 

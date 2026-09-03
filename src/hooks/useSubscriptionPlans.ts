@@ -17,6 +17,7 @@ export function useSubscriptionPlans(params: SubscriptionPlanListParams) {
     queryKey: ["super-admin", "subscriptions", params],
     queryFn: () => getSubscriptionPlans(params),
     enabled: Boolean(params.role),
+    retry: false,
   });
 }
 

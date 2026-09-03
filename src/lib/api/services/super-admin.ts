@@ -103,42 +103,42 @@ export async function deleteSuperAdminUser(
   return apiDelete(`/v1/super-admin/users/${user_id}`);
 }
 
-/** Ticket path: GET /api/super-admin/subscriptions */
+/** Live OpenAPI: GET /api/v1/super-admin/subscription-plans (ticket: /api/super-admin/subscriptions) */
 export async function getSubscriptionPlans(
   params: SubscriptionPlanListParams,
 ): Promise<SubscriptionPlanListResponse> {
   return apiGet(
-    `/super-admin/subscriptions${buildQueryString(params)}`,
+    `/v1/super-admin/subscription-plans${buildQueryString(params)}`,
   );
 }
 
-/** Ticket path: POST /api/super-admin/subscriptions */
+/** Live OpenAPI: POST /api/v1/super-admin/subscription-plans */
 export async function createSubscriptionPlan(
   data: SubscriptionPlanCreateRequest,
 ): Promise<SubscriptionPlan> {
-  return apiPost("/super-admin/subscriptions", data);
+  return apiPost("/v1/super-admin/subscription-plans", data);
 }
 
-/** Ticket path: PUT /api/super-admin/subscriptions/{id} */
+/** Live OpenAPI: PUT /api/v1/super-admin/subscription-plans/{plan_id}?role=... */
 export async function updateSubscriptionPlan(
   planId: string,
   role: SubscriptionPlanRole,
   data: SubscriptionPlanUpdateRequest,
 ): Promise<SubscriptionPlan> {
   return apiPut(
-    `/super-admin/subscriptions/${planId}${buildQueryString({ role })}`,
+    `/v1/super-admin/subscription-plans/${planId}${buildQueryString({ role })}`,
     data,
   );
 }
 
-/** Ticket path: DELETE /api/super-admin/subscriptions/{id} (archives active plans) */
+/** Live OpenAPI: DELETE /api/v1/super-admin/subscription-plans/{plan_id}?role=... (archives active plans) */
 export async function deleteSubscriptionPlan(
   planId: string,
   role: SubscriptionPlanRole,
   replacementPlanId?: string,
 ): Promise<SubscriptionPlanDeleteResponse> {
   return apiDelete(
-    `/super-admin/subscriptions/${planId}${buildQueryString({
+    `/v1/super-admin/subscription-plans/${planId}${buildQueryString({
       role,
       replacement_plan_id: replacementPlanId,
     })}`,
@@ -148,11 +148,11 @@ export async function deleteSubscriptionPlan(
 /** @deprecated Use deleteSubscriptionPlan */
 export const archiveSubscriptionPlan = deleteSubscriptionPlan;
 
-/** Ticket path: GET /api/super-admin/support-requests */
+/** Live OpenAPI: GET /api/v1/support-requests (ticket: /api/super-admin/support-requests) */
 export async function getSupportRequests(
   params: SupportRequestListParams = {},
 ): Promise<PaginatedResponse<SupportRequest>> {
-  return apiGet(`/super-admin/support-requests${buildQueryString(params)}`);
+  return apiGet(`/v1/support-requests${buildQueryString(params)}`);
 }
 
 /** Ticket path: POST /api/super-admin/support-requests */

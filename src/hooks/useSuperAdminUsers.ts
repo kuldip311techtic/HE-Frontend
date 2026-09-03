@@ -15,6 +15,7 @@ export function useSuperAdminUsers(params: AdminUserListParams) {
   return useQuery({
     queryKey: ["super-admin", "users", params],
     queryFn: () => getSuperAdminUsers(params),
+    retry: false,
   });
 }
 
