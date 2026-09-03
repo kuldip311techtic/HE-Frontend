@@ -17,13 +17,6 @@ import {
   useFormField,
 } from "@/components/ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Card,
   CardContent,
   CardDescription,
@@ -107,8 +100,13 @@ interface RoleSelectFieldProps {
   onChange: (value: LoginFormValues["role"]) => void;
 }
 
+const loginNativeSelectClassName = cn(
+  loginSelectTriggerClassName,
+  "login-role-select cursor-pointer appearance-none bg-no-repeat pr-[40px]",
+);
+
 function RoleSelectControl({ value, onChange }: RoleSelectFieldProps) {
-  const { error } = useFormField();
+  const { error, formMessageId } = useFormField();
 
   return (
     <>
@@ -119,28 +117,27 @@ function RoleSelectControl({ value, onChange }: RoleSelectFieldProps) {
       >
         Role
       </FormLabel>
-      <Select onValueChange={onChange} value={value}>
-        <SelectTrigger
-          id={LOGIN_ROLE_TRIGGER_ID}
-          className={loginSelectTriggerClassName}
-          data-login-field="true"
-          aria-labelledby={LOGIN_ROLE_LABEL_ID}
-          aria-invalid={!!error}
-        >
-          <SelectValue placeholder="Select a role" />
-        </SelectTrigger>
-        <SelectContent className="border-figma-border bg-figma-surface font-outfit text-body-21 text-white">
-          {demoRoles.map((option) => (
-            <SelectItem
-              key={option.value}
-              value={option.value}
-              className="font-outfit text-body-21 focus:bg-figma-surface-deep focus:text-white"
-            >
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <select
+        id={LOGIN_ROLE_TRIGGER_ID}
+        name="role"
+        data-login-field="true"
+        value={value ?? ""}
+        aria-invalid={!!error}
+        aria-describedby={error ? formMessageId : undefined}
+        className={loginNativeSelectClassName}
+        onChange={(event) => {
+          onChange(event.target.value as LoginFormValues["role"]);
+        }}
+      >
+        <option value="" disabled hidden>
+          Select a role
+        </option>
+        {demoRoles.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
       <FormMessage className="font-outfit text-body-sm text-figma-danger" />
     </>
   );

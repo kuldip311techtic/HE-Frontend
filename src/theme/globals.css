@@ -251,6 +251,7 @@
   /* Login page — page-local input/button/select overrides (dark fill, dark CTA label) */
   .login-page input[type="email"],
   .login-page input[type="password"],
+  .login-page select[data-login-field="true"],
   .login-page [data-login-field="true"] {
     background-color: var(--figma-surface-deep) !important;
     border-color: var(--figma-border) !important;
@@ -284,6 +285,17 @@
 
   .login-page .login-field-label {
     font-family: "Lato", sans-serif !important;
+    color: var(--figma-accent) !important;
+  }
+
+  .login-page select.login-role-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23445154' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 14px center;
+    background-size: 16px;
+  }
+
+  .login-page select.login-role-select:invalid,
+  .login-page select.login-role-select option[value=""] {
     color: var(--figma-accent) !important;
   }
 }
