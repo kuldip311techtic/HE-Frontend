@@ -1,5 +1,11 @@
 import { forwardRef } from 'react';
-import { LayoutDashboard } from 'lucide-react';
+import {
+  Building2,
+  CreditCard,
+  LayoutDashboard,
+  MessageSquare,
+  Users,
+} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 import { cn } from '@/lib/utils';
@@ -9,6 +15,31 @@ const navItems = [
     label: 'Dashboard',
     to: '/admin',
     icon: LayoutDashboard,
+    end: true,
+  },
+  {
+    label: 'Organizations',
+    to: '/admin/organizations',
+    icon: Building2,
+    end: false,
+  },
+  {
+    label: 'Users',
+    to: '/admin/users',
+    icon: Users,
+    end: false,
+  },
+  {
+    label: 'Subscriptions',
+    to: '/admin/subscriptions',
+    icon: CreditCard,
+    end: false,
+  },
+  {
+    label: 'Support Requests',
+    to: '/admin/support-requests',
+    icon: MessageSquare,
+    end: false,
   },
 ];
 
@@ -36,7 +67,7 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
           <NavLink
             key={item.to}
             to={item.to}
-            end
+            end={item.end}
             onClick={onNavigate}
             className={({ isActive }) =>
               cn(

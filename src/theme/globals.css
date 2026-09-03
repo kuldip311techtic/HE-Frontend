@@ -304,6 +304,11 @@
   box-shadow: 0 0 0 2px var(--token-color-114) !important;
 }
 
+.login-page .login-field-input::placeholder {
+  color: var(--token-accent) !important;
+  opacity: 1 !important;
+}
+
 .login-page .login-field-input[data-placeholder] {
   color: var(--token-accent) !important;
 }
