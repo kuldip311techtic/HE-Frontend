@@ -51,32 +51,34 @@ export async function createSubscriptionPlan(
   return data;
 }
 
-/** PUT /api/super-admin/subscriptions/{id} */
+/** PUT /api/v1/super-admin/subscription-plans/{plan_id} */
 export async function updateSubscriptionPlan(
   planId: string,
-  _role: SubscriptionPlanRole,
+  role: SubscriptionPlanRole,
   payload: SubscriptionPlanUpdateRequest,
 ): Promise<SubscriptionPlanItem> {
   const updateRoute = CONTRACT_ROUTES.superAdminSubscriptionUpdate;
-  const contractPath = contractPathWithParams(updateRoute.path, { id: planId });
+  const contractPath = contractPathWithParams(updateRoute.path, { plan_id: planId });
   const { data } = await apiClient.request<SubscriptionPlanItem>({
     method: updateRoute.method,
     url: contractPathToClientPath(contractPath),
+    params: { role },
     data: payload,
   });
   return data;
 }
 
-/** DELETE /api/super-admin/subscriptions/{id} */
+/** DELETE /api/v1/super-admin/subscription-plans/{plan_id} */
 export async function archiveSubscriptionPlan(
   planId: string,
-  _role: SubscriptionPlanRole,
+  role: SubscriptionPlanRole,
 ): Promise<SubscriptionPlanDeleteResponse> {
   const deleteRoute = CONTRACT_ROUTES.superAdminSubscriptionDelete;
-  const contractPath = contractPathWithParams(deleteRoute.path, { id: planId });
+  const contractPath = contractPathWithParams(deleteRoute.path, { plan_id: planId });
   const { data } = await apiClient.request<SubscriptionPlanDeleteResponse>({
     method: deleteRoute.method,
     url: contractPathToClientPath(contractPath),
+    params: { role },
   });
   return data;
 }

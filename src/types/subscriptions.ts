@@ -1,3 +1,5 @@
+import type { PaginationMeta } from '@/types/api';
+
 export type SubscriptionPlanRole = 'org_admin' | 'coach';
 
 export type BillingFrequency = 'monthly' | 'yearly';
@@ -13,14 +15,7 @@ export type HistoricalRecordsDuration =
 
 export type PlanStatus = 'active' | 'archived';
 
-export interface PaginationMeta {
-  page: number;
-  page_size: number;
-  total: number;
-  total_pages: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
+export type { PaginationMeta };
 
 export interface SubscriptionPlanItem {
   id: string;

@@ -33,15 +33,23 @@ export function ConfirmDialog({
   variant = 'default',
   errorMessage = null,
 }: ConfirmDialogProps) {
+  const confirmDescribedBy = errorMessage
+    ? 'confirm-dialog-description confirm-dialog-error'
+    : 'confirm-dialog-description';
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} titleId="confirm-dialog-title" descriptionId="confirm-dialog-description">
       <DialogHeader>
         <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
+        <DialogDescription id="confirm-dialog-description">{description}</DialogDescription>
       </DialogHeader>
       <DialogContent>
         {errorMessage ? (
-          <p className="font-outfit text-body-sm text-destructive" role="alert">
+          <p
+            id="confirm-dialog-error"
+            className="font-outfit text-body-sm text-destructive"
+            role="alert"
+          >
             {errorMessage}
           </p>
         ) : null}
@@ -61,9 +69,10 @@ export function ConfirmDialog({
           onClick={onConfirm}
           isLoading={isLoading}
           disabled={isLoading}
-          aria-describedby="confirm-dialog-title"
+          aria-labelledby="confirm-dialog-title"
+          aria-describedby={confirmDescribedBy}
         >
-          {isLoading ? `${confirmLabel}…` : confirmLabel}
+          {confirmLabel}
         </Button>
       </DialogFooter>
     </Dialog>

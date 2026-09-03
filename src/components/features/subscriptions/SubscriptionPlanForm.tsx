@@ -15,11 +15,21 @@ import { useCurrencies } from '@/hooks/useCurrencies';
 import { parseApiError } from '@/lib/utils/errors';
 import type {
   BillingFrequency,
+  HistoricalRecordsDuration,
+  LimitType,
   SubscriptionPlanCreateRequest,
   SubscriptionPlanItem,
   SubscriptionPlanRole,
   SubscriptionPlanUpdateRequest,
 } from '@/types/subscriptions';
+
+const CREATE_PLAN_DEFAULTS = {
+  teams_limit_type: 'unlimited' as LimitType,
+  players_limit_type: 'unlimited' as LimitType,
+  historical_records_duration: 'unlimited' as HistoricalRecordsDuration,
+  include_offline_sync: false,
+  features: [] as string[],
+};
 
 interface SubscriptionPlanFormProps {
   open: boolean;
@@ -69,13 +79,13 @@ function buildCreatePayload(form: FormState, role: SubscriptionPlanRole): Subscr
     billing_frequency: form.billing_frequency,
     currency: form.currency,
     price_amount: form.price_amount.trim(),
-    teams_limit_type: 'unlimited',
-    players_limit_type: 'unlimited',
-    historical_records_duration: 'unlimited',
+    teams_limit_type: CREATE_PLAN_DEFAULTS.teams_limit_type,
+    players_limit_type: CREATE_PLAN_DEFAULTS.players_limit_type,
+    historical_records_duration: CREATE_PLAN_DEFAULTS.historical_records_duration,
     is_active: form.is_active,
-    include_offline_sync: false,
+    include_offline_sync: CREATE_PLAN_DEFAULTS.include_offline_sync,
     description: form.description.trim() || null,
-    features: [],
+    features: CREATE_PLAN_DEFAULTS.features,
   };
 }
 
@@ -179,6 +189,17 @@ export function SubscriptionPlanForm({
           {formError ? (
             <p className="font-outfit text-body-sm text-destructive" role="alert">
               {formError}
+            </p>
+          ) : null}
+
+          {mode === 'create' ? (
+            <p
+              id="plan-defaults-note"
+              className="rounded-lg border border-border bg-muted/30 px-3 py-2 font-outfit text-body-sm text-muted-foreground"
+            >
+              New plans are created with unlimited team and player limits, unlimited historical
+              records, and offline sync disabled. These defaults match the platform standard for
+              initial subscription offerings.
             </p>
           ) : null}
 
@@ -340,7 +361,7 @@ export function SubscriptionPlanForm({
             Cancel
           </Button>
           <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
-            {isSubmitting ? 'Saving…' : 'Save'}
+            Save
           </Button>
         </DialogFooter>
       </form>

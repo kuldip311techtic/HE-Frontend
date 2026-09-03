@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import type { PaginationMeta } from '@/types/subscriptions';
+import type { PaginationMeta } from '@/types/api';
 import { cn } from '@/lib/utils/cn';
 
 interface TablePaginationProps {

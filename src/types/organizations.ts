@@ -1,11 +1,6 @@
-export interface PaginationMeta {
-  page: number;
-  page_size: number;
-  total: number;
-  total_pages: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
+import type { PaginationMeta } from '@/types/api';
+
+export type { PaginationMeta };
 
 export interface OrganizationItem {
   id: string;

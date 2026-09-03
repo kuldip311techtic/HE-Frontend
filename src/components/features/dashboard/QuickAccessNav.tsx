@@ -12,7 +12,8 @@ import {
   resolveQuickAccessIcon,
 } from '@/lib/navigation/admin-routes';
 import { getApiErrorMessage } from '@/lib/utils/errors';
-import { QuickAccessLinkCard, QuickAccessRetryButton } from './QuickAccessLinkCard';
+import { QuickAccessLinkCard } from './QuickAccessLinkCard';
+import { QuickAccessRetryButton } from './QuickAccessRetryButton';
 
 const SKELETON_COUNT = QUICK_ACCESS_STATIC_LINKS.length;
 

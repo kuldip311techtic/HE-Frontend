@@ -248,7 +248,7 @@ export function OrganizationForm({
             Cancel
           </Button>
           <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
-            {isSubmitting ? 'Saving…' : 'Save'}
+            Save
           </Button>
         </DialogFooter>
       </form>

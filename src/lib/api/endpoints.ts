@@ -26,26 +26,26 @@ export const CONTRACT_ROUTES = {
   },
   superAdminSubscriptionPlans: {
     method: 'GET' as const,
-    /** Ticket alias: GET /api/super-admin/subscriptions (JAW-9612) */
+    /** Ticket alias: GET /api/super-admin/subscriptions — live route is /api/v1/super-admin/subscription-plans (JAW-9612) */
     path: '/api/v1/super-admin/subscription-plans',
     listUnwrapKey: 'items' as string | null,
   },
   superAdminSubscriptionPlansCreate: {
     method: 'POST' as const,
-    /** Ticket alias: POST /api/super-admin/subscriptions */
+    /** Ticket alias: POST /api/super-admin/subscriptions — live route is /api/v1/super-admin/subscription-plans */
     path: '/api/v1/super-admin/subscription-plans',
     listUnwrapKey: null as string | null,
   },
   superAdminSubscriptionUpdate: {
     method: 'PUT' as const,
-    /** Ticket path: PUT /api/super-admin/subscriptions/{id} (JAW-9612) */
-    path: '/api/super-admin/subscriptions/{id}',
+    /** Ticket alias: PUT /api/super-admin/subscriptions/{id} — live route is /api/v1/super-admin/subscription-plans/{plan_id} */
+    path: '/api/v1/super-admin/subscription-plans/{plan_id}',
     listUnwrapKey: null as string | null,
   },
   superAdminSubscriptionDelete: {
     method: 'DELETE' as const,
-    /** Ticket path: DELETE /api/super-admin/subscriptions/{id} (JAW-9612) */
-    path: '/api/super-admin/subscriptions/{id}',
+    /** Ticket alias: DELETE /api/super-admin/subscriptions/{id} — live route is /api/v1/super-admin/subscription-plans/{plan_id} */
+    path: '/api/v1/super-admin/subscription-plans/{plan_id}',
     listUnwrapKey: null as string | null,
   },
   superAdminSubscriptionPlansCurrencies: {

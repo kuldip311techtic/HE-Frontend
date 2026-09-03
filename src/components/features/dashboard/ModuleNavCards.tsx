@@ -37,11 +37,11 @@ export function ModuleNavCards() {
                     {isAvailable ? 'Available' : 'Coming soon'}
                   </Badge>
                 </div>
-                <CardTitle className="text-base">{title}</CardTitle>
+                <CardTitle className="text-body-25">{title}</CardTitle>
                 <CardDescription>{description}</CardDescription>
               </CardHeader>
-              <CardContent>
-                {href ? (
+              {href ? (
+                <CardContent>
                   <Button asChild variant="outline" size="sm">
                     <NavLink
                       to={href}
@@ -50,15 +50,8 @@ export function ModuleNavCards() {
                       Open module
                     </NavLink>
                   </Button>
-                ) : (
-                  <span
-                    aria-disabled="true"
-                    className="font-outfit text-body-sm text-muted-foreground"
-                  >
-                    Coming in a future release
-                  </span>
-                )}
-              </CardContent>
+                </CardContent>
+              ) : null}
             </Card>
           );
         })}
