@@ -5,11 +5,12 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -72,11 +73,10 @@ export function LoginPage() {
         </CardHeader>
         <CardContent className="px-[24px] pb-[32px] pt-[20px]">
           <form className="flex flex-col gap-[20px]" onSubmit={handleSubmit} noValidate>
-            <div className="flex flex-col gap-[12px]">
-              <Label id="role-label" htmlFor="role" className="login-field-label">
-                Role
-              </Label>
+            <label className="flex flex-col gap-[12px]">
               <Select
+                name="role"
+                required
                 value={role}
                 onValueChange={(value) => {
                   if (isLoginRole(value)) {
@@ -85,15 +85,19 @@ export function LoginPage() {
                   }
                 }}
               >
-                <SelectTrigger
-                  id="role"
-                  className="login-field-input"
-                  aria-label="Role"
-                  aria-labelledby="role-label"
-                  aria-invalid={Boolean(validationError)}
-                >
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
+                <SelectGroup className="flex flex-col gap-[12px]">
+                  <SelectLabel className="login-field-label py-0 pl-0 pr-0 font-medium">
+                    Role
+                  </SelectLabel>
+                  <SelectTrigger
+                    id="role"
+                    className="login-field-input"
+                    aria-label="Role"
+                    aria-invalid={Boolean(validationError)}
+                  >
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                </SelectGroup>
                 <SelectContent className="login-select-content">
                   {ROLE_OPTIONS.map((option) => (
                     <SelectItem key={option} value={option} className="login-select-item">
@@ -107,7 +111,7 @@ export function LoginPage() {
                   {validationError}
                 </p>
               ) : null}
-            </div>
+            </label>
             <Button
               type="submit"
               variant="ghost"
