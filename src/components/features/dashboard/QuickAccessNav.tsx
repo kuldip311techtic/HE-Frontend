@@ -21,7 +21,7 @@ export function QuickAccessNav() {
   const { data, isLoading, isError, error, refetch, isFetching, isSuccess } = useQuickAccess();
 
   const apiLinks = useMemo(() => {
-    if (!isSuccess || !data?.length) return null;
+    if (!isSuccess || data === null || !data.length) return null;
 
     return data.map((item) => {
       const targetPath = normalizeAdminRoute(item.link);
@@ -47,7 +47,8 @@ export function QuickAccessNav() {
     [],
   );
 
-  const links = apiLinks ?? (isError ? fallbackLinks : null);
+  const useFallbackLinks = (isSuccess && data === null) || isError;
+  const links = apiLinks ?? (useFallbackLinks ? fallbackLinks : null);
 
   return (
     <section aria-labelledby="quick-access-heading" className="quick-access-section">
@@ -95,7 +96,7 @@ export function QuickAccessNav() {
         </div>
       ) : null}
 
-      {isSuccess && !data?.length ? (
+      {isSuccess && data !== null && !data.length ? (
         <EmptyState
           title="No quick access links configured"
           description="Quick access modules will appear here once they are available from the server."

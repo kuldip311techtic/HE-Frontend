@@ -1,19 +1,27 @@
 import type { AuthUser } from '@/types/auth';
 
-/** Placeholder token used only when Luna validation login fails in dev. */
-export const LUNA_VALIDATION_PROBE_TOKEN = 'luna-validation-probe';
-
 const OPENAPI_LOGIN_EXAMPLE = {
   email: 'admin.hoopsengine@yopmail.com',
   password: 'Admin@123',
 } as const;
 
+const PUBLIC_ADMIN_ROUTES = new Set(['/admin/login', '/admin/unauthorized']);
+
+export function isPublicAdminRoute(pathname = window.location.pathname): boolean {
+  const normalized = pathname.replace(/\/$/, '') || '/';
+  return PUBLIC_ADMIN_ROUTES.has(normalized);
+}
+
 export function isLunaValidationMode(): boolean {
   return Boolean(
-    import.meta.env.VITE_LUNA_VALIDATION_EMAIL ||
+    import.meta.env.VITE_LUNA_VALIDATION_EMAIL?.trim() ||
       import.meta.env.VITE_LUNA_VALIDATION_PASSWORD ||
-      import.meta.env.VITE_LUNA_VALIDATION_ACCESS_TOKEN,
+      import.meta.env.VITE_LUNA_VALIDATION_ACCESS_TOKEN?.trim(),
   );
+}
+
+export function getValidationAccessToken(): string | null {
+  return import.meta.env.VITE_LUNA_VALIDATION_ACCESS_TOKEN?.trim() || null;
 }
 
 export function getValidationLoginCredentials(): { email: string; password: string } | null {
@@ -44,8 +52,4 @@ export function createValidationSuperAdminUser(email?: string): AuthUser {
     is_active: true,
     last_sign_in_at: null,
   };
-}
-
-export function isValidationProbeToken(token: string | null | undefined): boolean {
-  return token === LUNA_VALIDATION_PROBE_TOKEN;
 }

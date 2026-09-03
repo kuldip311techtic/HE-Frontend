@@ -94,6 +94,10 @@ export function getApiErrorMessage(error: unknown, fallback = 'Something went wr
       return 'Your session may have expired. Please sign in again.';
     }
 
+    if (status === 404) {
+      return fallback;
+    }
+
     if (status >= 500) {
       return fallback;
     }

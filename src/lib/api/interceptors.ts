@@ -1,13 +1,21 @@
 import type { InternalAxiosRequestConfig } from 'axios';
 import { apiClient } from './client';
 import { getAuthToken, clearAuthStorage } from '@/lib/auth/auth-storage';
-import { isValidationProbeToken } from '@/lib/validation/config';
+
+const PUBLIC_AUTH_PATHS = ['/v1/auth/login', '/v1/auth/forgot-password', '/v1/auth/reset-password'];
+
+function isPublicAuthRequest(url: string | undefined): boolean {
+  if (!url) return false;
+  return PUBLIC_AUTH_PATHS.some((path) => url.includes(path));
+}
 
 export function setupApiInterceptors(): void {
   apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const token = getAuthToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (!isPublicAuthRequest(config.url)) {
+      const token = getAuthToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   });
@@ -17,8 +25,8 @@ export function setupApiInterceptors(): void {
     (error) => {
       if (error.response?.status === 401) {
         const hadAuthHeader = Boolean(error.config?.headers?.Authorization);
-        const token = getAuthToken();
-        if (hadAuthHeader && !isValidationProbeToken(token)) {
+        const isLoginRequest = isPublicAuthRequest(error.config?.url);
+        if (hadAuthHeader && !isLoginRequest) {
           clearAuthStorage();
         }
       }

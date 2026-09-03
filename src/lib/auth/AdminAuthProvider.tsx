@@ -17,11 +17,11 @@ import {
 import { isAdminRole } from '@/lib/auth/roles';
 import {
   createValidationSuperAdminUser,
+  getValidationAccessToken,
   getValidationLoginCredentials,
   isLunaValidationMode,
-  LUNA_VALIDATION_PROBE_TOKEN,
+  isPublicAdminRoute,
 } from '@/lib/validation/config';
-import { probeSuperAdminContractGets } from '@/lib/validation/contract-probe';
 import type { AuthUser } from '@/types/auth';
 
 interface AdminAuthContextValue {
@@ -35,6 +35,28 @@ interface AdminAuthContextValue {
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
 
+async function tryValidationLogin(): Promise<AuthUser | null> {
+  const accessToken = getValidationAccessToken();
+  if (accessToken) {
+    const validationUser = createValidationSuperAdminUser();
+    setAuthStorage(accessToken, validationUser);
+    return validationUser;
+  }
+
+  const credentials = getValidationLoginCredentials();
+  if (!credentials) {
+    return null;
+  }
+
+  try {
+    const response = await loginApi(credentials);
+    setAuthStorage(response.access_token, response.user);
+    return response.user;
+  } catch {
+    return null;
+  }
+}
+
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isHydrating, setIsHydrating] = useState(true);
@@ -45,41 +67,36 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     async function hydrateSession() {
       const token = getAuthToken();
       const storedUser = getStoredUser();
+      const onPublicRoute = isPublicAdminRoute();
+
+      if (onPublicRoute) {
+        if (token && storedUser) {
+          if (!cancelled) {
+            setUser(storedUser);
+          }
+        } else if (!cancelled) {
+          setUser(null);
+        }
+
+        if (!cancelled) {
+          setIsHydrating(false);
+        }
+        return;
+      }
+
       if (token && storedUser) {
         if (!cancelled) {
           setUser(storedUser);
+          setIsHydrating(false);
         }
-      } else {
-        const validationToken = import.meta.env.VITE_LUNA_VALIDATION_ACCESS_TOKEN?.trim();
-        if (validationToken) {
-          const validationUser = createValidationSuperAdminUser();
-          if (!cancelled) {
-            setAuthStorage(validationToken, validationUser);
-            setUser(validationUser);
-          }
-        } else {
-          const credentials = getValidationLoginCredentials();
-          if (credentials) {
-            try {
-              const response = await loginApi(credentials);
-              if (!cancelled) {
-                setAuthStorage(response.access_token, response.user);
-                setUser(response.user);
-              }
-            } catch {
-              // Dev validation: mount protected routes and issue contract GETs when login fails.
-              if (!cancelled && import.meta.env.DEV && isLunaValidationMode()) {
-                const validationUser = createValidationSuperAdminUser(credentials.email);
-                setAuthStorage(LUNA_VALIDATION_PROBE_TOKEN, validationUser);
-                setUser(validationUser);
-              }
-            }
-          }
-        }
+        return;
       }
 
-      if (!cancelled && isLunaValidationMode()) {
-        await probeSuperAdminContractGets();
+      if (isLunaValidationMode()) {
+        const validationUser = await tryValidationLogin();
+        if (!cancelled) {
+          setUser(validationUser);
+        }
       }
 
       if (!cancelled) {
