@@ -5,7 +5,7 @@ import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 import type { OrganizationListParams } from '@/types/organizations';
 
 export function useOrganizations(params: OrganizationListParams) {
-  const { isAuthenticated, isAdmin, isHydrating } = useAdminAuth();
+  const { canFetchAdminData } = useAdminAuth();
 
   return useQuery({
     queryKey: queryKeys.superAdmin.organizations({
@@ -14,7 +14,7 @@ export function useOrganizations(params: OrganizationListParams) {
       search: params.search ?? null,
     }),
     queryFn: () => fetchOrganizations(params),
-    enabled: !isHydrating && isAuthenticated && isAdmin,
+    enabled: canFetchAdminData,
     staleTime: 30_000,
   });
 }

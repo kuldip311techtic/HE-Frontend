@@ -31,7 +31,7 @@ async function fetchServerValidationAuthOnce(): Promise<ServerValidationAuthResp
 
 /** Poll the Vite dev-server auth endpoint until Luna validation login succeeds or times out. */
 export async function waitForServerValidationAuth(
-  maxAttempts = 120,
+  maxAttempts = 10,
   intervalMs = 500,
 ): Promise<ServerValidationAuthResponse | null> {
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {

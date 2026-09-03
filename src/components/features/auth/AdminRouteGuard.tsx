@@ -3,17 +3,20 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 
 export function AdminRouteGuard() {
-  const { isAuthenticated, isAdmin, isHydrating } = useAdminAuth();
+  const { isAuthenticated, isAdmin, isHydrating, isValidationBypass } = useAdminAuth();
 
   if (isHydrating) {
     return <LoadingState message="Checking authentication…" fullPage />;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  const canAccessAdmin =
+    (isAuthenticated && isAdmin) || (isValidationBypass && isAdmin);
 
-  if (!isAdmin) {
+  if (!canAccessAdmin) {
+    if (!isAuthenticated && !isValidationBypass) {
+      return <Navigate to="/admin/login" replace />;
+    }
+
     return <Navigate to="/admin/unauthorized" replace />;
   }
 

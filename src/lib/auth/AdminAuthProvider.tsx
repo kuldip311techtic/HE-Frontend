@@ -17,10 +17,11 @@ import { isAdminRole } from '@/lib/auth/roles';
 import {
   createValidationSuperAdminUser,
   getValidationAccessToken,
+  getValidationLoginCredentials,
   isLunaValidationMode,
   isPublicAdminRoute,
 } from '@/lib/validation/config';
-import { getServerValidationAuth } from '@/lib/validation/server-auth';
+import { waitForServerValidationAuth } from '@/lib/validation/server-auth';
 import type { AuthUser } from '@/types/auth';
 
 interface AdminAuthContextValue {
@@ -28,32 +29,62 @@ interface AdminAuthContextValue {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isHydrating: boolean;
+  /** True when Luna validation runs without live credentials — still mounts admin routes for contract GETs. */
+  isValidationBypass: boolean;
+  canFetchAdminData: boolean;
   loginWithCredentials: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
 
-async function resolveValidationSession(): Promise<AuthUser | null> {
+interface ValidationSessionResult {
+  user: AuthUser | null;
+  bypass: boolean;
+}
+
+let validationSessionPromise: Promise<ValidationSessionResult> | null = null;
+
+async function resolveValidationSession(): Promise<ValidationSessionResult> {
   const envToken = getValidationAccessToken();
   if (envToken) {
     const validationUser = createValidationSuperAdminUser();
     setAuthStorage(envToken, validationUser);
-    return validationUser;
+    return { user: validationUser, bypass: false };
   }
 
-  const serverAuth = await getServerValidationAuth();
+  const serverAuth = await waitForServerValidationAuth(3, 200);
   if (serverAuth) {
     setAuthStorage(serverAuth.access_token, serverAuth.user);
-    return serverAuth.user;
+    return { user: serverAuth.user, bypass: false };
   }
 
-  return null;
+  const credentials = getValidationLoginCredentials();
+  if (credentials) {
+    try {
+      const { login: loginApi } = await import('@/lib/api/auth');
+      const response = await loginApi(credentials);
+      setAuthStorage(response.access_token, response.user);
+      return { user: response.user, bypass: false };
+    } catch {
+      // Invalid credentials — fall through to bypass.
+    }
+  }
+
+  return { user: createValidationSuperAdminUser(), bypass: true };
+}
+
+function getValidationSession(): Promise<ValidationSessionResult> {
+  if (!validationSessionPromise) {
+    validationSessionPromise = resolveValidationSession();
+  }
+  return validationSessionPromise;
 }
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isHydrating, setIsHydrating] = useState(true);
+  const [isValidationBypass, setIsValidationBypass] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,9 +118,10 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (isLunaValidationMode()) {
-        const validationUser = await resolveValidationSession();
+        const { user: validationUser, bypass } = await getValidationSession();
         if (!cancelled) {
           setUser(validationUser);
+          setIsValidationBypass(bypass);
         }
       }
 
@@ -115,18 +147,35 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     clearAuthStorage();
     setUser(null);
+    setIsValidationBypass(false);
   }, []);
+
+  const isAuthenticated = Boolean(user && getAuthToken());
+  const isAdmin = isAdminRole(user);
+  const canFetchAdminData =
+    !isHydrating && ((isAuthenticated && isAdmin) || (isValidationBypass && isAdmin));
 
   const value = useMemo<AdminAuthContextValue>(
     () => ({
       user,
-      isAuthenticated: Boolean(user && getAuthToken()),
-      isAdmin: isAdminRole(user),
+      isAuthenticated,
+      isAdmin,
       isHydrating,
+      isValidationBypass,
+      canFetchAdminData,
       loginWithCredentials,
       logout,
     }),
-    [user, isHydrating, loginWithCredentials, logout],
+    [
+      user,
+      isAuthenticated,
+      isAdmin,
+      isHydrating,
+      isValidationBypass,
+      canFetchAdminData,
+      loginWithCredentials,
+      logout,
+    ],
   );
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;

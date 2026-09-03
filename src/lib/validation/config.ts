@@ -5,6 +5,10 @@ const OPENAPI_LOGIN_EXAMPLE = {
   password: 'Admin@123',
 } as const;
 
+/** OpenAPI example session_token for GET /api/v1/player/role-selection */
+export const VALIDATION_ROLE_SELECTION_SESSION_TOKEN =
+  '11111111-2222-3333-4444-555555555555';
+
 const PUBLIC_ADMIN_ROUTES = new Set(['/admin/login', '/admin/unauthorized']);
 
 export const LUNA_VALIDATION_AUTH_JSON_PATH = '/__luna_validation_auth.json';
