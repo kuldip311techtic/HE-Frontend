@@ -1,6 +1,7 @@
 import type { InternalAxiosRequestConfig } from 'axios';
 import { apiClient } from './client';
 import { getAuthToken, clearAuthStorage } from '@/lib/auth/auth-storage';
+import { isValidationProbeToken } from '@/lib/validation/config';
 
 export function setupApiInterceptors(): void {
   apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
@@ -16,7 +17,8 @@ export function setupApiInterceptors(): void {
     (error) => {
       if (error.response?.status === 401) {
         const hadAuthHeader = Boolean(error.config?.headers?.Authorization);
-        if (hadAuthHeader) {
+        const token = getAuthToken();
+        if (hadAuthHeader && !isValidationProbeToken(token)) {
           clearAuthStorage();
         }
       }

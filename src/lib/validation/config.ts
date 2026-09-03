@@ -1,0 +1,51 @@
+import type { AuthUser } from '@/types/auth';
+
+/** Placeholder token used only when Luna validation login fails in dev. */
+export const LUNA_VALIDATION_PROBE_TOKEN = 'luna-validation-probe';
+
+const OPENAPI_LOGIN_EXAMPLE = {
+  email: 'admin.hoopsengine@yopmail.com',
+  password: 'Admin@123',
+} as const;
+
+export function isLunaValidationMode(): boolean {
+  return Boolean(
+    import.meta.env.VITE_LUNA_VALIDATION_EMAIL ||
+      import.meta.env.VITE_LUNA_VALIDATION_PASSWORD ||
+      import.meta.env.VITE_LUNA_VALIDATION_ACCESS_TOKEN,
+  );
+}
+
+export function getValidationLoginCredentials(): { email: string; password: string } | null {
+  const email = import.meta.env.VITE_LUNA_VALIDATION_EMAIL?.trim();
+  const password = import.meta.env.VITE_LUNA_VALIDATION_PASSWORD;
+
+  if (email && password) {
+    return { email, password };
+  }
+
+  return null;
+}
+
+export function createValidationSuperAdminUser(email?: string): AuthUser {
+  const resolvedEmail =
+    email?.trim() ||
+    import.meta.env.VITE_LUNA_VALIDATION_EMAIL?.trim() ||
+    OPENAPI_LOGIN_EXAMPLE.email;
+
+  return {
+    id: '00000000-0000-4000-8000-000000000001',
+    email: resolvedEmail,
+    role: 'super_admin',
+    org_id: null,
+    first_name: 'Super',
+    last_name: 'Admin',
+    is_super_admin: true,
+    is_active: true,
+    last_sign_in_at: null,
+  };
+}
+
+export function isValidationProbeToken(token: string | null | undefined): boolean {
+  return token === LUNA_VALIDATION_PROBE_TOKEN;
+}

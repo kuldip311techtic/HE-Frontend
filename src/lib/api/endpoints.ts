@@ -85,7 +85,7 @@ export function contractPathWithParams(
 
 export type ContractRoute = (typeof CONTRACT_ROUTES)[keyof typeof CONTRACT_ROUTES];
 
-const DEFAULT_API_BASE_URL = 'http://localhost:3300/api';
+const DEFAULT_API_BASE_URL = '/api';
 
 /**
  * Strip the `/api` prefix from contract paths when the client baseURL already ends with `/api`.

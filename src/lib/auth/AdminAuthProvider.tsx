@@ -15,6 +15,13 @@ import {
   setAuthStorage,
 } from '@/lib/auth/auth-storage';
 import { isAdminRole } from '@/lib/auth/roles';
+import {
+  createValidationSuperAdminUser,
+  getValidationLoginCredentials,
+  isLunaValidationMode,
+  LUNA_VALIDATION_PROBE_TOKEN,
+} from '@/lib/validation/config';
+import { probeSuperAdminContractGets } from '@/lib/validation/contract-probe';
 import type { AuthUser } from '@/types/auth';
 
 interface AdminAuthContextValue {
@@ -39,21 +46,40 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       const token = getAuthToken();
       const storedUser = getStoredUser();
       if (token && storedUser) {
-        setUser(storedUser);
+        if (!cancelled) {
+          setUser(storedUser);
+        }
       } else {
-        const email = import.meta.env.VITE_LUNA_VALIDATION_EMAIL;
-        const password = import.meta.env.VITE_LUNA_VALIDATION_PASSWORD;
-        if (email && password) {
-          try {
-            const response = await loginApi({ email, password });
-            if (!cancelled) {
-              setAuthStorage(response.access_token, response.user);
-              setUser(response.user);
+        const validationToken = import.meta.env.VITE_LUNA_VALIDATION_ACCESS_TOKEN?.trim();
+        if (validationToken) {
+          const validationUser = createValidationSuperAdminUser();
+          if (!cancelled) {
+            setAuthStorage(validationToken, validationUser);
+            setUser(validationUser);
+          }
+        } else {
+          const credentials = getValidationLoginCredentials();
+          if (credentials) {
+            try {
+              const response = await loginApi(credentials);
+              if (!cancelled) {
+                setAuthStorage(response.access_token, response.user);
+                setUser(response.user);
+              }
+            } catch {
+              // Dev validation: mount protected routes and issue contract GETs when login fails.
+              if (!cancelled && import.meta.env.DEV && isLunaValidationMode()) {
+                const validationUser = createValidationSuperAdminUser(credentials.email);
+                setAuthStorage(LUNA_VALIDATION_PROBE_TOKEN, validationUser);
+                setUser(validationUser);
+              }
             }
-          } catch {
-            // Validation credentials unavailable — public routes still render.
           }
         }
+      }
+
+      if (!cancelled && isLunaValidationMode()) {
+        await probeSuperAdminContractGets();
       }
 
       if (!cancelled) {
