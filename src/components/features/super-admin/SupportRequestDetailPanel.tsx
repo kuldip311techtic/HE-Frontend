@@ -4,18 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  SUPPORT_CLOSE_BLOCKED_NOTICE,
+  SUPPORT_RESPOND_BLOCKED_NOTICE,
+} from "@/lib/blocked-endpoint";
 import type { SupportRequest } from "@/types/api";
 
 interface SupportRequestDetailPanelProps {
   request: SupportRequest | null;
   isLoading?: boolean;
 }
-
-const BACKEND_UNAVAILABLE_NOTICE =
-  "Response submission requires a backend endpoint (not yet available).";
-
-const CLOSE_UNAVAILABLE_NOTICE =
-  "Closing requests requires a backend endpoint (not yet available).";
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return "—";
@@ -132,7 +130,7 @@ export function SupportRequestDetailPanel({
               className="text-body-sm text-muted-foreground"
               role="status"
             >
-              {BACKEND_UNAVAILABLE_NOTICE}
+              {SUPPORT_RESPOND_BLOCKED_NOTICE}
             </p>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -159,7 +157,7 @@ export function SupportRequestDetailPanel({
             className="mt-2 text-body-sm text-muted-foreground"
             role="status"
           >
-            {CLOSE_UNAVAILABLE_NOTICE}
+            {SUPPORT_CLOSE_BLOCKED_NOTICE}
           </p>
         </div>
       </CardContent>

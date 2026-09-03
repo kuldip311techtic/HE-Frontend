@@ -272,14 +272,3 @@ export interface SubscriptionPlanListParams extends ListQueryParams {
 }
 
 export type SupportRequestListParams = ListQueryParams;
-
-export interface SupportRequestRespondRequest {
-  request_id: string;
-  response: string;
-}
-
-export interface SupportRequestMutationResponse {
-  message: string;
-  id?: string;
-  status?: SupportRequestStatus;
-}
