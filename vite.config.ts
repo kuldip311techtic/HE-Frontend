@@ -1,7 +1,26 @@
 import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import { resolveApiBaseUrl } from "./src/lib/api/resolve-base-url";
+
+function resolveApiBaseUrl(configured: string | undefined): string {
+  const defaultBase = "/api";
+  const value = configured?.trim() || defaultBase;
+
+  if (!value.startsWith("http")) {
+    return value;
+  }
+
+  try {
+    const parsed = new URL(value);
+    if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
+      return parsed.pathname.replace(/\/$/, "") || defaultBase;
+    }
+  } catch {
+    return defaultBase;
+  }
+
+  return value;
+}
 
 const apiBaseUrl = resolveApiBaseUrl(process.env.VITE_API_BASE_URL);
 
@@ -31,10 +50,5 @@ export default defineConfig({
   preview: {
     host: true,
     proxy: apiProxy,
-  },
-  test: {
-    globals: true,
-    environment: "jsdom",
-    setupFiles: "./tests/setup.ts",
   },
 });

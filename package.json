@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:luna": "VITE_LUNA_VALIDATION=true vite --port 41000 --host 127.0.0.1 --strictPort",
-    "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc -b --noEmit",
+    "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\"",

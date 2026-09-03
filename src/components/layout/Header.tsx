@@ -52,7 +52,11 @@ export function Header({ onMenuClick, title = "Admin Panel" }: HeaderProps) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2 px-2">
+            <Button
+              variant="ghost"
+              className="gap-2 px-2"
+              aria-label={`Account menu for ${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()}
+            >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
                 {user?.firstName?.[0]}
                 {user?.lastName?.[0]}

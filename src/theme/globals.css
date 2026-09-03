@@ -252,38 +252,38 @@
   .login-page input[type="email"],
   .login-page input[type="password"],
   .login-page [data-login-field="true"] {
-    background-color: #0b1f12 !important;
-    border-color: #0d1612 !important;
+    background-color: var(--figma-surface-deep) !important;
+    border-color: var(--figma-border) !important;
     color: #ffffff !important;
     font-family: "Outfit", sans-serif !important;
   }
 
   .login-page input[type="email"]::placeholder,
   .login-page input[type="password"]::placeholder {
-    color: #445154 !important;
+    color: var(--figma-accent) !important;
     font-family: "Outfit", sans-serif !important;
   }
 
   .login-page .login-submit-btn {
-    background-color: #86d31f !important;
-    border-color: #0d1612 !important;
-    color: #0d1612 !important;
+    background-color: var(--figma-brand) !important;
+    border-color: var(--figma-border) !important;
+    color: var(--figma-border) !important;
     font-family: "Outfit", sans-serif !important;
   }
 
   .login-page .login-submit-btn:hover,
   .login-page .login-submit-btn:focus-visible,
   .login-page .login-submit-btn:active {
-    background-color: color-mix(in srgb, #86d31f 90%, #0d1612) !important;
-    color: #0d1612 !important;
+    background-color: color-mix(in srgb, var(--figma-brand) 90%, var(--figma-border)) !important;
+    color: var(--figma-border) !important;
   }
 
   .login-page .login-submit-btn svg {
-    color: #0d1612 !important;
+    color: var(--figma-border) !important;
   }
 
   .login-page .login-field-label {
     font-family: "Lato", sans-serif !important;
-    color: #445154 !important;
+    color: var(--figma-accent) !important;
   }
 }

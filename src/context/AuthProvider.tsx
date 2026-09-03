@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -28,20 +29,27 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-function readStoredAuthState(): AuthState {
-  const token = getStoredToken();
-  const user = getStoredUser<AuthUser>();
-
-  return {
-    user,
-    token,
-    isLoading: false,
-    isAuthenticated: Boolean(token && user),
-  };
-}
+const initialAuthState: AuthState = {
+  user: null,
+  token: null,
+  isLoading: true,
+  isAuthenticated: false,
+};
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, setState] = useState<AuthState>(readStoredAuthState);
+  const [state, setState] = useState<AuthState>(initialAuthState);
+
+  useEffect(() => {
+    const token = getStoredToken();
+    const user = getStoredUser<AuthUser>();
+
+    setState({
+      user,
+      token,
+      isLoading: false,
+      isAuthenticated: Boolean(token && user),
+    });
+  }, []);
 
   const login = useCallback((token: string, user: AuthUser) => {
     setStoredToken(token);

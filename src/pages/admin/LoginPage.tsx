@@ -38,19 +38,6 @@ import {
 import type { UserRole } from "@/types/auth";
 import { cn } from "@/lib/utils";
 
-/** Figma GLOBAL DESIGN TOKENS — exact hex for this page */
-const FIGMA = {
-  accent: "#445154",
-  brand: "#86d31f",
-  border: "#0d1612",
-  background: "#081410",
-  surface: "#13291b",
-  surfaceDeep: "#0b1f12",
-  muted: "#9ca3af",
-  bright: "#4bcd39",
-  brandGlow: "#1bc94f1f",
-} as const;
-
 const demoRoles = [
   { value: "super_admin", label: "Super Admin" },
   { value: "organization_admin", label: "Organization Admin" },
@@ -76,39 +63,39 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-/** Page-only Input override — dark Figma field, not library-white */
+/** Page-only Input override — dark Figma field via theme tokens */
 const loginInputClassName = cn(
-  "!h-[44px] !w-full !rounded-[10px] !border !px-[14px] !py-0 !text-[16px] !leading-[22px] !shadow-none !ring-offset-0",
-  "!border-[#0d1612] !bg-[#0b1f12] !text-white",
+  "!h-[44px] !w-full !rounded-[10px] !border !px-[14px] !py-0 !shadow-none !ring-offset-0",
+  "!border-figma-border !bg-figma-surface-deep !text-white",
   "font-outfit text-body-21",
-  "placeholder:font-outfit placeholder:text-[16px] placeholder:leading-[22px] placeholder:text-[#445154]",
-  "hover:!border-[#445154]",
-  "focus-visible:!border-[#4bcd39] focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-[#1bc94f1f] focus-visible:!ring-offset-0",
+  "placeholder:font-outfit placeholder:text-body-21 placeholder:text-figma-accent",
+  "hover:!border-figma-accent",
+  "focus-visible:!border-figma-bright focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-figma-brand-glow focus-visible:!ring-offset-0",
   "disabled:cursor-not-allowed disabled:opacity-50",
 );
 
 const loginSelectTriggerClassName = cn(
   loginInputClassName,
   "data-[login-field=true]",
-  "data-[placeholder]:text-[#445154]",
-  "[&>span]:font-outfit [&>span]:text-[16px] [&>span]:leading-[22px]",
+  "data-[placeholder]:text-figma-accent",
+  "[&>span]:font-outfit [&>span]:text-body-21",
 );
 
-/** Page-only Button override — #86d31f fill with #0d1612 label (not white) */
+/** Page-only Button override — brand fill with dark label text */
 const loginButtonClassName = cn(
   "login-submit-btn !h-[44px] !w-full !rounded-[10px] !px-[14px] !py-0 !shadow-none !ring-offset-0",
-  "!border !border-[#0d1612] !bg-[#86d31f]",
-  "font-outfit text-body-10 !text-[#0d1612]",
-  "hover:!bg-[#86d31f]/90 hover:!text-[#0d1612]",
-  "active:!bg-[#86d31f]/80 active:!text-[#0d1612]",
-  "focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-[#4bcd39] focus-visible:!ring-offset-2 focus-visible:!ring-offset-[#081410]",
-  "[&_svg]:!text-[#0d1612]",
+  "!border !border-figma-border !bg-figma-brand",
+  "font-outfit text-body-10 !text-figma-border",
+  "hover:!bg-figma-brand/90 hover:!text-figma-border",
+  "active:!bg-figma-brand/80 active:!text-figma-border",
+  "focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-figma-bright focus-visible:!ring-offset-2 focus-visible:!ring-offset-figma-background",
+  "[&_svg]:!text-figma-border",
   "disabled:pointer-events-none disabled:opacity-50",
 );
 
 const loginErrorClassName = cn(
-  "rounded-[10px] border border-[#ff41411f] bg-[#ff414114] px-[14px] py-[12px]",
-  "font-outfit text-body-sm text-[#ff6b6b]",
+  "rounded-[10px] border border-figma-danger-subtle bg-figma-danger-muted px-[14px] py-[12px]",
+  "font-outfit text-body-sm text-figma-danger",
 );
 
 export function AdminLoginPage() {
@@ -162,10 +149,7 @@ export function AdminLoginPage() {
   };
 
   return (
-    <div
-      className="login-page relative flex min-h-screen font-outfit"
-      style={{ backgroundColor: FIGMA.background }}
-    >
+    <div className="login-page relative flex min-h-screen bg-figma-background font-outfit">
       <div
         className="login-bg-glow pointer-events-none absolute inset-0"
         aria-hidden="true"
@@ -174,35 +158,18 @@ export function AdminLoginPage() {
       <div className="relative z-10 flex w-full flex-col lg:min-h-screen lg:flex-row">
         {/* Form column — fixed 420px on desktop; do not widen */}
         <div className="flex min-h-screen w-full shrink-0 flex-col items-center justify-center px-[24px] py-[32px] lg:min-h-0 lg:w-[420px] lg:max-w-[420px] lg:flex-none lg:items-stretch lg:justify-center lg:px-[24px] lg:py-[32px]">
-          <Card
-            className="w-full rounded-[10px] shadow-none"
-            style={{
-              borderColor: FIGMA.border,
-              backgroundColor: FIGMA.surface,
-              color: "#ffffff",
-            }}
-          >
+          <Card className="w-full rounded-[10px] border-figma-border bg-figma-surface text-white shadow-none">
             <CardHeader className="space-y-[12px] px-[20px] pt-[24px] text-center">
-              <div
-                className="mx-auto flex h-[48px] w-[48px] items-center justify-center rounded-[100px]"
-                style={{ backgroundColor: FIGMA.brandGlow }}
-              >
+              <div className="mx-auto flex h-[48px] w-[48px] items-center justify-center rounded-[100px] bg-figma-brand-glow">
                 <Shield
-                  className="h-[24px] w-[24px]"
-                  style={{ color: FIGMA.bright }}
+                  className="h-[24px] w-[24px] text-figma-bright"
                   aria-hidden="true"
                 />
               </div>
-              <h1
-                className="font-outfit text-body-42"
-                style={{ color: "#ffffff" }}
-              >
+              <h1 className="font-outfit text-body-42 text-white">
                 Admin Sign In
               </h1>
-              <CardDescription
-                className="font-outfit text-body-21"
-                style={{ color: FIGMA.muted }}
-              >
+              <CardDescription className="font-outfit text-body-21 text-figma-muted">
                 Demo sign-in for local development. Select an admin role to
                 access the panel.
               </CardDescription>
@@ -218,13 +185,7 @@ export function AdminLoginPage() {
                     name="role"
                     render={({ field }) => (
                       <FormItem className="space-y-[10px]">
-                        <FormLabel
-                          className="login-field-label text-body-5"
-                          style={{
-                            fontFamily: "'Lato', sans-serif",
-                            color: FIGMA.accent,
-                          }}
-                        >
+                        <FormLabel className="login-field-label font-lato text-body-5 text-figma-accent">
                           Role
                         </FormLabel>
                         <Select
@@ -239,26 +200,19 @@ export function AdminLoginPage() {
                               <SelectValue placeholder="Select a role" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent
-                            className="font-outfit text-body-21"
-                            style={{
-                              borderColor: FIGMA.border,
-                              backgroundColor: FIGMA.surface,
-                              color: "#ffffff",
-                            }}
-                          >
+                          <SelectContent className="border-figma-border bg-figma-surface font-outfit text-body-21 text-white">
                             {demoRoles.map((option) => (
                               <SelectItem
                                 key={option.value}
                                 value={option.value}
-                                className="font-outfit text-body-21 focus:bg-[#0b1f12] focus:text-white"
+                                className="font-outfit text-body-21 focus:bg-figma-surface-deep focus:text-white"
                               >
                                 {option.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage className="font-outfit text-body-sm text-[#ff6b6b]" />
+                        <FormMessage className="font-outfit text-body-sm text-figma-danger" />
                       </FormItem>
                     )}
                   />
@@ -268,17 +222,9 @@ export function AdminLoginPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem className="space-y-[10px]">
-                        <FormLabel
-                          className="login-field-label text-body-5"
-                          style={{
-                            fontFamily: "'Lato', sans-serif",
-                            color: FIGMA.accent,
-                          }}
-                        >
+                        <FormLabel className="login-field-label font-lato text-body-5 text-figma-accent">
                           Email{" "}
-                          <span style={{ color: FIGMA.accent, opacity: 0.7 }}>
-                            (optional)
-                          </span>
+                          <span className="text-figma-accent/70">(optional)</span>
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -289,7 +235,7 @@ export function AdminLoginPage() {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="font-outfit text-body-sm text-[#ff6b6b]" />
+                        <FormMessage className="font-outfit text-body-sm text-figma-danger" />
                       </FormItem>
                     )}
                   />
@@ -299,17 +245,9 @@ export function AdminLoginPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem className="space-y-[10px]">
-                        <FormLabel
-                          className="login-field-label text-body-5"
-                          style={{
-                            fontFamily: "'Lato', sans-serif",
-                            color: FIGMA.accent,
-                          }}
-                        >
+                        <FormLabel className="login-field-label font-lato text-body-5 text-figma-accent">
                           Password{" "}
-                          <span style={{ color: FIGMA.accent, opacity: 0.7 }}>
-                            (optional)
-                          </span>
+                          <span className="text-figma-accent/70">(optional)</span>
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -320,7 +258,7 @@ export function AdminLoginPage() {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="font-outfit text-body-sm text-[#ff6b6b]" />
+                        <FormMessage className="font-outfit text-body-sm text-figma-danger" />
                       </FormItem>
                     )}
                   />
@@ -350,28 +288,18 @@ export function AdminLoginPage() {
 
         {/* Brand column — absorbs remaining width */}
         <div className="hidden min-w-0 flex-1 flex-col items-start justify-center gap-[20px] px-[28px] py-[32px] lg:flex">
-          <p
-            className="font-outfit text-body-9 max-w-[420px]"
-            style={{ color: FIGMA.muted }}
-          >
+          <p className="font-outfit text-body-9 max-w-[420px] text-figma-muted">
             Hoops Engine Admin
           </p>
-          <h2
-            className="font-outfit text-body-56 max-w-[480px]"
-            style={{ color: "#ffffff" }}
-          >
+          <h2 className="font-outfit text-body-56 max-w-[480px] text-white">
             Manage organizations, users, and platform analytics from one
             workspace.
           </h2>
-          <p
-            className="font-inter text-body-71 max-w-[440px]"
-            style={{ color: FIGMA.accent, fontFamily: "'Inter', sans-serif" }}
-          >
+          <p className="font-inter text-body-71 max-w-[440px] text-figma-accent">
             Secure access for administrators.
           </p>
           <div
-            className="mt-[12px] h-[1px] w-[105px]"
-            style={{ backgroundColor: FIGMA.brand }}
+            className="mt-[12px] h-[1px] w-[105px] bg-figma-brand"
             aria-hidden="true"
           />
         </div>
