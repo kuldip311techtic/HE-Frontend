@@ -210,7 +210,11 @@ export function SubscriptionPlanFormDialog({
                   }
                   disabled={isSubmitting || isEditMode}
                 >
-                  <SelectTrigger id="plan-duration" aria-label="Duration">
+                  <SelectTrigger
+                    id="plan-duration"
+                    aria-label="Duration"
+                    aria-invalid={Boolean(errors.billing_frequency)}
+                  >
                     <SelectValue placeholder="Select duration" />
                   </SelectTrigger>
                   <SelectContent>
@@ -221,6 +225,11 @@ export function SubscriptionPlanFormDialog({
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.billing_frequency ? (
+                  <p className="text-body-sm text-destructive" role="alert">
+                    {errors.billing_frequency.message}
+                  </p>
+                ) : null}
                 {isEditMode ? (
                   <p className="text-body-sm text-muted-foreground">
                     Duration is fixed after the plan is created.

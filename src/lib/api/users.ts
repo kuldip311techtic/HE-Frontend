@@ -72,6 +72,10 @@ export function filterCreateRoleOptions(roleOptions: RoleOption[]): RoleOption[]
   ];
 }
 
+export function canEditManagedUserRole(role: string): role is AdminUserRole {
+  return MANAGE_USER_CREATE_ROLES.includes(role as AdminUserRole);
+}
+
 export function canRemoveUser(user: AdminUserItem, currentUserId?: string | null): boolean {
   if (user.is_self) {
     return false;

@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -29,6 +30,7 @@ export function SupportRequestsTable({
             <TableHead>User</TableHead>
             <TableHead>Request date</TableHead>
             <TableHead>Subject</TableHead>
+            <TableHead className="w-[100px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -39,21 +41,7 @@ export function SupportRequestsTable({
               <TableRow
                 key={request.id}
                 data-state={isSelected ? 'selected' : undefined}
-                className={cn(
-                  'cursor-pointer transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  isSelected && 'bg-primary/10',
-                )}
-                tabIndex={0}
-                role="button"
-                aria-selected={isSelected}
-                aria-label={`Support request from ${request.name}: ${request.subject}`}
-                onClick={() => onSelect(request)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    onSelect(request);
-                  }
-                }}
+                className={cn(isSelected && 'bg-primary/10')}
               >
                 <TableCell>
                   <div className="font-medium">{request.name}</div>
@@ -63,6 +51,19 @@ export function SupportRequestsTable({
                   {formatSupportRequestDate(request.created_at)}
                 </TableCell>
                 <TableCell className="max-w-[240px] truncate">{request.subject}</TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    type="button"
+                    variant={isSelected ? 'secondary' : 'outline'}
+                    size="sm"
+                    className="h-9"
+                    aria-pressed={isSelected}
+                    aria-label={`View support request from ${request.name}: ${request.subject}`}
+                    onClick={() => onSelect(request)}
+                  >
+                    View
+                  </Button>
+                </TableCell>
               </TableRow>
             );
           })}

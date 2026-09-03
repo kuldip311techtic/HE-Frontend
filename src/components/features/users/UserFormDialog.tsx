@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { filterCreateRoleOptions } from '@/lib/api/users';
+import { filterCreateRoleOptions, canEditManagedUserRole, getAdminUserRoleLabel } from '@/lib/api/users';
 import type { AdminUserItem, AdminUserRole, RoleOption } from '@/types/api';
 
 const passwordPattern =
@@ -43,7 +43,7 @@ const createUserFormSchema = z.object({
   }),
 });
 
-const editUserFormSchema = z.object({
+const editUserFormSchemaBase = z.object({
   first_name: z.string().trim().min(1, 'First name is required.'),
   last_name: z.string().trim().min(1, 'Last name is required.'),
   email: z.string().trim().email('Please enter a valid email address.'),
@@ -53,6 +53,9 @@ const editUserFormSchema = z.object({
     .refine((value) => !value || passwordPattern.test(value), {
       message: 'Password must include uppercase, lowercase, number, and special character.',
     }),
+});
+
+const editUserFormSchema = editUserFormSchemaBase.extend({
   role: z.enum(['coach', 'player'], {
     errorMap: () => ({ message: 'Please select a role.' }),
   }),
@@ -88,10 +91,17 @@ export function UserFormDialog({
   fieldErrors = {},
 }: UserFormDialogProps) {
   const isEditMode = Boolean(user);
+  const isRoleEditable = !user || canEditManagedUserRole(user.role);
   const formRoleOptions = filterCreateRoleOptions(roleOptions);
 
   const form = useForm<UserFormValues>({
-    resolver: zodResolver(isEditMode ? editUserFormSchema : createUserFormSchema),
+    resolver: zodResolver(
+      isEditMode
+        ? isRoleEditable
+          ? editUserFormSchema
+          : editUserFormSchemaBase
+        : createUserFormSchema,
+    ),
     defaultValues: {
       first_name: '',
       last_name: '',
@@ -112,9 +122,10 @@ export function UserFormDialog({
         last_name: user.last_name ?? '',
         email: user.email,
         password: '',
-        role: (user.role === 'coach' || user.role === 'player' ? user.role : 'coach') as
-          | 'coach'
-          | 'player',
+        role:
+          user.role === 'coach' || user.role === 'player'
+            ? user.role
+            : (user.role as AdminUserRole),
       });
     } else {
       form.reset({
@@ -125,7 +136,7 @@ export function UserFormDialog({
         role: 'coach',
       });
     }
-  }, [open, user, form]);
+  }, [open, user, form, isRoleEditable]);
 
   useEffect(() => {
     Object.entries(fieldErrors).forEach(([field, message]) => {
@@ -136,7 +147,13 @@ export function UserFormDialog({
   }, [fieldErrors, form]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    await onSubmit(values);
+    const role =
+      user && !isRoleEditable ? (user.role as AdminUserRole) : values.role;
+
+    await onSubmit({
+      ...values,
+      role,
+    });
   });
 
   const firstNameError = form.formState.errors.first_name?.message;
@@ -226,27 +243,44 @@ export function UserFormDialog({
 
           <div className="space-y-2">
             <Label htmlFor="user-role">Role</Label>
-            <Select
-              value={form.watch('role')}
-              onValueChange={(value) =>
-                form.setValue('role', value as AdminUserRole, { shouldValidate: true })
-              }
-            >
-              <SelectTrigger id="user-role" aria-invalid={Boolean(roleError)}>
-                <SelectValue placeholder="Select role" />
-              </SelectTrigger>
-              <SelectContent>
-                {formRoleOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {roleError ? (
-              <p className="text-body-sm text-destructive" role="alert">
-                {roleError}
-              </p>
+            {isRoleEditable ? (
+              <>
+                <Select
+                  value={form.watch('role')}
+                  onValueChange={(value) =>
+                    form.setValue('role', value as AdminUserRole, { shouldValidate: true })
+                  }
+                >
+                  <SelectTrigger id="user-role" aria-invalid={Boolean(roleError)}>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {formRoleOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {roleError ? (
+                  <p className="text-body-sm text-destructive" role="alert">
+                    {roleError}
+                  </p>
+                ) : null}
+              </>
+            ) : user ? (
+              <>
+                <p
+                  id="user-role"
+                  className="flex h-10 items-center rounded-md border border-border bg-muted/40 px-3 text-body-sm"
+                >
+                  {getAdminUserRoleLabel(user.role, roleOptions)}
+                </p>
+                <p className="text-body-sm text-muted-foreground">
+                  Role cannot be changed here. Only coach and player accounts are editable in this
+                  panel.
+                </p>
+              </>
             ) : null}
           </div>
 

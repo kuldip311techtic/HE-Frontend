@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -16,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { canRemoveUser, getAdminUserRoleLabel } from '@/lib/api/users';
+import { canEditManagedUserRole, canRemoveUser, getAdminUserRoleLabel } from '@/lib/api/users';
 import type { AdminUserItem, RoleOption } from '@/types/api';
 
 interface UsersTableProps {
@@ -54,6 +55,7 @@ export function UsersTable({
         <TableBody>
           {users.map((user) => {
             const removable = canRemoveUser(user, currentUserId);
+            const editable = canEditManagedUserRole(user.role);
 
             return (
               <TableRow key={user.id}>
@@ -76,23 +78,29 @@ export function UsersTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(user)}>
-                        <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive focus:text-destructive"
-                        onClick={() => onRemove(user)}
-                        disabled={!removable}
-                        title={
-                          removable
-                            ? undefined
-                            : 'You cannot remove your own account.'
-                        }
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
-                        Remove
-                      </DropdownMenuItem>
+                      {editable ? (
+                        <DropdownMenuItem onClick={() => onEdit(user)}>
+                          <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
+                          Edit
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuLabel className="max-w-[220px] font-normal text-muted-foreground">
+                          Editing is limited to coach and player accounts.
+                        </DropdownMenuLabel>
+                      )}
+                      {removable ? (
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => onRemove(user)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                          Remove
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuLabel className="max-w-[220px] font-normal text-muted-foreground">
+                          You cannot remove your own account.
+                        </DropdownMenuLabel>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

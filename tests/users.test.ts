@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  canEditManagedUserRole,
   canRemoveUser,
   filterCreateRoleOptions,
   getAdminUserRoleLabel,
@@ -48,5 +49,12 @@ describe('admin user helpers', () => {
     expect(canRemoveUser(buildUser({ is_self: true }))).toBe(false);
     expect(canRemoveUser(buildUser(), '11111111-2222-3333-4444-555555555555')).toBe(false);
     expect(canRemoveUser(buildUser(), '22222222-2222-2222-2222-222222222222')).toBe(true);
+  });
+
+  it('allows edit only for coach and player roles', () => {
+    expect(canEditManagedUserRole('coach')).toBe(true);
+    expect(canEditManagedUserRole('player')).toBe(true);
+    expect(canEditManagedUserRole('org_admin')).toBe(false);
+    expect(canEditManagedUserRole('super_admin')).toBe(false);
   });
 });

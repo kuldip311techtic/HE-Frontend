@@ -1,6 +1,6 @@
 import { Download, Paperclip } from 'lucide-react';
 import type { FormEvent } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,12 @@ export function SupportRequestDetailPanel({ request }: SupportRequestDetailPanel
   const [responseText, setResponseText] = useState('');
   const [responseError, setResponseError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  useEffect(() => {
+    setResponseText('');
+    setResponseError(null);
+    setIsDownloading(false);
+  }, [request?.id]);
 
   if (!request) {
     return (

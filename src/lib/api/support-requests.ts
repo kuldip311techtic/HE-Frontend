@@ -34,9 +34,12 @@ export async function downloadSupportRequestAttachment(
   requestId: string,
   filename: string,
 ): Promise<void> {
-  const { data } = await apiClient.get<Blob>(`/v1/support-requests/${requestId}/attachment`, {
-    responseType: 'blob',
-  });
+  const { data } = await apiClient.get<Blob>(
+    `/super-admin/support-requests/${requestId}/attachment`,
+    {
+      responseType: 'blob',
+    },
+  );
 
   const url = URL.createObjectURL(data);
   const link = document.createElement('a');

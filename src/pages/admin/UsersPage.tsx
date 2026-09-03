@@ -293,6 +293,7 @@ export function UsersPage() {
       ) : null}
 
       <UserFormDialog
+        key={selectedUser?.id ?? 'create'}
         open={formOpen}
         onOpenChange={setFormOpen}
         user={selectedUser}

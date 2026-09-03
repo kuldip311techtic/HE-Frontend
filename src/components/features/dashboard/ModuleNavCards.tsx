@@ -25,7 +25,7 @@ const MODULE_LINKS = [
   },
   {
     title: 'Support Requests',
-    description: 'Review and respond to platform support inquiries.',
+    description: 'Review platform support inquiries (read-only).',
     to: '/admin/support-requests',
     icon: MessageSquare,
   },
