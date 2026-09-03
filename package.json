@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:luna": "VITE_LUNA_VALIDATION=true vite --port 41000 --host 127.0.0.1 --strictPort",
     "typecheck": "tsc -b --noEmit",
     "build": "tsc -b && vite build",
     "preview": "vite preview",

@@ -1,11 +1,16 @@
 import { useState, type ReactNode } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { AdminContractProbes } from "@/components/layout/AdminContractProbes";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 
 const pageTitles: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/dashboard": "Dashboard",
+  "/admin/organizations": "Manage Organizations",
+  "/admin/users": "Manage Users",
+  "/admin/subscriptions": "Subscriptions",
+  "/admin/support-requests": "Support Requests",
   "/admin/organization": "Organization",
   "/admin/teams": "Teams",
   "/admin/settings": "Settings",
@@ -29,6 +34,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex min-h-screen bg-background">
+      <AdminContractProbes />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex flex-1 flex-col min-w-0">

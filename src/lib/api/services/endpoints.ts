@@ -1,4 +1,23 @@
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api/client";
+import {
+  createOrganization,
+  createSuperAdminUser,
+  deleteOrganization,
+  deleteSuperAdminUser,
+  getOrganizations,
+  getSuperAdminDashboard,
+  getSuperAdminUsers,
+  updateOrganization,
+  updateSuperAdminUser,
+} from "@/lib/api/services/super-admin";
+import type {
+  AdminUserCreateRequest,
+  AdminUserListParams,
+  AdminUserUpdateRequest,
+  OrganizationCreateRequest,
+  OrganizationListParams,
+  OrganizationUpdateRequest,
+} from "@/types/api";
 
 /** Coach endpoints */
 export const coachApi = {
@@ -167,15 +186,21 @@ export const verificationApi = {
     apiPost("/v1/reset-password", data),
 };
 
-/** Super admin endpoints */
+/** Super admin endpoints — delegates to typed functions in super-admin.ts */
 export const superAdminApi = {
   organizations: {
-    list: () => apiGet("/v1/super-admin/organizations"),
-    create: (data: unknown) => apiPost("/v1/super-admin/organizations", data),
+    list: (params?: OrganizationListParams) => getOrganizations(params ?? {}),
+    create: (data: OrganizationCreateRequest) => createOrganization(data),
+    update: (organization_id: string, data: OrganizationUpdateRequest) =>
+      updateOrganization(organization_id, data),
+    delete: (organization_id: string) => deleteOrganization(organization_id),
   },
   users: {
-    list: () => apiGet("/v1/super-admin/users"),
-    create: (data: unknown) => apiPost("/v1/super-admin/users", data),
+    list: (params?: AdminUserListParams) => getSuperAdminUsers(params ?? {}),
+    create: (data: AdminUserCreateRequest) => createSuperAdminUser(data),
+    update: (user_id: string, data: AdminUserUpdateRequest) =>
+      updateSuperAdminUser(user_id, data),
+    delete: (user_id: string) => deleteSuperAdminUser(user_id),
   },
-  dashboard: () => apiGet("/v1/super-admin/dashboard"),
+  dashboard: () => getSuperAdminDashboard(),
 };

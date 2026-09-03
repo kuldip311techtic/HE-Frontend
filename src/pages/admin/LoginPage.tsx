@@ -14,7 +14,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  useFormField,
 } from "@/components/ui/form";
 import {
   Card,
@@ -22,10 +21,11 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
+import { ErrorMessage } from "@/components/ui/feedback";
 import { useAuth } from "@/hooks/useAuth";
-import type { AuthUser, UserRole } from "@/types/auth";
-import { userHasAdminAccess } from "@/types/auth";
-import { DEMO_AUTH_TOKEN } from "@/lib/auth/storage";
+import { useSuperAdminLogin } from "@/hooks/useSuperAdminLogin";
+import { getApiErrorMessage } from "@/lib/api/client";
+import { mapUserPublicToAuthUser } from "@/types/auth";
 import { cn } from "@/lib/utils";
 
 const loginSchema = z.object({
@@ -34,91 +34,43 @@ const loginSchema = z.object({
     .min(1, "Email is required.")
     .email("Please enter a valid email address."),
   password: z.string().min(1, "Password is required."),
-  role: z.enum(["organization_admin", "super_admin", "admin", "coach", "player"]),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-/** Page-only field styling — dark Figma fill, not library white */
+/** Page-only field styling — dark Figma fill via figma-* tokens */
 const loginInputClassName = cn(
-  "h-[44px] rounded-[10px] border-figma-border bg-figma-surface-deep px-[14px]",
-  "text-body-21 text-white placeholder:text-figma-muted",
-  "focus-visible:border-figma-bright focus-visible:ring-2 focus-visible:ring-figma-brand-glow focus-visible:ring-offset-0",
+  "h-[44px] rounded-[10px] border border-figma-border bg-figma-surface-deep px-[14px]",
+  "font-outfit text-body-21 text-white shadow-none ring-offset-0",
+  "placeholder:font-outfit placeholder:text-body-21 placeholder:text-figma-muted",
   "hover:border-figma-accent",
+  "focus-visible:border-figma-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand-glow focus-visible:ring-offset-0",
+  "disabled:cursor-not-allowed disabled:opacity-50",
 );
 
 /** Page-only CTA — brand fill with dark label text */
 const loginButtonClassName = cn(
-  "h-[44px] w-full rounded-[10px] border border-figma-border bg-figma-brand",
-  "text-body-10 text-figma-border shadow-none [&_svg]:text-figma-border",
-  "hover:bg-figma-brand/90 active:bg-figma-brand/80",
-  "focus-visible:ring-2 focus-visible:ring-figma-bright focus-visible:ring-offset-2 focus-visible:ring-offset-figma-background",
-  "disabled:opacity-50",
+  "login-submit-btn h-[44px] w-full rounded-[10px]",
+  "border border-figma-border bg-figma-brand",
+  "font-outfit text-body-10 text-figma-border shadow-none ring-offset-0",
+  "[&_svg]:text-figma-border",
+  "hover:bg-figma-brand/90",
+  "active:bg-figma-brand/80",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-bright focus-visible:ring-offset-2 focus-visible:ring-offset-figma-background",
+  "disabled:pointer-events-none disabled:opacity-50",
 );
 
-/** Page-only select styling to match dark inputs */
-const loginSelectTriggerClassName = cn(
-  "h-[44px] w-full rounded-[10px] border border-figma-border bg-figma-surface-deep px-[14px]",
-  "text-body-21 text-white",
-  "focus:ring-2 focus:ring-figma-brand-glow focus:ring-offset-0 focus:outline-none",
+const loginErrorClassName = cn(
+  "rounded-[10px] border border-figma-danger-subtle bg-figma-danger-muted px-[14px] py-[12px]",
+  "font-outfit text-body-sm text-figma-danger",
 );
-
-/** Page-only native select to match dark inputs and satisfy form-label checks */
-const loginNativeSelectClassName = cn(
-  loginSelectTriggerClassName,
-  "cursor-pointer appearance-none pr-[36px]",
-);
-
-const ROLE_OPTIONS = [
-  { value: "organization_admin", label: "Organization Admin" },
-  { value: "super_admin", label: "Super Admin" },
-  { value: "admin", label: "Admin" },
-  { value: "coach", label: "Coach (denied)" },
-  { value: "player", label: "Player (denied)" },
-] as const;
-
-interface RoleSelectFieldProps {
-  value: LoginFormValues["role"];
-  onChange: (value: LoginFormValues["role"]) => void;
-}
-
-function RoleSelectField({ value, onChange }: RoleSelectFieldProps) {
-  const { formItemId } = useFormField();
-
-  return (
-    <>
-      <label htmlFor={formItemId} className="text-body-5 text-figma-muted">
-        Role (demo)
-      </label>
-      <FormControl>
-        <select
-          id={formItemId}
-          value={value}
-          onChange={(event) =>
-            onChange(event.target.value as LoginFormValues["role"])
-          }
-          className={loginNativeSelectClassName}
-        >
-          {ROLE_OPTIONS.map((option) => (
-            <option
-              key={option.value}
-              value={option.value}
-              className="bg-figma-surface-deep text-white"
-            >
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </FormControl>
-    </>
-  );
-}
 
 export function AdminLoginPage() {
   const { login, isAuthenticated, hasAdminAccess } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const loginMutation = useSuperAdminLogin();
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname ??
@@ -135,49 +87,48 @@ export function AdminLoginPage() {
     defaultValues: {
       email: "",
       password: "",
-      role: "organization_admin",
     },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
-    setIsSubmitting(true);
-    try {
-      const demoUser: AuthUser = {
-        id: "demo-admin-1",
-        email: values.email,
-        firstName: "Organization",
-        lastName: "Admin",
-        role: values.role as UserRole,
-        roles: [values.role as UserRole],
-      };
+  const email = form.watch("email");
+  const password = form.watch("password");
+  const canSubmit = Boolean(email.trim() && password.trim());
 
-      if (!userHasAdminAccess(demoUser)) {
-        toast.error("Access denied. Admin credentials are required.");
-        navigate("/admin/unauthorized");
+  const onSubmit = async (values: LoginFormValues) => {
+    setApiError(null);
+    try {
+      const response = await loginMutation.mutateAsync(values);
+
+      if (!response.user.is_super_admin) {
+        toast.error("Access denied. Super admin credentials are required.");
+        setApiError("Access denied. Super admin credentials are required.");
         return;
       }
 
-      login(DEMO_AUTH_TOKEN, demoUser);
+      const authUser = mapUserPublicToAuthUser(response.user);
+      login(response.access_token, authUser);
       toast.success("Signed in successfully.");
-      navigate(from, { replace: true });
-    } catch {
-      toast.error("Unable to sign in. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      navigate("/admin", { replace: true });
+    } catch (err) {
+      const message = getApiErrorMessage(
+        err,
+        "Invalid email or password. Please try again.",
+      );
+      setApiError(message);
     }
   };
 
   return (
-    <div className="relative flex min-h-screen bg-figma-background font-outfit">
+    <div className="login-page relative flex min-h-screen bg-figma-background font-outfit">
       <div
         className="login-bg-glow pointer-events-none absolute inset-0"
         aria-hidden="true"
       />
 
       <div className="relative z-10 flex w-full flex-col lg:min-h-screen lg:flex-row">
-        {/* Form column — fixed width on desktop, centered full-screen on mobile */}
-        <div className="flex min-h-screen w-full shrink-0 flex-col items-center justify-center px-[24px] py-[32px] lg:min-h-0 lg:w-[420px] lg:max-w-[420px] lg:items-stretch lg:justify-center lg:px-[24px] lg:py-[32px]">
-          <Card className="w-full max-w-md border-figma-border bg-figma-surface shadow-none">
+        {/* Form column — fixed 420px on desktop; do not widen */}
+        <div className="flex min-h-screen w-full shrink-0 flex-col items-center justify-center px-[24px] py-[32px] lg:min-h-0 lg:w-[420px] lg:max-w-[420px] lg:flex-none lg:items-stretch lg:justify-center lg:px-[24px] lg:py-[32px]">
+          <Card className="w-full rounded-[10px] border-figma-border bg-figma-surface text-white shadow-none">
             <CardHeader className="space-y-[12px] px-[20px] pt-[24px] text-center">
               <div className="mx-auto flex h-[48px] w-[48px] items-center justify-center rounded-[100px] bg-figma-brand-glow">
                 <Shield
@@ -185,10 +136,12 @@ export function AdminLoginPage() {
                   aria-hidden="true"
                 />
               </div>
-              <h1 className="text-body-42 text-white">Admin Sign In</h1>
-              <CardDescription className="text-body-21 text-figma-muted">
-                Sign in with your organization admin credentials to access the
-                admin panel.
+              <h1 className="font-outfit text-body-42 text-white">
+                Super Admin Sign In
+              </h1>
+              <CardDescription className="font-outfit text-body-21 text-figma-muted">
+                Sign in with your super admin credentials to access the admin
+                panel.
               </CardDescription>
             </CardHeader>
             <CardContent className="px-[20px] pb-[24px] pt-[12px]">
@@ -202,19 +155,19 @@ export function AdminLoginPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem className="space-y-[10px]">
-                        <FormLabel className="text-body-5 text-figma-muted">
+                        <FormLabel className="font-lato text-body-5 text-figma-muted">
                           Email
                         </FormLabel>
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder="admin@organization.com"
+                            placeholder="admin@hoopsengine.com"
                             autoComplete="email"
                             className={loginInputClassName}
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-body-sm text-figma-danger" />
+                        <FormMessage className="font-outfit text-body-sm text-figma-danger" />
                       </FormItem>
                     )}
                   />
@@ -224,7 +177,7 @@ export function AdminLoginPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem className="space-y-[10px]">
-                        <FormLabel className="text-body-5 text-figma-muted">
+                        <FormLabel className="font-lato text-body-5 text-figma-muted">
                           Password
                         </FormLabel>
                         <FormControl>
@@ -236,31 +189,27 @@ export function AdminLoginPage() {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-body-sm text-figma-danger" />
+                        <FormMessage className="font-outfit text-body-sm text-figma-danger" />
                       </FormItem>
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem className="space-y-[10px]">
-                        <RoleSelectField
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                        <FormMessage className="text-body-sm text-figma-danger" />
-                      </FormItem>
-                    )}
-                  />
+                  {apiError && (
+                    <ErrorMessage
+                      message={apiError}
+                      className={loginErrorClassName}
+                    />
+                  )}
 
                   <Button
                     type="submit"
+                    variant="ghost"
                     className={loginButtonClassName}
-                    isLoading={isSubmitting}
+                    isLoading={loginMutation.isPending}
+                    disabled={!canSubmit || loginMutation.isPending}
+                    aria-busy={loginMutation.isPending}
                   >
-                    {isSubmitting ? "Signing in…" : "Sign in"}
+                    {loginMutation.isPending ? "Signing in…" : "Sign in"}
                   </Button>
                 </form>
               </Form>
@@ -268,16 +217,17 @@ export function AdminLoginPage() {
           </Card>
         </div>
 
-        {/* Brand column — absorbs remaining width; keeps form narrow */}
-        <div className="hidden flex-1 flex-col items-start justify-center gap-[20px] px-[28px] py-[32px] lg:flex">
-          <p className="text-body-9 max-w-[420px] text-figma-muted">
+        {/* Brand column — absorbs remaining width */}
+        <div className="hidden min-w-0 flex-1 flex-col items-start justify-center gap-[20px] px-[28px] py-[32px] lg:flex">
+          <p className="font-outfit text-body-9 max-w-[420px] text-figma-muted">
             Hoops Engine Admin
           </p>
-          <h2 className="text-body-56 max-w-[480px] text-white">
-            Manage organizations, teams, and platform analytics from one workspace.
+          <h2 className="font-outfit text-body-56 max-w-[480px] text-white">
+            Manage organizations, users, and platform analytics from one
+            workspace.
           </h2>
           <p className="font-inter text-body-71 max-w-[440px] text-figma-accent">
-            Secure access for organization and super administrators.
+            Secure access for super administrators.
           </p>
           <div
             className="mt-[12px] h-[1px] w-[105px] bg-figma-brand"

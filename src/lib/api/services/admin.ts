@@ -1,10 +1,5 @@
 import { apiGet, apiPost, apiPut } from "@/lib/api/client";
-import type {
-  OrganizationProfile,
-  PaginatedResponse,
-  Organization,
-  SuperAdminDashboard,
-} from "@/types/api";
+import type { OrganizationProfile } from "@/types/api";
 
 export async function getOrganizationProfile(): Promise<{
   success: boolean;
@@ -36,28 +31,4 @@ export async function inviteCoach(data: {
   return apiPost("/v1/admin/invite-coach", data);
 }
 
-/** Live OpenAPI: GET /api/v1/super-admin/dashboard */
-export async function getSuperAdminDashboard(): Promise<SuperAdminDashboard> {
-  return apiGet("/v1/super-admin/dashboard");
-}
-
-export async function getOrganizations(): Promise<
-  PaginatedResponse<Organization>
-> {
-  return apiGet("/v1/super-admin/organizations");
-}
-
-export async function getSuperAdminUsers(): Promise<
-  PaginatedResponse<{
-    id: string;
-    first_name: string;
-    last_name: string;
-    name: string;
-    email: string;
-    role: string;
-    roles: string[];
-    is_self: boolean;
-  }>
-> {
-  return apiGet("/v1/super-admin/users");
-}
+export { getSuperAdminDashboard } from "@/lib/api/services/super-admin";
