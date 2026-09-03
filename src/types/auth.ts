@@ -12,6 +12,7 @@ export interface AuthUser {
   name: string;
   role: AdminRole;
   email: string;
+  isSuperAdmin?: boolean;
 }
 
 export const ALLOWED_ADMIN_ROLES: AllowedAdminRole[] = [

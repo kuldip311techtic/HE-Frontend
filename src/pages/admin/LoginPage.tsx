@@ -5,42 +5,26 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
-import type { AdminRole } from '@/types/auth';
-import { getRoleLabel } from '@/types/auth';
-
-const ROLE_OPTIONS: AdminRole[] = [
-  'super_admin',
-  'organization_admin',
-  'admin',
-  'coach',
-  'player',
-];
-
-function isLoginRole(value: string): value is AdminRole {
-  return (ROLE_OPTIONS as readonly string[]).includes(value);
-}
+import { getApiErrorMessage } from '@/lib/api/get-api-error-message';
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [role, setRole] = useState<AdminRole | ''>('');
+  const { loginWithCredentials } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isFormValid = email.trim().length > 0 && password.length > 0;
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!role) {
-      setValidationError('Please select a role before signing in.');
+
+    if (!email.trim() || !password) {
+      setValidationError('Email and password are required.');
       return;
     }
 
@@ -48,15 +32,11 @@ export function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const allowed = await login(role);
-      if (allowed) {
-        toast.success('Signed in successfully.');
-        navigate('/admin', { replace: true });
-      } else {
-        navigate('/admin/unauthorized', { replace: true });
-      }
-    } catch {
-      setValidationError('Unable to sign in right now. Please try again.');
+      await loginWithCredentials(email.trim(), password);
+      toast.success('Signed in successfully.');
+      navigate('/admin', { replace: true });
+    } catch (error) {
+      setValidationError(getApiErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -68,55 +48,65 @@ export function LoginPage() {
         <CardHeader className="flex flex-col gap-[12px] px-[24px] pb-0 pt-[32px]">
           <h1 className="login-card-title">Admin Sign In</h1>
           <CardDescription className="login-card-description">
-            Select a demo role to access the Hoops Engine admin panel.
+            Sign in with your Super Admin credentials to access the Hoops Engine admin panel.
           </CardDescription>
         </CardHeader>
         <CardContent className="px-[24px] pb-[32px] pt-[20px]">
           <form className="flex flex-col gap-[20px]" onSubmit={handleSubmit} noValidate>
-            <label className="flex flex-col gap-[12px]">
-              <Select
-                name="role"
+            <div className="flex flex-col gap-[12px]">
+              <Label htmlFor="email" className="login-field-label">
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
                 required
-                value={role}
-                onValueChange={(value) => {
-                  if (isLoginRole(value)) {
-                    setRole(value);
-                    setValidationError(null);
-                  }
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setValidationError(null);
                 }}
-              >
-                <SelectGroup className="flex flex-col gap-[12px]">
-                  <SelectLabel className="login-field-label py-0 pl-0 pr-0 font-medium">
-                    Role
-                  </SelectLabel>
-                  <SelectTrigger
-                    id="role"
-                    className="login-field-input"
-                    aria-label="Role"
-                    aria-invalid={Boolean(validationError)}
-                  >
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                </SelectGroup>
-                <SelectContent className="login-select-content">
-                  {ROLE_OPTIONS.map((option) => (
-                    <SelectItem key={option} value={option} className="login-select-item">
-                      {getRoleLabel(option)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {validationError ? (
-                <p className="login-error-text" role="alert">
-                  {validationError}
-                </p>
-              ) : null}
-            </label>
+                className="login-field-input"
+                aria-invalid={Boolean(validationError)}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <div className="flex flex-col gap-[12px]">
+              <Label htmlFor="password" className="login-field-label">
+                Password
+              </Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  setValidationError(null);
+                }}
+                className="login-field-input"
+                aria-invalid={Boolean(validationError)}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {validationError ? (
+              <p id="login-error" className="login-error-text" role="alert" aria-live="polite">
+                {validationError}
+              </p>
+            ) : null}
+
             <Button
               type="submit"
               variant="ghost"
               className="login-submit-btn h-[44px] w-full rounded-[10px]"
               isLoading={isSubmitting}
+              disabled={!isFormValid || isSubmitting}
             >
               {isSubmitting ? 'Signing in…' : 'Sign in'}
             </Button>

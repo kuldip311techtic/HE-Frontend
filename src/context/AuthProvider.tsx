@@ -9,54 +9,77 @@ import {
 } from 'react';
 
 import {
+  isSuperAdminUser,
+  loginWithEmail,
+  mapUserPublicToAuthUser,
+  SUPER_ADMIN_ACCESS_DENIED_MESSAGE,
+} from '@/lib/api/auth';
+import { bootstrapValidationSession } from '@/lib/auth/bootstrap-validation-session';
+import {
   clearAuthStorage,
   getStoredUser,
   getToken,
   setStoredUser,
   setToken,
 } from '@/lib/auth/token-storage';
-import type { AdminRole, AuthUser } from '@/types/auth';
-import { getRoleLabel, isAdminRole } from '@/types/auth';
+import type { AuthUser } from '@/types/auth';
 
 interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isHydrating: boolean;
-  login: (role: AdminRole) => Promise<boolean>;
+  loginWithCredentials: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
-function buildDemoUser(role: AdminRole): AuthUser {
-  return {
-    id: `demo-${role}`,
-    name: getRoleLabel(role),
-    role,
-    email: `${role}@hoops-engine.demo`,
-  };
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isHydrating, setIsHydrating] = useState(true);
 
   useEffect(() => {
-    const token = getToken();
-    const storedUser = getStoredUser<AuthUser>();
-    if (token && storedUser) {
-      setUser(storedUser);
+    let cancelled = false;
+
+    async function hydrateAuth() {
+      const token = getToken();
+      const storedUser = getStoredUser<AuthUser>();
+
+      if (token && storedUser) {
+        if (!cancelled) {
+          setUser(storedUser);
+          setIsHydrating(false);
+        }
+        return;
+      }
+
+      const validationUser = await bootstrapValidationSession();
+      if (!cancelled) {
+        if (validationUser) {
+          setUser(validationUser);
+        }
+        setIsHydrating(false);
+      }
     }
-    setIsHydrating(false);
+
+    void hydrateAuth();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const login = useCallback(async (role: AdminRole): Promise<boolean> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const demoUser = buildDemoUser(role);
-    setToken(`demo-token-${role}`);
-    setStoredUser(demoUser);
-    setUser(demoUser);
-    return isAdminRole(role);
+  const loginWithCredentials = useCallback(async (email: string, password: string): Promise<void> => {
+    const response = await loginWithEmail({ email, password });
+
+    if (!isSuperAdminUser(response.user)) {
+      throw new Error(SUPER_ADMIN_ACCESS_DENIED_MESSAGE);
+    }
+
+    const authUser = mapUserPublicToAuthUser(response.user);
+    setToken(response.access_token);
+    setStoredUser(authUser);
+    setUser(authUser);
   }, []);
 
   const logout = useCallback(() => {
@@ -69,10 +92,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isAuthenticated: Boolean(user && getToken()),
       isHydrating,
-      login,
+      loginWithCredentials,
       logout,
     }),
-    [user, isHydrating, login, logout],
+    [user, isHydrating, loginWithCredentials, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
