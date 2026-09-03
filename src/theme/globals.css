@@ -226,6 +226,49 @@
   gap: 10px;
 }
 
+.login-page .login-field-input-wrap {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.login-page .login-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--token-color-113);
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.login-page .login-password-toggle:hover:not(:disabled) {
+  color: hsl(var(--foreground));
+}
+
+.login-page .login-password-toggle:focus-visible {
+  outline: 2px solid var(--token-color-114);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.login-page .login-password-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-page input.login-field-input--password {
+  padding-right: 44px !important;
+}
+
 .login-page .login-field-label {
   font-family: Lato, sans-serif !important;
   font-size: 16px !important;

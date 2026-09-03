@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ export function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
@@ -92,6 +94,8 @@ export function AdminLoginPage() {
     }
   };
 
+  const isSubmitDisabled = isSubmitting || !email.trim() || !password;
+
   return (
     <div className="login-page">
       <div className="login-bg-glow" aria-hidden="true" />
@@ -137,19 +141,35 @@ export function AdminLoginPage() {
               <Label htmlFor="password" className="login-field-label text-body-5 font-lato text-figma-accent">
                 Password
               </Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => handlePasswordChange(e.target.value)}
-                disabled={isSubmitting}
-                aria-invalid={Boolean(fieldErrors.password)}
-                aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-                className="login-field-input text-body-21 font-outfit rounded-[10px] border border-figma-border bg-[var(--token-color-117)] px-[14px] text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[var(--token-color-113)]"
-                placeholder="Enter your password"
-              />
+              <div className="login-field-input-wrap">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => handlePasswordChange(e.target.value)}
+                  disabled={isSubmitting}
+                  aria-invalid={Boolean(fieldErrors.password)}
+                  aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+                  className="login-field-input login-field-input--password text-body-21 font-outfit rounded-[10px] border border-figma-border bg-[var(--token-color-117)] px-[14px] pr-[44px] text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[var(--token-color-113)]"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  disabled={isSubmitting}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
               {fieldErrors.password ? (
                 <p id="password-error" className="login-field-error text-body-sm" role="alert">
                   {fieldErrors.password}
@@ -168,7 +188,7 @@ export function AdminLoginPage() {
               variant="ghost"
               className="login-submit-btn text-body-10 font-outfit h-[44px] w-full rounded-[10px] border border-figma-border bg-figma-brand text-figma-border shadow-none hover:bg-figma-brand hover:text-figma-border focus-visible:ring-0 focus-visible:ring-offset-0"
               isLoading={isSubmitting}
-              disabled={isSubmitting}
+              disabled={isSubmitDisabled}
               aria-describedby={errorMessage ? 'login-form-error' : undefined}
             >
               {isSubmitting ? 'Signing in…' : 'Sign in'}
