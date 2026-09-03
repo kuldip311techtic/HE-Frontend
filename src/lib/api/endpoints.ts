@@ -75,6 +75,11 @@ export const CONTRACT_ROUTES = {
     path: '/api/v1/player/role-selection',
     listUnwrapKey: null as string | null,
   },
+  sessionDetail: {
+    method: 'GET' as const,
+    path: '/sessions/{session_id}',
+    listUnwrapKey: null as string | null,
+  },
 } as const;
 
 /** Replace `{param}` placeholders in contract paths. */

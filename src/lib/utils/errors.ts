@@ -64,17 +64,51 @@ function parseFastApiValidation(data: unknown): ParsedApiError | null {
   };
 }
 
-function parseErrorBody(data: unknown): ParsedApiError | null {
-  if (isErrorResponse(data)) {
-    const fieldErrors: Record<string, string> = {};
-    const details = data.error.details;
-    if (Array.isArray(details)) {
-      for (const detail of details) {
-        if (detail.field) {
-          fieldErrors[detail.field] = detail.message;
-        }
+interface ErrorResponseDetailItem {
+  field?: string;
+  message?: string;
+  loc?: (string | number)[];
+  msg?: string;
+}
+
+function mapValidationDetailToFieldErrors(details: unknown): Record<string, string> {
+  const fieldErrors: Record<string, string> = {};
+
+  if (!Array.isArray(details)) {
+    return fieldErrors;
+  }
+
+  for (const item of details) {
+    if (typeof item !== 'object' || item === null) {
+      continue;
+    }
+
+    const detail = item as ErrorResponseDetailItem;
+    const message = detail.message ?? detail.msg;
+    if (!message) {
+      continue;
+    }
+
+    if (detail.field) {
+      fieldErrors[detail.field] = message;
+      continue;
+    }
+
+    const loc = detail.loc;
+    if (Array.isArray(loc) && loc.length > 0) {
+      const field = loc[loc.length - 1];
+      if (typeof field === 'string') {
+        fieldErrors[field] = message;
       }
     }
+  }
+
+  return fieldErrors;
+}
+
+function parseErrorBody(data: unknown): ParsedApiError | null {
+  if (isErrorResponse(data)) {
+    const fieldErrors = mapValidationDetailToFieldErrors(data.error.details);
     return { message: data.error.message, fieldErrors };
   }
 
@@ -159,7 +193,7 @@ export function parseLoginApiError(
     }
 
     if (status === 422) {
-      const parsed = parseFastApiValidation(data);
+      const parsed = parseErrorBody(data) ?? parseFastApiValidation(data);
       if (parsed) {
         return parsed;
       }
