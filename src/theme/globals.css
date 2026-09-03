@@ -317,21 +317,21 @@
   opacity: 1 !important;
 }
 
-.login-page .login-select-content {
+.login-select-content {
   border-radius: 10px !important;
   border: 1px solid var(--token-border) !important;
   background-color: var(--token-color-117) !important;
   color: #ffffff !important;
 }
 
-.login-page .login-select-item {
+.login-select-item {
   font-family: Outfit, sans-serif !important;
   font-size: 16px !important;
   font-weight: 400 !important;
   line-height: 22px !important;
 }
 
-.login-page .login-select-item[data-highlighted] {
+.login-select-item[data-highlighted] {
   background-color: var(--token-color-119) !important;
   color: #ffffff !important;
 }

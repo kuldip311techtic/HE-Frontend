@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -24,6 +24,10 @@ const ROLE_OPTIONS: AdminRole[] = [
   'coach',
   'player',
 ];
+
+function isLoginRole(value: string): value is AdminRole {
+  return (ROLE_OPTIONS as readonly string[]).includes(value);
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -50,6 +54,8 @@ export function LoginPage() {
       } else {
         navigate('/admin/unauthorized', { replace: true });
       }
+    } catch {
+      setValidationError('Unable to sign in right now. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -59,7 +65,7 @@ export function LoginPage() {
     <div className="login-page login-bg-glow flex min-h-screen items-center justify-center px-[24px] py-[32px]">
       <Card className="login-card w-full max-w-[440px] rounded-[10px] border shadow-none">
         <CardHeader className="flex flex-col gap-[12px] px-[24px] pb-0 pt-[32px]">
-          <CardTitle className="login-card-title">Admin Sign In</CardTitle>
+          <h1 className="login-card-title">Admin Sign In</h1>
           <CardDescription className="login-card-description">
             Select a demo role to access the Hoops Engine admin panel.
           </CardDescription>
@@ -70,7 +76,15 @@ export function LoginPage() {
               <Label htmlFor="role" className="login-field-label">
                 Role
               </Label>
-              <Select value={role} onValueChange={(value) => setRole(value as AdminRole)}>
+              <Select
+                value={role}
+                onValueChange={(value) => {
+                  if (isLoginRole(value)) {
+                    setRole(value);
+                    setValidationError(null);
+                  }
+                }}
+              >
                 <SelectTrigger
                   id="role"
                   className="login-field-input"

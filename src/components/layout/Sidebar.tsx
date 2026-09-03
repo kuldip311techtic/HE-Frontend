@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { LayoutDashboard } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
@@ -11,9 +12,21 @@ const navItems = [
   },
 ];
 
-export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
+  { onNavigate },
+  ref,
+) {
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar">
+    <aside
+      ref={ref}
+      id="admin-mobile-nav"
+      className="flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar"
+      aria-label="Admin sidebar"
+    >
       <div className="border-b border-sidebar-border px-6 py-5">
         <p className="font-outfit text-body-25">Hoops Engine</p>
         <p className="text-body-sm text-sidebar-foreground/80">Admin Panel</p>
@@ -41,4 +54,4 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
     </aside>
   );
-}
+});

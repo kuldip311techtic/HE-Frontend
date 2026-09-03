@@ -64,7 +64,7 @@ export function DashboardPage() {
               <metric.icon className="h-4 w-4 text-primary" aria-hidden="true" />
             </CardHeader>
             <CardContent>
-              <p className="font-outfit text-2xl font-semibold tabular-nums">—</p>
+              <p className="font-outfit text-body-33 tabular-nums">—</p>
             </CardContent>
           </Card>
         ))}
