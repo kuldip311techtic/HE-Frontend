@@ -297,3 +297,21 @@ export interface OrganizationListParams {
   page_size?: number;
   search?: string;
 }
+
+export interface PlayerRoleSelectionCurrentResponse {
+  success: boolean;
+  message: string;
+  status: string;
+  description?: string | null;
+  title: string;
+  link?: string | null;
+  error?: null;
+  session_token: string;
+  selected_role: string;
+  role: string;
+  id?: string | null;
+}
+
+export interface PlayerRoleSelectionParams {
+  session_token: string;
+}

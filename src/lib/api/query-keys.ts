@@ -19,4 +19,8 @@ export const queryKeys = {
   organization: {
     profile: ['organization', 'profile'] as const,
   },
+  player: {
+    roleSelection: (sessionToken: string) =>
+      ['player', 'role-selection', sessionToken] as const,
+  },
 } as const;
