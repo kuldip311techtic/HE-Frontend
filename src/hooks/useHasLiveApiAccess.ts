@@ -9,7 +9,7 @@ export function useHasLiveApiAccess(): boolean {
   if (isLoading) return false;
 
   if (isValidationAuthToken()) {
-    return isAuthenticated && hasAdminAccess;
+    return false;
   }
 
   return (

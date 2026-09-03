@@ -14,6 +14,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from "@/components/ui/form";
 import {
   Select,
@@ -97,6 +98,61 @@ const loginErrorClassName = cn(
   "rounded-[10px] border border-figma-danger-subtle bg-figma-danger-muted px-[14px] py-[12px]",
   "font-outfit text-body-sm text-figma-danger",
 );
+
+const LOGIN_ROLE_LABEL_ID = "login-role-label";
+const LOGIN_ROLE_TRIGGER_ID = "login-role-trigger";
+
+interface RoleSelectFieldProps {
+  value: LoginFormValues["role"];
+  onChange: (value: LoginFormValues["role"]) => void;
+}
+
+function RoleSelectControl({ value, onChange }: RoleSelectFieldProps) {
+  const { error } = useFormField();
+
+  return (
+    <>
+      <FormLabel
+        htmlFor={LOGIN_ROLE_TRIGGER_ID}
+        id={LOGIN_ROLE_LABEL_ID}
+        className="login-field-label font-lato text-body-5 text-figma-accent"
+      >
+        Role
+      </FormLabel>
+      <Select onValueChange={onChange} value={value}>
+        <SelectTrigger
+          id={LOGIN_ROLE_TRIGGER_ID}
+          className={loginSelectTriggerClassName}
+          data-login-field="true"
+          aria-labelledby={LOGIN_ROLE_LABEL_ID}
+          aria-invalid={!!error}
+        >
+          <SelectValue placeholder="Select a role" />
+        </SelectTrigger>
+        <SelectContent className="border-figma-border bg-figma-surface font-outfit text-body-21 text-white">
+          {demoRoles.map((option) => (
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              className="font-outfit text-body-21 focus:bg-figma-surface-deep focus:text-white"
+            >
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <FormMessage className="font-outfit text-body-sm text-figma-danger" />
+    </>
+  );
+}
+
+function RoleSelectField({ value, onChange }: RoleSelectFieldProps) {
+  return (
+    <FormItem className="space-y-[10px]">
+      <RoleSelectControl value={value} onChange={onChange} />
+    </FormItem>
+  );
+}
 
 export function AdminLoginPage() {
   const { login, isAuthenticated, hasAdminAccess } = useAuth();
@@ -184,37 +240,10 @@ export function AdminLoginPage() {
                     control={form.control}
                     name="role"
                     render={({ field }) => (
-                      <FormItem className="space-y-[10px]">
-                        <FormLabel className="login-field-label font-lato text-body-5 text-figma-accent">
-                          Role
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              className={loginSelectTriggerClassName}
-                              data-login-field="true"
-                              aria-label="Role"
-                            >
-                              <SelectValue placeholder="Select a role" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="border-figma-border bg-figma-surface font-outfit text-body-21 text-white">
-                            {demoRoles.map((option) => (
-                              <SelectItem
-                                key={option.value}
-                                value={option.value}
-                                className="font-outfit text-body-21 focus:bg-figma-surface-deep focus:text-white"
-                              >
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage className="font-outfit text-body-sm text-figma-danger" />
-                      </FormItem>
+                      <RoleSelectField
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     )}
                   />
 

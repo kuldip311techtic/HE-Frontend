@@ -14,3 +14,9 @@ export const playerApi = {
       ),
   },
 };
+
+/** Session endpoints used by Luna validation probes */
+export const sessionApi = {
+  get: (sessionId: string) =>
+    apiGet<Record<string, unknown>>(`/v1/sessions/${encodeURIComponent(sessionId)}`),
+};

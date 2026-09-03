@@ -1,6 +1,7 @@
 import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { lunaValidationStubPlugin } from "./vite.luna-validation-stub";
 
 function resolveApiBaseUrl(configured: string | undefined): string {
   const defaultBase = "/api";
@@ -33,7 +34,7 @@ const apiProxy = {
 };
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [lunaValidationStubPlugin(), react()],
   define: {
     "import.meta.env.VITE_API_BASE_URL": JSON.stringify(apiBaseUrl),
   },
