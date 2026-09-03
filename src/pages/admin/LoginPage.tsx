@@ -88,6 +88,7 @@ export function LoginPage() {
                 <SelectTrigger
                   id="role"
                   className="login-field-input"
+                  aria-label="Role"
                   aria-labelledby="role-label"
                   aria-invalid={Boolean(validationError)}
                 >
