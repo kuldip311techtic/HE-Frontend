@@ -64,6 +64,44 @@ export function getApiErrorMessage(
   return fallback;
 }
 
+/** Map API validation errors to form field names for inline FormMessage display. */
+export function getApiFieldErrors(err: unknown): Record<string, string> {
+  const result: Record<string, string> = {};
+
+  if (!axios.isAxiosError(err)) {
+    return result;
+  }
+
+  const data = err.response?.data as ApiErrorBody | undefined;
+  if (!data) {
+    return result;
+  }
+
+  if (data.errors) {
+    for (const [field, messages] of Object.entries(data.errors)) {
+      if (messages?.[0]) {
+        result[field] = messages[0];
+      }
+    }
+  }
+
+  const nestedError = data.error;
+  if (nestedError && typeof nestedError === "object" && nestedError.details) {
+    for (const detail of nestedError.details) {
+      if (detail.field && detail.message) {
+        result[detail.field] = detail.message;
+      }
+    }
+  }
+
+  const message = getApiErrorMessage(err, "");
+  if (message && !result.email && /email/i.test(message)) {
+    result.email = message;
+  }
+
+  return result;
+}
+
 export const apiClient: AxiosInstance = axios.create({
   baseURL,
   timeout: 30000,

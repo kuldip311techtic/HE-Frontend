@@ -58,6 +58,11 @@ interface DataTableProps<T> {
   serverSide?: boolean;
   /** Stable row key; defaults to row.id when present on the record */
   getRowId?: (row: T) => string | number;
+  /** Highlights and handles click on table rows (e.g. master-detail layouts) */
+  selectedRowId?: string | number | null;
+  onRowClick?: (row: T) => void;
+  /** Accessible name for selectable rows (e.g. master-detail layouts) */
+  getRowAriaLabel?: (row: T) => string;
   className?: string;
 }
 
@@ -123,6 +128,9 @@ export function DataTable<T>({
   onPageSizeChange,
   serverSide = false,
   getRowId,
+  selectedRowId,
+  onRowClick,
+  getRowAriaLabel,
   className,
 }: DataTableProps<T>) {
   const [internalSearch, setInternalSearch] = useState("");
@@ -348,21 +356,74 @@ export function DataTable<T>({
 
             {!isLoading &&
               !error &&
-              paginatedRows.map((row, index) => (
-                <TableRow
-                  key={resolveRowKey(row, index, getRowId)}
-                  className="h-11"
-                >
-                  {columns.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      className={cn("px-3 py-2 text-sm", column.className)}
-                    >
-                      {column.cell(row)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              paginatedRows.map((row, index) => {
+                const rowKey = resolveRowKey(row, index, getRowId);
+                const isSelected =
+                  selectedRowId != null && String(selectedRowId) === rowKey;
+
+                const handleRowActivate = () => {
+                  onRowClick?.(row);
+                };
+
+                return (
+                  <TableRow
+                    key={rowKey}
+                    className={cn(
+                      "h-11",
+                      onRowClick && "cursor-pointer",
+                      isSelected && "bg-primary/10 hover:bg-primary/10",
+                    )}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    aria-label={
+                      onRowClick
+                        ? getRowAriaLabel?.(row) ??
+                          `View details for row ${index + 1}`
+                        : undefined
+                    }
+                    aria-selected={onRowClick ? isSelected : undefined}
+                    onClick={onRowClick ? handleRowActivate : undefined}
+                    onKeyDown={
+                      onRowClick
+                        ? (event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              handleRowActivate();
+                              return;
+                            }
+
+                            if (
+                              event.key === "ArrowDown" ||
+                              event.key === "ArrowUp"
+                            ) {
+                              event.preventDefault();
+                              const nextIndex =
+                                event.key === "ArrowDown" ? index + 1 : index - 1;
+                              const nextRow = paginatedRows[nextIndex];
+                              if (!nextRow) return;
+
+                              onRowClick(nextRow);
+                              const rowElements =
+                                event.currentTarget.parentElement?.children;
+                              const nextElement = rowElements?.[nextIndex];
+                              if (nextElement instanceof HTMLElement) {
+                                nextElement.focus();
+                              }
+                            }
+                          }
+                        : undefined
+                    }
+                  >
+                    {columns.map((column) => (
+                      <TableCell
+                        key={column.id}
+                        className={cn("px-3 py-2 text-sm", column.className)}
+                      >
+                        {column.cell(row)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
 

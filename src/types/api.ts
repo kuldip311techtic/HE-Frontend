@@ -165,8 +165,19 @@ export interface SubscriptionPlan {
   billing_frequency: BillingFrequency;
   currency: string;
   price_amount: string;
+  stripe_product_id?: string;
+  stripe_price_id?: string;
+  teams_limit_type?: LimitType;
+  teams_count?: number | null;
+  coaches_limit_type?: LimitType | null;
+  coaches_count?: number | null;
+  players_limit_type?: LimitType;
+  players_count?: number | null;
+  historical_records_duration?: HistoricalRecordsDuration;
+  include_offline_sync?: boolean;
   status: PlanStatus;
   is_active: boolean;
+  archived_at?: string | null;
   description: string | null;
   features: string[];
   created_at: string;
@@ -223,6 +234,12 @@ export interface SubscriptionPlanDeleteResponse {
 
 export type SupportRequestStatus = "open" | "closed" | "pending" | string;
 
+export interface SupportRequestAttachment {
+  download_url?: string;
+  filename?: string;
+  content_type?: string;
+}
+
 export interface SupportRequest {
   id: string;
   subject: string;
@@ -231,6 +248,7 @@ export interface SupportRequest {
   name: string;
   status?: SupportRequestStatus;
   attachment_url?: string | null;
+  attachment?: SupportRequestAttachment | null;
   created_at: string;
   updated_at?: string | null;
 }
@@ -254,14 +272,3 @@ export interface SubscriptionPlanListParams extends ListQueryParams {
 }
 
 export type SupportRequestListParams = ListQueryParams;
-
-export interface SupportRequestRespondRequest {
-  request_id: string;
-  response: string;
-}
-
-export interface SupportRequestMutationResponse {
-  message: string;
-  id?: string;
-  status?: SupportRequestStatus;
-}

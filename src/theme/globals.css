@@ -248,54 +248,67 @@
       );
   }
 
-  /* Login page — page-local input/button/select overrides (dark fill, dark CTA label) */
+  /* Login page — page-local input/button overrides (dark fill, dark CTA label) */
+  .login-page input.login-field-input,
   .login-page input[type="email"],
   .login-page input[type="password"],
-  .login-page select[data-login-field="true"],
-  .login-page [data-login-field="true"] {
-    background-color: var(--figma-surface-deep) !important;
-    border-color: var(--figma-border) !important;
+  .login-page input[data-login-field="true"] {
+    background-color: #0b1f12 !important;
+    border-color: #0d1612 !important;
     color: #ffffff !important;
     font-family: "Outfit", sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    line-height: 22px !important;
   }
 
+  .login-page input.login-field-input::placeholder,
   .login-page input[type="email"]::placeholder,
   .login-page input[type="password"]::placeholder {
-    color: var(--figma-accent) !important;
+    color: #445154 !important;
     font-family: "Outfit", sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    line-height: 22px !important;
+  }
+
+  .login-page input.login-field-input:-webkit-autofill,
+  .login-page input.login-field-input:-webkit-autofill:hover,
+  .login-page input.login-field-input:-webkit-autofill:focus,
+  .login-page input[type="email"]:-webkit-autofill,
+  .login-page input[type="password"]:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #0b1f12 inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff;
+    border-color: #0d1612 !important;
   }
 
   .login-page .login-submit-btn {
-    background-color: var(--figma-brand) !important;
-    border-color: var(--figma-border) !important;
-    color: var(--figma-border) !important;
+    background-color: #86d31f !important;
+    border-color: #0d1612 !important;
+    color: #0d1612 !important;
     font-family: "Outfit", sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    line-height: 20.16px !important;
   }
 
   .login-page .login-submit-btn:hover,
   .login-page .login-submit-btn:focus-visible,
   .login-page .login-submit-btn:active {
-    background-color: color-mix(in srgb, var(--figma-brand) 90%, var(--figma-border)) !important;
-    color: var(--figma-border) !important;
+    background-color: color-mix(in srgb, #86d31f 90%, #0d1612) !important;
+    color: #0d1612 !important;
   }
 
   .login-page .login-submit-btn svg {
-    color: var(--figma-border) !important;
+    color: #0d1612 !important;
   }
 
   .login-page .login-field-label {
     font-family: "Lato", sans-serif !important;
-    color: var(--figma-accent) !important;
-  }
-
-  .login-page select.login-role-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23445154' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-    background-position: right 14px center;
-    background-size: 16px;
-  }
-
-  .login-page select.login-role-select:invalid,
-  .login-page select.login-role-select option[value=""] {
-    color: var(--figma-accent) !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    line-height: 19.2px !important;
+    color: #445154 !important;
   }
 }
