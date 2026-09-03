@@ -73,7 +73,7 @@ export function LoginPage() {
         <CardContent className="px-[24px] pb-[32px] pt-[20px]">
           <form className="flex flex-col gap-[20px]" onSubmit={handleSubmit} noValidate>
             <div className="flex flex-col gap-[12px]">
-              <Label htmlFor="role" className="login-field-label">
+              <Label id="role-label" htmlFor="role" className="login-field-label">
                 Role
               </Label>
               <Select
@@ -88,6 +88,7 @@ export function LoginPage() {
                 <SelectTrigger
                   id="role"
                   className="login-field-input"
+                  aria-labelledby="role-label"
                   aria-invalid={Boolean(validationError)}
                 >
                   <SelectValue placeholder="Select your role" />
