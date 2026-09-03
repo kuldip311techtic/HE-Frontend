@@ -6,6 +6,11 @@
  *          → client request GET /v1/super-admin/dashboard
  */
 export const CONTRACT_ROUTES = {
+  authLogin: {
+    method: 'POST' as const,
+    path: '/api/v1/auth/login',
+    listUnwrapKey: null as string | null,
+  },
   superAdminDashboard: {
     method: 'GET' as const,
     /** Ticket alias: GET /api/super-admin/dashboard */

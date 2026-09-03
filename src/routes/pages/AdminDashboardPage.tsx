@@ -43,7 +43,7 @@ export function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="font-outfit text-xl font-bold text-foreground">Dashboard</h2>
+        <h2 className="text-body-42 text-foreground">Dashboard</h2>
         <p className="mt-1 font-outfit text-body-sm text-muted-foreground">
           Platform overview and key metrics for Hoops Engine.
         </p>

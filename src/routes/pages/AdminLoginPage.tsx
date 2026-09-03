@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
+import { getStoredUser } from '@/lib/auth/auth-storage';
 import { isAdminRole } from '@/lib/auth/roles';
 import { parseApiError } from '@/lib/utils/errors';
 
 export function AdminLoginPage() {
   const navigate = useNavigate();
-  const { loginWithCredentials, isAuthenticated, user, isHydrating } = useAdminAuth();
+  const { loginWithCredentials, logout, isAuthenticated, user, isHydrating } = useAdminAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +45,12 @@ export function AdminLoginPage() {
     setIsSubmitting(true);
     try {
       await loginWithCredentials(email.trim(), password);
+      const loggedInUser = getStoredUser();
+      if (!isAdminRole(loggedInUser)) {
+        logout();
+        navigate('/admin/unauthorized', { replace: true });
+        return;
+      }
       toast.success('Signed in successfully.');
       navigate('/admin', { replace: true });
     } catch (error) {
@@ -65,15 +72,15 @@ export function AdminLoginPage() {
       <div className="login-bg-glow" aria-hidden="true" />
       <div className="login-card">
         <div className="login-card-header">
-          <h1 className="login-card-title">Admin Sign In</h1>
-          <p className="login-card-description">
+          <h1 className="login-card-title text-body-25">Admin Sign In</h1>
+          <p className="login-card-description text-body-sm">
             Sign in with your Super Admin credentials to access the admin panel.
           </p>
         </div>
         <div className="login-card-content">
           <form onSubmit={handleSubmit} className="login-form" noValidate>
             <div className="login-field-group">
-              <Label htmlFor="email" className="login-field-label">
+              <Label htmlFor="email" className="login-field-label text-body-5">
                 Email
               </Label>
               <Input
@@ -84,18 +91,18 @@ export function AdminLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isSubmitting}
                 aria-invalid={Boolean(fieldErrors.email)}
-                className="login-field-input"
+                className="login-field-input text-body-21"
                 placeholder="admin@example.com"
               />
               {fieldErrors.email ? (
-                <p className="login-field-error" role="alert">
+                <p className="login-field-error text-body-sm" role="alert">
                   {fieldErrors.email}
                 </p>
               ) : null}
             </div>
 
             <div className="login-field-group">
-              <Label htmlFor="password" className="login-field-label">
+              <Label htmlFor="password" className="login-field-label text-body-5">
                 Password
               </Label>
               <Input
@@ -106,25 +113,26 @@ export function AdminLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSubmitting}
                 aria-invalid={Boolean(fieldErrors.password)}
-                className="login-field-input"
+                className="login-field-input text-body-21"
                 placeholder="Enter your password"
               />
               {fieldErrors.password ? (
-                <p className="login-field-error" role="alert">
+                <p className="login-field-error text-body-sm" role="alert">
                   {fieldErrors.password}
                 </p>
               ) : null}
             </div>
 
             {errorMessage ? (
-              <p className="login-field-error" role="alert">
+              <p className="login-field-error text-body-sm" role="alert">
                 {errorMessage}
               </p>
             ) : null}
 
             <Button
               type="submit"
-              className="login-submit-btn"
+              variant="ghost"
+              className="login-submit-btn text-body-10"
               isLoading={isSubmitting}
               disabled={isSubmitting}
             >

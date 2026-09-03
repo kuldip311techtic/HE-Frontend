@@ -92,6 +92,7 @@ export function AdminLayout() {
           isMobileNavOpen ? 'translate-x-0' : '-translate-x-full',
         )}
         aria-hidden={!isMobileNavOpen}
+        {...(!isMobileNavOpen ? { inert: '' } : {})}
       >
         <AdminSidebar onNavigate={closeMobileNav} />
       </div>

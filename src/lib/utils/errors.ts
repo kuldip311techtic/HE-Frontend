@@ -37,18 +37,6 @@ export function getApiErrorMessage(error: unknown, fallback = 'Something went wr
     if (isErrorResponse(data)) {
       return data.error.message;
     }
-
-    if (typeof data === 'object' && data !== null && 'message' in data && typeof data.message === 'string') {
-      return data.message;
-    }
-
-    if (typeof data === 'object' && data !== null && 'detail' in data && typeof data.detail === 'string') {
-      return data.detail;
-    }
-  }
-
-  if (error instanceof Error && error.message && !error.message.includes('AxiosError')) {
-    return error.message;
   }
 
   return fallback;

@@ -42,10 +42,19 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, isLoading = false, disabled, children, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
+    const mergedClassName = cn(buttonVariants({ variant, size, className }));
+
+    if (asChild) {
+      return (
+        <Slot className={mergedClassName} ref={ref} {...props}>
+          {children}
+        </Slot>
+      );
+    }
+
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+      <button
+        className={mergedClassName}
         ref={ref}
         disabled={disabled || isLoading}
         aria-busy={isLoading}
@@ -53,7 +62,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
         {children}
-      </Comp>
+      </button>
     );
   },
 );
