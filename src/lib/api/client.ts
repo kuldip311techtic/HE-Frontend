@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type AxiosInstance } from "axios";
 import type { ApiErrorBody } from "@/types/api";
-import { clearAuthStorage, getStoredToken } from "@/lib/auth/storage";
+import { clearAuthStorage, getStoredToken, isValidationAuthToken } from "@/lib/auth/storage";
 import { resolveApiBaseUrl } from "@/lib/api/resolve-base-url";
 
 const baseURL = resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
@@ -84,6 +84,9 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
+      if (isValidationAuthToken()) {
+        return Promise.reject(error);
+      }
       clearAuthStorage();
       const path = window.location.pathname;
       const isPublicAdminRoute =

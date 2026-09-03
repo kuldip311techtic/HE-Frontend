@@ -27,19 +27,11 @@ import {
   useOrganizations,
   useUpdateOrganization,
 } from "@/hooks/useOrganizations";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { getApiErrorMessage } from "@/lib/api/client";
 import type { Organization } from "@/types/api";
 
 const FORM_ID = "organization-form";
-
-function useDebouncedValue<T>(value: T, delay = 300): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDebounced(value), delay);
-    return () => window.clearTimeout(timer);
-  }, [value, delay]);
-  return debounced;
-}
 
 export function OrganizationsPage() {
   const [page, setPage] = useState(1);
@@ -121,16 +113,22 @@ export function OrganizationsPage() {
       id: "name",
       header: "Organization name",
       cell: (row) => row.name,
+      sortable: true,
+      sortValue: (row) => row.name,
     },
     {
       id: "contact_email",
       header: "Contact email",
       cell: (row) => row.contact_email,
+      sortable: true,
+      sortValue: (row) => row.contact_email,
     },
     {
       id: "phone_number",
       header: "Phone number",
       cell: (row) => row.phone_number,
+      sortable: true,
+      sortValue: (row) => row.phone_number,
     },
     {
       id: "actions",
@@ -182,6 +180,7 @@ export function OrganizationsPage() {
       <DataTable
         columns={columns}
         data={data?.items ?? []}
+        getRowId={(row) => row.id}
         isLoading={isLoading}
         error={
           isError

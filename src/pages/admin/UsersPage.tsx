@@ -30,19 +30,11 @@ import {
   useSuperAdminUsers,
   useUpdateSuperAdminUser,
 } from "@/hooks/useSuperAdminUsers";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { getApiErrorMessage } from "@/lib/api/client";
 import type { AdminUser } from "@/types/api";
 
 const FORM_ID = "user-form";
-
-function useDebouncedValue<T>(value: T, delay = 300): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDebounced(value), delay);
-    return () => window.clearTimeout(timer);
-  }, [value, delay]);
-  return debounced;
-}
 
 function resolveRoleFilter(role: string | null): string {
   if (role === "coach" || role === "player") return role;
@@ -179,15 +171,22 @@ export function UsersPage() {
       id: "name",
       header: "Name",
       cell: (row) => row.name || `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(),
+      sortable: true,
+      sortValue: (row) =>
+        row.name || `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(),
     },
     {
       id: "email",
       header: "Email",
       cell: (row) => row.email,
+      sortable: true,
+      sortValue: (row) => row.email,
     },
     {
       id: "role",
       header: "Role",
+      sortable: true,
+      sortValue: (row) => row.role,
       cell: (row) => (
         <Badge variant="secondary" className="capitalize">
           {row.role.replace(/_/g, " ")}
@@ -197,6 +196,8 @@ export function UsersPage() {
     {
       id: "status",
       header: "Status",
+      sortable: true,
+      sortValue: (row) => row.is_active,
       cell: (row) => (
         <Badge variant={row.is_active ? "default" : "outline"}>
           {row.is_active ? "Active" : "Inactive"}
@@ -210,7 +211,12 @@ export function UsersPage() {
       cell: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Row actions">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              aria-label={`Actions for ${row.name || row.email}`}
+            >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -255,6 +261,7 @@ export function UsersPage() {
       <DataTable
         columns={columns}
         data={data?.items ?? []}
+        getRowId={(row) => row.id}
         isLoading={isLoading}
         error={
           isError

@@ -14,20 +14,12 @@ import {
   useRespondSupportRequest,
   useSupportRequests,
 } from "@/hooks/useSupportRequests";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import type { SupportRequest } from "@/types/api";
 
 const RESPONSE_FORM_ID = "support-response-form";
-
-function useDebouncedValue<T>(value: T, delay = 300): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDebounced(value), delay);
-    return () => window.clearTimeout(timer);
-  }, [value, delay]);
-  return debounced;
-}
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return "—";
@@ -131,6 +123,8 @@ export function SupportRequestsPage() {
     {
       id: "subject",
       header: "Subject",
+      sortable: true,
+      sortValue: (row) => row.subject,
       cell: (row) => (
         <button
           type="button"
@@ -149,15 +143,21 @@ export function SupportRequestsPage() {
       id: "name",
       header: "Name",
       cell: (row) => row.name,
+      sortable: true,
+      sortValue: (row) => row.name,
     },
     {
       id: "email",
       header: "Email",
       cell: (row) => row.email,
+      sortable: true,
+      sortValue: (row) => row.email,
     },
     {
       id: "status",
       header: "Status",
+      sortable: true,
+      sortValue: (row) => row.status,
       cell: (row) => (
         <Badge variant={statusBadgeVariant(row.status)} className="capitalize">
           {row.status ?? "open"}
@@ -167,6 +167,8 @@ export function SupportRequestsPage() {
     {
       id: "created_at",
       header: "Submitted",
+      sortable: true,
+      sortValue: (row) => row.created_at,
       cell: (row) => formatDate(row.created_at),
     },
   ];
@@ -185,6 +187,7 @@ export function SupportRequestsPage() {
         <DataTable
           columns={columns}
           data={data?.items ?? []}
+          getRowId={(row) => row.id}
           isLoading={isLoading}
           error={
             isError

@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import { getStoredToken, isDemoAuthToken } from "@/lib/auth/storage";
+import { getStoredToken, isDemoAuthToken, isValidationAuthToken } from "@/lib/auth/storage";
 
 /** True when the user is authenticated with a non-demo token suitable for live API calls. */
 export function useHasLiveApiAccess(): boolean {
@@ -7,6 +7,10 @@ export function useHasLiveApiAccess(): boolean {
   const token = getStoredToken();
 
   if (isLoading) return false;
+
+  if (isValidationAuthToken()) {
+    return isAuthenticated && hasAdminAccess;
+  }
 
   return (
     isAuthenticated &&

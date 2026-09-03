@@ -14,3 +14,4 @@ playwright-report/
 test-results/
 .luna/
 _luna_*_result.json
+tsconfig.tsbuildinfo

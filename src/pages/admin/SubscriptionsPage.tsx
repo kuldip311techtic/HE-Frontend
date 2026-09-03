@@ -28,20 +28,12 @@ import {
   useSubscriptionPlans,
   useUpdateSubscriptionPlan,
 } from "@/hooks/useSubscriptionPlans";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import type { SubscriptionPlan, SubscriptionPlanRole } from "@/types/api";
 
 const FORM_ID = "subscription-plan-form";
-
-function useDebouncedValue<T>(value: T, delay = 300): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDebounced(value), delay);
-    return () => window.clearTimeout(timer);
-  }, [value, delay]);
-  return debounced;
-}
 
 const ROLE_TABS: { value: SubscriptionPlanRole; label: string }[] = [
   { value: "org_admin", label: "Org Admin" },
@@ -155,10 +147,17 @@ export function SubscriptionsPage() {
       id: "name",
       header: "Name",
       cell: (row) => <span className="text-body-13 text-foreground">{row.name}</span>,
+      sortable: true,
+      sortValue: (row) => row.name,
     },
     {
       id: "price",
       header: "Price",
+      sortable: true,
+      sortValue: (row) => {
+        const n = Number.parseFloat(row.price_amount);
+        return Number.isFinite(n) ? n : 0;
+      },
       cell: (row) => (
         <span className="tabular-nums text-body-21 text-foreground">
           {row.currency} {row.price_amount}
@@ -168,6 +167,8 @@ export function SubscriptionsPage() {
     {
       id: "duration",
       header: "Duration",
+      sortable: true,
+      sortValue: (row) => row.billing_frequency,
       cell: (row) => (
         <span className="capitalize text-body-21 text-foreground">
           {row.billing_frequency}
@@ -177,6 +178,8 @@ export function SubscriptionsPage() {
     {
       id: "status",
       header: "Status",
+      sortable: true,
+      sortValue: (row) => row.status,
       cell: (row) => (
         <Badge variant={row.status === "active" ? "default" : "outline"} className="capitalize">
           {row.status}
@@ -255,6 +258,7 @@ export function SubscriptionsPage() {
       <DataTable
         columns={columns}
         data={data?.items ?? []}
+        getRowId={(row) => row.id}
         isLoading={isLoading}
         error={
           isError

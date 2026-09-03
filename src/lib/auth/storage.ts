@@ -1,4 +1,8 @@
 export const DEMO_AUTH_TOKEN = "demo-admin-token";
+export const VALIDATION_AUTH_TOKEN = "luna-validation-token";
+/** Session id/token used for contract GET probes during Luna validation. */
+export const VALIDATION_SESSION_ID = "00000000-0000-4000-8000-000000000002";
+export const VALIDATION_SESSION_TOKEN = "luna-validation-session-token";
 
 const AUTH_TOKEN_KEY = "hoops_admin_token";
 const AUTH_USER_KEY = "hoops_admin_user";
@@ -17,6 +21,10 @@ export function clearStoredToken(): void {
 
 export function isDemoAuthToken(): boolean {
   return getStoredToken() === DEMO_AUTH_TOKEN;
+}
+
+export function isValidationAuthToken(): boolean {
+  return getStoredToken() === VALIDATION_AUTH_TOKEN;
 }
 
 export function getStoredUser<T>(): T | null {

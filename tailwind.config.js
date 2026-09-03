@@ -63,6 +63,8 @@ export default {
           "brand-subtle": "var(--figma-brand-subtle)",
           "brand-glow": "var(--figma-brand-glow)",
           danger: "var(--figma-danger)",
+          "danger-subtle": "var(--figma-danger-subtle)",
+          "danger-muted": "var(--figma-danger-muted)",
           info: "var(--figma-info)",
           overlay: "var(--figma-overlay)",
           warning: "var(--figma-warning)",

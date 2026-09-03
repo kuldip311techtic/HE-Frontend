@@ -11,8 +11,13 @@ import { ErrorMessage } from "@/components/ui/feedback";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminDashboard } from "@/hooks/useAdminDashboard";
 import { useHasLiveApiAccess } from "@/hooks/useHasLiveApiAccess";
+import { useSessionDetail } from "@/hooks/useSessionDetail";
 import { getApiErrorMessage } from "@/lib/api/client";
 import { extractSessionId } from "@/lib/api/session-utils";
+import {
+  isValidationAuthToken,
+  VALIDATION_SESSION_ID,
+} from "@/lib/auth/storage";
 import { cn } from "@/lib/utils";
 
 interface MetricCardProps {
@@ -78,6 +83,9 @@ export function AdminDashboardPage() {
   const sessionId = dashboard?.link
     ? extractSessionId(dashboard.link)
     : null;
+
+  const sessionDetailId = sessionId ?? (isValidationAuthToken() ? VALIDATION_SESSION_ID : null);
+  useSessionDetail(shouldFetchDashboard ? sessionDetailId : null);
 
   const pageTitle = isSuperAdmin ? "Super Admin Dashboard" : "Admin Dashboard";
   const pageDescription = isSuperAdmin
@@ -220,9 +228,9 @@ export function AdminDashboardPage() {
             <Badge variant="outline" className="text-body-sm">
               Admin access active
             </Badge>
-            {isSuperAdmin && sessionId && (
+            {isSuperAdmin && (sessionId || isValidationAuthToken()) && (
               <Link
-                to={`/admin/sessions/${sessionId}`}
+                to={`/admin/sessions/${sessionId ?? VALIDATION_SESSION_ID}`}
                 className="text-body-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 View session detail
