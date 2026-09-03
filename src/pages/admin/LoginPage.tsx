@@ -196,6 +196,7 @@ export function AdminLoginPage() {
                             <SelectTrigger
                               className={loginSelectTriggerClassName}
                               data-login-field="true"
+                              aria-label="Role"
                             >
                               <SelectValue placeholder="Select a role" />
                             </SelectTrigger>

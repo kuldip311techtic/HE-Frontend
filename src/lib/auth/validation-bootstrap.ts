@@ -20,7 +20,11 @@ export function shouldBootstrapValidationAuth(): boolean {
     return false;
   }
 
-  if (import.meta.env.VITE_LUNA_VALIDATION !== "true") {
+  const isLunaValidationEnv = import.meta.env.VITE_LUNA_VALIDATION === "true";
+  const isLunaValidationPort =
+    import.meta.env.DEV && window.location.port === "41000";
+
+  if (!isLunaValidationEnv && !isLunaValidationPort) {
     return false;
   }
 
