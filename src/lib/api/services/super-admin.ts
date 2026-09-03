@@ -21,8 +21,6 @@ import type {
   SuperAdminDashboard,
   SupportRequest,
   SupportRequestListParams,
-  SupportRequestMutationResponse,
-  SupportRequestRespondRequest,
 } from "@/types/api";
 
 function buildQueryString(
@@ -169,18 +167,4 @@ export async function listSupportRequests(
     search: params.search,
   });
   return apiGet(`/super-admin/support-requests${qs}`);
-}
-
-/** Ticket: POST /api/super-admin/support-requests — not yet in live OpenAPI */
-export async function respondToSupportRequest(
-  body: SupportRequestRespondRequest,
-): Promise<SupportRequestMutationResponse> {
-  return apiPost("/super-admin/support-requests", body);
-}
-
-/** Ticket: PUT /api/super-admin/support-requests/{id} — not yet in live OpenAPI */
-export async function closeSupportRequest(
-  requestId: string,
-): Promise<SupportRequestMutationResponse> {
-  return apiPut(`/super-admin/support-requests/${requestId}`, {});
 }

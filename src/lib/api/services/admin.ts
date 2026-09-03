@@ -14,6 +14,4 @@ export {
   updateSubscriptionPlan,
   deleteSubscriptionPlan,
   listSupportRequests,
-  respondToSupportRequest,
-  closeSupportRequest,
 } from "@/lib/api/services/super-admin";
