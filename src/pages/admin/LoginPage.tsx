@@ -1,0 +1,108 @@
+import type { FormEvent } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useAuth } from '@/hooks/useAuth';
+import type { AdminRole } from '@/types/auth';
+import { getRoleLabel } from '@/types/auth';
+
+const ROLE_OPTIONS: AdminRole[] = [
+  'super_admin',
+  'organization_admin',
+  'admin',
+  'coach',
+  'player',
+];
+
+export function LoginPage() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [role, setRole] = useState<AdminRole | ''>('');
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!role) {
+      setValidationError('Please select a role before signing in.');
+      return;
+    }
+
+    setValidationError(null);
+    setIsSubmitting(true);
+
+    try {
+      const allowed = await login(role);
+      if (allowed) {
+        toast.success('Signed in successfully.');
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/admin/unauthorized', { replace: true });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="login-page login-bg-glow flex min-h-screen items-center justify-center px-[24px] py-[32px]">
+      <Card className="login-card w-full max-w-[440px] rounded-[10px] border shadow-none">
+        <CardHeader className="flex flex-col gap-[12px] px-[24px] pb-0 pt-[32px]">
+          <CardTitle className="login-card-title">Admin Sign In</CardTitle>
+          <CardDescription className="login-card-description">
+            Select a demo role to access the Hoops Engine admin panel.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-[24px] pb-[32px] pt-[20px]">
+          <form className="flex flex-col gap-[20px]" onSubmit={handleSubmit} noValidate>
+            <div className="flex flex-col gap-[12px]">
+              <Label htmlFor="role" className="login-field-label">
+                Role
+              </Label>
+              <Select value={role} onValueChange={(value) => setRole(value as AdminRole)}>
+                <SelectTrigger
+                  id="role"
+                  className="login-field-input"
+                  aria-invalid={Boolean(validationError)}
+                >
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent className="login-select-content">
+                  {ROLE_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option} className="login-select-item">
+                      {getRoleLabel(option)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {validationError ? (
+                <p className="login-error-text" role="alert">
+                  {validationError}
+                </p>
+              ) : null}
+            </div>
+            <Button
+              type="submit"
+              variant="ghost"
+              className="login-submit-btn h-[44px] w-full rounded-[10px]"
+              isLoading={isSubmitting}
+            >
+              {isSubmitting ? 'Signing in…' : 'Sign in'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
