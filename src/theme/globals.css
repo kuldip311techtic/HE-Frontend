@@ -1,0 +1,302 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background font-outfit text-foreground antialiased;
+  }
+}
+
+@layer utilities {
+  .text-body-10 {
+    font-family: Outfit, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 20.16px;
+    letter-spacing: 0;
+  }
+
+  .text-body-13 {
+    font-family: Outfit, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20.16px;
+    letter-spacing: 0;
+  }
+
+  .text-body-21 {
+    font-family: Outfit, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0;
+  }
+
+  .text-body-25 {
+    font-family: Outfit, sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 22.68px;
+    letter-spacing: 0;
+  }
+
+  .text-body-29 {
+    font-family: Outfit, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20.16px;
+    letter-spacing: 0;
+  }
+
+  .text-body-33 {
+    font-family: Outfit, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 20.16px;
+    letter-spacing: 0;
+  }
+
+  .text-body-34 {
+    font-family: Inter, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 19.36px;
+    letter-spacing: 0;
+  }
+
+  .text-body-4 {
+    font-family: Outfit, sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 22.68px;
+    letter-spacing: 0;
+  }
+
+  .text-body-42 {
+    font-family: Outfit, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 22.68px;
+    letter-spacing: 0;
+  }
+
+  .text-body-5 {
+    font-family: Lato, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 19.2px;
+    letter-spacing: 0;
+  }
+
+  .text-body-51 {
+    font-family: Outfit, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 22px;
+    letter-spacing: 0;
+  }
+
+  .text-body-53 {
+    font-family: Inter, sans-serif;
+    font-size: 18.05px;
+    font-weight: 400;
+    line-height: 21.84px;
+    letter-spacing: 0;
+  }
+
+  .text-body-56 {
+    font-family: Outfit, sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 25.2px;
+    letter-spacing: 0;
+  }
+
+  .text-body-71 {
+    font-family: Inter, sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 21.78px;
+    letter-spacing: 0;
+  }
+
+  .text-body-9 {
+    font-family: Outfit, sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 22.68px;
+    letter-spacing: 0.18px;
+  }
+
+  .text-body-sm {
+    font-family: Outfit, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 17.64px;
+    letter-spacing: 0;
+  }
+}
+
+/* Login page — page-only overrides; do not change global Input/Button primitives */
+.login-page {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 28px 24px;
+  background-color: var(--token-color-110);
+}
+
+.login-page .login-bg-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 58% 48% at 82% 38%,
+      color-mix(in srgb, var(--figma-hex-brand) 28%, transparent) 0%,
+      color-mix(in srgb, var(--figma-hex-brand) 8%, transparent) 42%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 46% 40% at 14% 68%,
+      color-mix(in srgb, var(--token-color-114) 16%, transparent) 0%,
+      transparent 64%
+    ),
+    radial-gradient(
+      ellipse 36% 32% at 48% 8%,
+      color-mix(in srgb, var(--figma-hex-accent) 30%, transparent) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 24% 22% at 62% 88%,
+      color-mix(in srgb, var(--token-color-114) 12%, transparent) 0%,
+      transparent 70%
+    );
+}
+
+.login-page .login-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid var(--figma-hex-border);
+  border-radius: 10px;
+  background-color: var(--token-color-119);
+  box-shadow: none;
+}
+
+.login-page .login-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 24px 0;
+}
+
+.login-page .login-card-content {
+  padding: 20px 24px 24px;
+}
+
+.login-page .login-card-title {
+  color: hsl(var(--foreground));
+}
+
+.login-page .login-card-description {
+  color: var(--token-color-113);
+}
+
+.login-page .login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-page .login-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-page .login-field-label {
+  color: var(--figma-hex-accent) !important;
+}
+
+.login-page input.login-field-input {
+  display: flex !important;
+  height: 44px !important;
+  width: 100% !important;
+  align-items: center !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--figma-hex-border) !important;
+  background-color: var(--token-color-117) !important;
+  padding: 0 14px !important;
+  color: hsl(var(--foreground)) !important;
+  box-shadow: none !important;
+  --tw-ring-offset-width: 0 !important;
+  --tw-ring-color: transparent !important;
+}
+
+.login-page input.login-field-input::placeholder {
+  color: var(--token-color-113) !important;
+}
+
+.login-page input.login-field-input:focus,
+.login-page input.login-field-input:focus-visible {
+  outline: none !important;
+  border-color: var(--figma-hex-border) !important;
+  background-color: var(--token-color-117) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--figma-hex-brand) 45%, transparent) !important;
+}
+
+.login-page input.login-field-input:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.login-page button.login-submit-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 44px !important;
+  width: 100% !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--figma-hex-border) !important;
+  background-color: var(--figma-hex-brand) !important;
+  color: var(--figma-hex-border) !important;
+  box-shadow: none !important;
+  --tw-ring-offset-width: 0 !important;
+}
+
+.login-page button.login-submit-btn:hover:not(:disabled) {
+  filter: brightness(0.92) !important;
+  background-color: var(--figma-hex-brand) !important;
+  color: var(--figma-hex-border) !important;
+}
+
+.login-page button.login-submit-btn:focus-visible {
+  outline: 2px solid var(--token-color-114) !important;
+  outline-offset: 2px !important;
+}
+
+.login-page button.login-submit-btn:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.login-page button.login-submit-btn svg {
+  color: var(--figma-hex-border) !important;
+}
+
+.login-page .login-field-error {
+  color: var(--token-color-116);
+}
