@@ -1,3 +1,12 @@
+export interface PaginationMeta {
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
 export interface ErrorDetail {
   code: string;
   message: string;
@@ -7,6 +16,11 @@ export interface ErrorDetail {
 export interface ErrorResponse {
   success: false;
   error: ErrorDetail;
+}
+
+export interface QuickAccessLinkItem {
+  module: string;
+  link: string;
 }
 
 export interface DashboardAnalyticsResponse {

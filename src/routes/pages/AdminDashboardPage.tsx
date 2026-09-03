@@ -1,11 +1,14 @@
 import {
   Building2,
   CreditCard,
-  LifeBuoy,
+  RefreshCw,
   TrendingUp,
   Users,
   Activity,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { ModuleNavCards } from '@/components/features/dashboard/ModuleNavCards';
+import { QuickAccessNav } from '@/components/features/dashboard/QuickAccessNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -17,24 +20,24 @@ import { getUserDisplayName } from '@/lib/auth/roles';
 import { getApiErrorMessage } from '@/lib/utils/errors';
 
 const metricConfig = [
-  { key: 'total_organizations' as const, label: 'Organizations', icon: Building2 },
-  { key: 'total_coaches' as const, label: 'Coaches', icon: Users },
-  { key: 'total_players' as const, label: 'Players', icon: Activity },
-  { key: 'total_sessions' as const, label: 'Sessions', icon: TrendingUp },
+  { key: 'total_organizations' as const, label: 'Total Organizations', icon: Building2 },
+  { key: 'total_coaches' as const, label: 'Total Coaches', icon: Users },
+  { key: 'total_players' as const, label: 'Total Players', icon: Activity },
+  { key: 'total_sessions' as const, label: 'Total Sessions', icon: TrendingUp },
   { key: 'active_subscriptions' as const, label: 'Active Subscriptions', icon: CreditCard },
   { key: 'revenue_overview' as const, label: 'Revenue Overview', icon: TrendingUp },
-];
-
-const moduleCards = [
-  { title: 'Organizations', description: 'Manage organization accounts and settings.', icon: Building2 },
-  { title: 'Users', description: 'View and manage platform users.', icon: Users },
-  { title: 'Subscriptions', description: 'Monitor subscription plans and billing.', icon: CreditCard },
-  { title: 'Support', description: 'Review and respond to support requests.', icon: LifeBuoy },
 ];
 
 export function AdminDashboardPage() {
   const { user, isHydrating } = useAdminAuth();
   const { data, isLoading, isError, error, refetch, isFetching } = useDashboardAnalytics();
+
+  const handleRefresh = async () => {
+    const result = await refetch();
+    if (result.isSuccess) {
+      toast.success('Dashboard refreshed.');
+    }
+  };
 
   if (isHydrating) {
     return <LoadingState message="Loading dashboard…" fullPage />;
@@ -42,11 +45,25 @@ export function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-body-42 text-foreground">Dashboard</h2>
-        <p className="mt-1 font-outfit text-body-sm text-muted-foreground">
-          Platform overview and key metrics for Hoops Engine.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-body-42 text-foreground">Dashboard</h2>
+          <p className="mt-1 font-outfit text-body-sm text-muted-foreground">
+            Platform overview and key metrics for Hoops Engine.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleRefresh}
+          isLoading={isFetching}
+          disabled={isFetching}
+          aria-label="Refresh dashboard metrics"
+          className="shrink-0"
+        >
+          <RefreshCw className="h-4 w-4" aria-hidden="true" />
+          {isFetching ? 'Refreshing…' : 'Refresh'}
+        </Button>
       </div>
 
       <Card>
@@ -77,7 +94,7 @@ export function AdminDashboardPage() {
           title="Unable to load dashboard metrics"
           description={getApiErrorMessage(error, 'Unable to load dashboard data. Please try again.')}
           action={
-            <Button onClick={() => refetch()} isLoading={isFetching} disabled={isFetching}>
+            <Button onClick={handleRefresh} isLoading={isFetching} disabled={isFetching}>
               {isFetching ? 'Retrying…' : 'Retry'}
             </Button>
           }
@@ -85,7 +102,10 @@ export function AdminDashboardPage() {
       ) : null}
 
       {!isLoading && !isError && data ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div
+          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          aria-label="Dashboard metrics"
+        >
           {metricConfig.map(({ key, label, icon: Icon }) => (
             <Card key={key}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -114,33 +134,17 @@ export function AdminDashboardPage() {
         <EmptyState
           title="Dashboard ready"
           description="Metrics will appear here once analytics data is available."
+          action={
+            <Button onClick={handleRefresh} isLoading={isFetching} disabled={isFetching}>
+              {isFetching ? 'Refreshing…' : 'Refresh'}
+            </Button>
+          }
         />
       ) : null}
 
-      <div>
-        <h3 className="mb-4 font-outfit text-lg font-semibold text-foreground">Platform modules</h3>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {moduleCards.map(({ title, description, icon: Icon }) => (
-            <Card key={title} className="opacity-80">
-              <CardHeader>
-                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Icon className="h-4 w-4" aria-hidden="true" />
-                </div>
-                <CardTitle className="text-base">{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <span
-                  aria-disabled="true"
-                  className="font-outfit text-body-sm text-muted-foreground"
-                >
-                  Coming in a future release
-                </span>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+      <QuickAccessNav />
+
+      <ModuleNavCards />
     </div>
   );
 }

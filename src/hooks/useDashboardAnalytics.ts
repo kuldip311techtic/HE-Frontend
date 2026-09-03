@@ -4,12 +4,12 @@ import { queryKeys } from '@/lib/api/query-keys';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 
 export function useDashboardAnalytics() {
-  const { isAuthenticated, isAdmin, isHydrating } = useAdminAuth();
+  const { canFetchAdminData } = useAdminAuth();
 
   return useQuery({
     queryKey: queryKeys.superAdmin.dashboard,
     queryFn: fetchDashboardAnalytics,
-    enabled: !isHydrating && isAuthenticated && isAdmin,
+    enabled: canFetchAdminData,
     staleTime: 60_000,
   });
 }

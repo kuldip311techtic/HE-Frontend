@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { LunaValidationBootstrap } from '@/components/features/validation/LunaValidationBootstrap';
 import { AdminAuthProvider } from '@/lib/auth/AdminAuthProvider';
 import { AppRoutes } from '@/routes/AppRoutes';
 
@@ -20,6 +21,7 @@ export function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AdminAuthProvider>
+            <LunaValidationBootstrap />
             <AppRoutes />
             <Toaster
               position="top-right"
