@@ -6,6 +6,10 @@ import { Header } from "@/components/layout/Header";
 const pageTitles: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/dashboard": "Dashboard",
+  "/admin/organizations": "Manage Organizations",
+  "/admin/users": "Manage Users",
+  "/admin/subscriptions": "Subscriptions",
+  "/admin/support-requests": "Support Requests",
   "/admin/organization": "Organization",
   "/admin/teams": "Teams",
   "/admin/settings": "Settings",

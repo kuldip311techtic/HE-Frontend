@@ -36,8 +36,12 @@ interface DataTableProps<T> {
   onRetry?: () => void;
   searchPlaceholder?: string;
   searchKeys?: (keyof T)[];
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
   filterLabel?: string;
   filterOptions?: { label: string; value: string }[];
+  filterValue?: string;
+  onFilterChange?: (value: string) => void;
   filterFn?: (row: T, filterValue: string) => boolean;
   primaryAction?: ReactNode;
   emptyTitle?: string;
@@ -46,6 +50,8 @@ interface DataTableProps<T> {
   pagination?: PaginationState;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
+  /** When true, data is already paginated/filtered by the server */
+  serverSide?: boolean;
   className?: string;
 }
 
@@ -57,8 +63,12 @@ export function DataTable<T>({
   onRetry,
   searchPlaceholder = "Search…",
   searchKeys = [],
+  searchValue,
+  onSearchChange,
   filterLabel = "Status",
   filterOptions,
+  filterValue,
+  onFilterChange,
   filterFn,
   primaryAction,
   emptyTitle = "No records found",
@@ -67,12 +77,34 @@ export function DataTable<T>({
   pagination,
   onPageChange,
   onPageSizeChange,
+  serverSide = false,
   className,
 }: DataTableProps<T>) {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [internalSearch, setInternalSearch] = useState("");
+  const [internalFilter, setInternalFilter] = useState("all");
+
+  const search = searchValue ?? internalSearch;
+  const filter = filterValue ?? internalFilter;
+
+  const handleSearchChange = (value: string) => {
+    if (onSearchChange) {
+      onSearchChange(value);
+    } else {
+      setInternalSearch(value);
+    }
+  };
+
+  const handleFilterChange = (value: string) => {
+    if (onFilterChange) {
+      onFilterChange(value);
+    } else {
+      setInternalFilter(value);
+    }
+  };
 
   const filteredRows = useMemo(() => {
+    if (serverSide) return data;
+
     let rows = data;
 
     if (search.trim() && searchKeys.length > 0) {
@@ -92,17 +124,20 @@ export function DataTable<T>({
     }
 
     return rows;
-  }, [data, filter, filterFn, search, searchKeys]);
+  }, [data, filter, filterFn, search, searchKeys, serverSide]);
 
   const paginatedRows = useMemo(() => {
-    if (!pagination) return filteredRows;
+    if (!pagination || serverSide) return filteredRows;
 
     const start = (pagination.page - 1) * pagination.pageSize;
     return filteredRows.slice(start, start + pagination.pageSize);
-  }, [filteredRows, pagination]);
+  }, [filteredRows, pagination, serverSide]);
 
   const effectivePagination: PaginationState | undefined = pagination
-    ? { ...pagination, total: filteredRows.length }
+    ? {
+        ...pagination,
+        total: serverSide ? pagination.total : filteredRows.length,
+      }
     : undefined;
 
   return (
@@ -115,7 +150,7 @@ export function DataTable<T>({
           />
           <Input
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => handleSearchChange(event.target.value)}
             placeholder={searchPlaceholder}
             className="h-9 bg-background pl-9"
             aria-label={searchPlaceholder}
@@ -123,7 +158,7 @@ export function DataTable<T>({
         </div>
 
         {filterOptions && filterOptions.length > 0 && (
-          <Select value={filter} onValueChange={setFilter}>
+          <Select value={filter} onValueChange={handleFilterChange}>
             <SelectTrigger className="h-9 w-full shrink-0 bg-background md:w-[160px]">
               <SelectValue placeholder={filterLabel} />
             </SelectTrigger>

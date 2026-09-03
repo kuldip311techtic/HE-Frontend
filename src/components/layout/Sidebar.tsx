@@ -1,7 +1,9 @@
 import { NavLink } from "react-router-dom";
 import {
   Building2,
+  CreditCard,
   LayoutDashboard,
+  LifeBuoy,
   Settings,
   Users,
   X,
@@ -29,14 +31,40 @@ const navItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
+    label: "Organizations",
+    href: "/admin/organizations",
+    icon: Building2,
+    roles: ["super_admin"],
+  },
+  {
+    label: "Users",
+    href: "/admin/users",
+    icon: Users,
+    roles: ["super_admin"],
+  },
+  {
+    label: "Subscriptions",
+    href: "/admin/subscriptions",
+    icon: CreditCard,
+    roles: ["super_admin"],
+  },
+  {
+    label: "Support Requests",
+    href: "/admin/support-requests",
+    icon: LifeBuoy,
+    roles: ["super_admin"],
+  },
+  {
     label: "Organization",
     href: "/admin/organization",
     icon: Building2,
+    roles: ["organization_admin", "admin"],
   },
   {
     label: "Teams",
     href: "/admin/teams",
     icon: Users,
+    roles: ["organization_admin", "admin"],
   },
   {
     label: "Settings",

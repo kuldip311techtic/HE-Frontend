@@ -67,6 +67,11 @@ export default {
           overlay: "var(--figma-overlay)",
           warning: "var(--figma-warning)",
         },
+        token: {
+          accent: "var(--token-accent)",
+          brand: "var(--token-brand)",
+          border: "var(--token-border)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

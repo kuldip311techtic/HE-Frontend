@@ -167,15 +167,55 @@ export const verificationApi = {
     apiPost("/v1/reset-password", data),
 };
 
-/** Super admin endpoints */
+/** Super admin endpoints — paths join baseURL `/api` → `/api/v1/super-admin/*` */
 export const superAdminApi = {
   organizations: {
-    list: () => apiGet("/v1/super-admin/organizations"),
+    list: (params?: Record<string, string | number | undefined>) => {
+      const searchParams = new URLSearchParams();
+      if (params) {
+        for (const [key, value] of Object.entries(params)) {
+          if (value !== undefined && value !== null && value !== "") {
+            searchParams.set(key, String(value));
+          }
+        }
+      }
+      const query = searchParams.toString();
+      return apiGet(
+        query
+          ? `/v1/super-admin/organizations?${query}`
+          : "/v1/super-admin/organizations",
+      );
+    },
     create: (data: unknown) => apiPost("/v1/super-admin/organizations", data),
+    /** PUT /api/v1/super-admin/organizations/{organization_id} */
+    update: (organization_id: string, data: unknown) =>
+      apiPut(`/v1/super-admin/organizations/${organization_id}`, data),
+    /** DELETE /api/v1/super-admin/organizations/{organization_id} */
+    delete: (organization_id: string) =>
+      apiDelete(`/v1/super-admin/organizations/${organization_id}`),
   },
   users: {
-    list: () => apiGet("/v1/super-admin/users"),
+    list: (params?: Record<string, string | number | undefined>) => {
+      const searchParams = new URLSearchParams();
+      if (params) {
+        for (const [key, value] of Object.entries(params)) {
+          if (value !== undefined && value !== null && value !== "") {
+            searchParams.set(key, String(value));
+          }
+        }
+      }
+      const query = searchParams.toString();
+      return apiGet(
+        query ? `/v1/super-admin/users?${query}` : "/v1/super-admin/users",
+      );
+    },
     create: (data: unknown) => apiPost("/v1/super-admin/users", data),
+    /** PUT /api/v1/super-admin/users/{user_id} */
+    update: (user_id: string, data: unknown) =>
+      apiPut(`/v1/super-admin/users/${user_id}`, data),
+    /** DELETE /api/v1/super-admin/users/{user_id} */
+    delete: (user_id: string) =>
+      apiDelete(`/v1/super-admin/users/${user_id}`),
   },
   dashboard: () => apiGet("/v1/super-admin/dashboard"),
 };
