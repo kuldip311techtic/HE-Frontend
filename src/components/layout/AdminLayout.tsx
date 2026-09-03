@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { AdminContractProbes } from "@/components/layout/AdminContractProbes";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 
@@ -33,6 +34,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex min-h-screen bg-background">
+      <AdminContractProbes />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex flex-1 flex-col min-w-0">
