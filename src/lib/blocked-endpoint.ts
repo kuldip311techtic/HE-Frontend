@@ -1,4 +1,8 @@
-/** JAW-9613: copy for UI actions blocked until backend exposes the contract route. */
+/**
+ * JAW-9613: Shared copy for UI actions blocked until backend exposes contract routes.
+ * Support respond (POST) and close (PUT) are not in live OpenAPI — do not add
+ * mutation hooks until those endpoints ship.
+ */
 export function blockedEndpointNotice(action: string): string {
   return `${action} requires a backend endpoint (not yet available).`;
 }

@@ -157,7 +157,7 @@ export async function deleteSubscriptionPlan(
   return apiDelete(`/super-admin/subscriptions/${planId}${qs}`);
 }
 
-/** Ticket: GET /api/super-admin/support-requests */
+/** Live OpenAPI: GET /api/v1/support-requests */
 export async function listSupportRequests(
   params: SupportRequestListParams = {},
 ): Promise<PaginatedResponse<SupportRequest>> {
@@ -166,5 +166,5 @@ export async function listSupportRequests(
     page_size: params.page_size,
     search: params.search,
   });
-  return apiGet(`/super-admin/support-requests${qs}`);
+  return apiGet(`/v1/support-requests${qs}`);
 }
