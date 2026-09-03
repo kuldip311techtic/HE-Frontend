@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { ContractRoutePrefetch } from '@/components/bootstrap/ContractRoutePrefetch';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AdminAuthProvider } from '@/lib/auth/AdminAuthProvider';
 import { AppRoutes } from '@/routes/AppRoutes';
@@ -21,7 +20,6 @@ export function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AdminAuthProvider>
-            <ContractRoutePrefetch />
             <AppRoutes />
             <Toaster
               position="top-right"
