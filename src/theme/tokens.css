@@ -1,0 +1,65 @@
+:root {
+  /* Figma exact hex tokens */
+  --figma-hex-accent: #445154;
+  --figma-hex-brand: #86d31f;
+  --figma-hex-border: #0d1612;
+
+  --token-accent: #445154;
+  --token-brand: #86d31f;
+  --token-border: #0d1612;
+  --token-color-100: #ff41411f;
+  --token-color-101: #ffd70033;
+  --token-color-102: #ffd70014;
+  --token-color-103: #c0c0c033;
+  --token-color-104: #c0c0c014;
+  --token-color-105: #cd7f3233;
+  --token-color-106: #cd7f3214;
+  --token-color-107: #1bc94f1f;
+  --token-color-108: #3b82f6;
+  --token-color-109: #030a077f;
+  --token-color-110: #081410;
+  --token-color-111: #081410fa;
+  --token-color-112: #ff414114;
+  --token-color-113: #9ca3af;
+  --token-color-114: #4bcd39;
+  --token-color-115: #1bc94f1a;
+  --token-color-116: #ff6b6b;
+  --token-color-117: #0b1f12;
+  --token-color-118: #ffb84d;
+  --token-color-119: #13291b;
+  --token-color-120: #1c0505;
+
+  --figma-accent: var(--figma-hex-accent);
+  --figma-brand: var(--figma-hex-brand);
+  --figma-border: var(--figma-hex-border);
+  --figma-background: var(--token-color-110);
+  --figma-surface: var(--token-color-119);
+  --figma-surface-deep: var(--token-color-117);
+  --figma-muted: var(--token-color-113);
+  --figma-primary-bright: var(--token-color-114);
+
+  --background: 156 60% 4%;
+  --foreground: 0 0% 100%;
+  --card: 152 33% 12%;
+  --card-foreground: 0 0% 100%;
+  --popover: 152 33% 12%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 112 58% 51%;
+  --primary-foreground: 156 60% 4%;
+  --secondary: 188 9% 29%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 152 20% 18%;
+  --muted-foreground: 218 11% 65%;
+  --accent: 188 9% 29%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 71%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 156 40% 6%;
+  --input: 152 20% 18%;
+  --ring: 112 58% 51%;
+  --radius: 0.625rem;
+  --sidebar: 152 33% 10%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-border: 156 40% 6%;
+  --sidebar-accent: 112 58% 51%;
+}
