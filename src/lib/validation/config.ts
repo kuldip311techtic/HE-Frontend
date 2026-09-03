@@ -7,6 +7,8 @@ const OPENAPI_LOGIN_EXAMPLE = {
 
 const PUBLIC_ADMIN_ROUTES = new Set(['/admin/login', '/admin/unauthorized']);
 
+export const LUNA_VALIDATION_AUTH_JSON_PATH = '/__luna_validation_auth.json';
+
 export function isPublicAdminRoute(pathname = window.location.pathname): boolean {
   const normalized = pathname.replace(/\/$/, '') || '/';
   return PUBLIC_ADMIN_ROUTES.has(normalized);

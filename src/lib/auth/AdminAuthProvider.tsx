@@ -7,7 +7,6 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { login as loginApi } from '@/lib/api/auth';
 import {
   clearAuthStorage,
   getAuthToken,
@@ -18,10 +17,10 @@ import { isAdminRole } from '@/lib/auth/roles';
 import {
   createValidationSuperAdminUser,
   getValidationAccessToken,
-  getValidationLoginCredentials,
   isLunaValidationMode,
   isPublicAdminRoute,
 } from '@/lib/validation/config';
+import { getServerValidationAuth } from '@/lib/validation/server-auth';
 import type { AuthUser } from '@/types/auth';
 
 interface AdminAuthContextValue {
@@ -35,26 +34,21 @@ interface AdminAuthContextValue {
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
 
-async function tryValidationLogin(): Promise<AuthUser | null> {
-  const accessToken = getValidationAccessToken();
-  if (accessToken) {
+async function resolveValidationSession(): Promise<AuthUser | null> {
+  const envToken = getValidationAccessToken();
+  if (envToken) {
     const validationUser = createValidationSuperAdminUser();
-    setAuthStorage(accessToken, validationUser);
+    setAuthStorage(envToken, validationUser);
     return validationUser;
   }
 
-  const credentials = getValidationLoginCredentials();
-  if (!credentials) {
-    return null;
+  const serverAuth = await getServerValidationAuth();
+  if (serverAuth) {
+    setAuthStorage(serverAuth.access_token, serverAuth.user);
+    return serverAuth.user;
   }
 
-  try {
-    const response = await loginApi(credentials);
-    setAuthStorage(response.access_token, response.user);
-    return response.user;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
@@ -93,7 +87,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (isLunaValidationMode()) {
-        const validationUser = await tryValidationLogin();
+        const validationUser = await resolveValidationSession();
         if (!cancelled) {
           setUser(validationUser);
         }
@@ -112,6 +106,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loginWithCredentials = useCallback(async (email: string, password: string) => {
+    const { login: loginApi } = await import('@/lib/api/auth');
     const response = await loginApi({ email, password });
     setAuthStorage(response.access_token, response.user);
     setUser(response.user);
