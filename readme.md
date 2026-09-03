@@ -56,4 +56,4 @@ tests/            unit tests
 
 ## Demo sign-in
 
-Use the login page at `/admin/login`. Select **Organization Admin** or **Super Admin** role to access the panel. Coach/Player roles are rejected.
+Use the login page at `/admin/login`. Select **Super Admin**, **Organization Admin**, or **Admin** to access the panel. **Coach** and **Player** roles are rejected and redirected to `/admin/unauthorized`.
