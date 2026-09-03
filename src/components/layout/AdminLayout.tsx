@@ -7,6 +7,10 @@ import { Header } from "@/components/layout/Header";
 const pageTitles: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/dashboard": "Dashboard",
+  "/admin/organizations": "Organizations",
+  "/admin/users": "Users",
+  "/admin/subscriptions": "Subscriptions",
+  "/admin/support-requests": "Support Requests",
 };
 
 interface AdminLayoutProps {

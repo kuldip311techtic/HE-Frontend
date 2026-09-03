@@ -58,6 +58,9 @@ interface DataTableProps<T> {
   serverSide?: boolean;
   /** Stable row key; defaults to row.id when present on the record */
   getRowId?: (row: T) => string | number;
+  /** Highlights and handles click on table rows (e.g. master-detail layouts) */
+  selectedRowId?: string | number | null;
+  onRowClick?: (row: T) => void;
   className?: string;
 }
 
@@ -123,6 +126,8 @@ export function DataTable<T>({
   onPageSizeChange,
   serverSide = false,
   getRowId,
+  selectedRowId,
+  onRowClick,
   className,
 }: DataTableProps<T>) {
   const [internalSearch, setInternalSearch] = useState("");
@@ -348,21 +353,33 @@ export function DataTable<T>({
 
             {!isLoading &&
               !error &&
-              paginatedRows.map((row, index) => (
-                <TableRow
-                  key={resolveRowKey(row, index, getRowId)}
-                  className="h-11"
-                >
-                  {columns.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      className={cn("px-3 py-2 text-sm", column.className)}
-                    >
-                      {column.cell(row)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              paginatedRows.map((row, index) => {
+                const rowKey = resolveRowKey(row, index, getRowId);
+                const isSelected =
+                  selectedRowId != null && String(selectedRowId) === rowKey;
+
+                return (
+                  <TableRow
+                    key={rowKey}
+                    className={cn(
+                      "h-11",
+                      onRowClick && "cursor-pointer",
+                      isSelected && "bg-primary/10 hover:bg-primary/10",
+                    )}
+                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+                    aria-selected={onRowClick ? isSelected : undefined}
+                  >
+                    {columns.map((column) => (
+                      <TableCell
+                        key={column.id}
+                        className={cn("px-3 py-2 text-sm", column.className)}
+                      >
+                        {column.cell(row)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
 

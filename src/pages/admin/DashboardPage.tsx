@@ -1,9 +1,10 @@
-import { RefreshCw, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
+import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ModuleNavCards } from "@/components/features/super-admin/ModuleNavCards";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorMessage } from "@/components/ui/feedback";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,18 +26,39 @@ const DEMO_DASHBOARD: SuperAdminDashboard = {
   error: null,
 };
 
-interface MetricCardProps {
+interface MetricDefinition {
   label: string;
   value: number | undefined;
+  href?: string;
+  format?: "number" | "currency";
+}
+
+interface MetricCardProps {
+  metric: MetricDefinition;
   isLoading: boolean;
 }
 
-function MetricCard({ label, value, isLoading }: MetricCardProps) {
-  return (
-    <Card className="border-border bg-card">
+function formatMetricValue(
+  value: number | undefined,
+  format: MetricDefinition["format"] = "number",
+): string {
+  const safeValue = value ?? 0;
+  if (format === "currency") {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(safeValue);
+  }
+  return safeValue.toLocaleString();
+}
+
+function MetricCard({ metric, isLoading }: MetricCardProps) {
+  const content = (
+    <>
       <CardHeader className="pb-[8px]">
         <CardTitle className="font-lato text-body-5 text-muted-foreground">
-          {label}
+          {metric.label}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -44,10 +66,32 @@ function MetricCard({ label, value, isLoading }: MetricCardProps) {
           <Skeleton className="h-[28px] w-[72px]" aria-hidden="true" />
         ) : (
           <p className="text-body-25 tabular-nums text-foreground">
-            {(value ?? 0).toLocaleString()}
+            {formatMetricValue(metric.value, metric.format)}
           </p>
         )}
       </CardContent>
+    </>
+  );
+
+  if (metric.href && !isLoading) {
+    return (
+      <Link
+        to={metric.href}
+        className={cn(
+          "block rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        )}
+        aria-label={`View ${metric.label.toLowerCase()}`}
+      >
+        <Card className="h-full border-border bg-card transition-colors hover:border-primary/40 hover:bg-card/80">
+          {content}
+        </Card>
+      </Link>
+    );
+  }
+
+  return (
+    <Card className="border-border bg-card">
+      {content}
     </Card>
   );
 }
@@ -81,6 +125,11 @@ export function AdminDashboardPage() {
     : `Welcome back, ${user?.firstName ?? "Admin"}. Your admin workspace is ready.`;
 
   const handleRefresh = async () => {
+    if (!shouldFetchDashboard) {
+      toast.success("Dashboard data refreshed successfully.");
+      return;
+    }
+
     const result = await refetch();
     if (result.isError) {
       toast.error(
@@ -98,14 +147,53 @@ export function AdminDashboardPage() {
     ? isLoading || isFetching
     : false;
 
-  const metrics = [
-    { label: "Total organizations", value: dashboard?.total_organizations },
-    { label: "Total coaches", value: dashboard?.total_coaches },
-    { label: "Total players", value: dashboard?.total_players },
-    { label: "Total sessions", value: dashboard?.total_sessions },
-    { label: "Active subscriptions", value: dashboard?.active_subscriptions },
-    { label: "Revenue overview", value: dashboard?.revenue_overview },
+  const metrics: MetricDefinition[] = [
+    {
+      label: "Total organizations",
+      value: dashboard?.total_organizations,
+      href: "/admin/organizations",
+    },
+    {
+      label: "Total coaches",
+      value: dashboard?.total_coaches,
+      href: "/admin/users?role=coach",
+    },
+    {
+      label: "Total players",
+      value: dashboard?.total_players,
+      href: "/admin/users?role=player",
+    },
+    {
+      label: "Total sessions",
+      value: dashboard?.total_sessions,
+    },
+    {
+      label: "Active subscriptions",
+      value: dashboard?.active_subscriptions,
+      href: "/admin/subscriptions",
+    },
+    {
+      label: "Revenue overview",
+      value: dashboard?.revenue_overview,
+      format: "currency",
+    },
   ];
+
+  if (!isSuperAdmin) {
+    return (
+      <div className="w-full space-y-[16px] font-outfit">
+        <PageHeader title={pageTitle} description={pageDescription} />
+        <Card className="border-border bg-card">
+          <CardContent className="py-[24px]">
+            <p className="text-body-21 text-foreground">
+              Welcome back, {user?.firstName ?? "Admin"}. Your admin workspace is
+              ready.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-[16px] font-outfit">
@@ -113,20 +201,18 @@ export function AdminDashboardPage() {
         title={pageTitle}
         description={pageDescription}
         action={
-          isSuperAdmin && shouldFetchDashboard ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="min-h-9"
-              onClick={() => void handleRefresh()}
-              isLoading={isFetching && !isLoading}
-              disabled={isFetching}
-              aria-label="Refresh dashboard metrics"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
-              Refresh
-            </Button>
-          ) : undefined
+          <Button
+            variant="outline"
+            size="sm"
+            className="min-h-11 sm:min-h-9"
+            onClick={() => void handleRefresh()}
+            isLoading={shouldFetchDashboard && isFetching && !isLoading}
+            disabled={shouldFetchDashboard && isFetching}
+            aria-label="Refresh dashboard metrics"
+          >
+            <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
+            Refresh
+          </Button>
         }
       />
 
@@ -140,93 +226,22 @@ export function AdminDashboardPage() {
         />
       )}
 
-      {isSuperAdmin && (
-        <section aria-labelledby="dashboard-metrics-heading">
-          <h2 id="dashboard-metrics-heading" className="sr-only">
-            Platform metrics
-          </h2>
-          <div className="grid w-full gap-[12px] sm:grid-cols-2 xl:grid-cols-3">
-            {metrics.map((metric) => (
-              <MetricCard
-                key={metric.label}
-                label={metric.label}
-                value={metric.value}
-                isLoading={metricsLoading}
-              />
-            ))}
-          </div>
-        </section>
-      )}
+      <section aria-labelledby="dashboard-metrics-heading">
+        <h2 id="dashboard-metrics-heading" className="sr-only">
+          Platform metrics
+        </h2>
+        <div className="grid w-full gap-[12px] sm:grid-cols-2 xl:grid-cols-3">
+          {metrics.map((metric) => (
+            <MetricCard
+              key={metric.label}
+              metric={metric}
+              isLoading={metricsLoading}
+            />
+          ))}
+        </div>
+      </section>
 
-      <Card className="border-border bg-card">
-        <CardHeader className="flex flex-row items-center gap-[12px] space-y-0 pb-[12px]">
-          <div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-primary/15">
-            <Shield className="h-6 w-6 text-primary" aria-hidden="true" />
-          </div>
-          <div>
-            <CardTitle className="text-body-25 text-foreground">
-              Welcome to Hoops Engine Admin
-            </CardTitle>
-            <p className="text-body-sm text-muted-foreground">
-              Your admin workspace is ready. Feature modules will appear in the
-              sidebar as they are enabled.
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-[12px]">
-          <p className="text-body-21 text-foreground">
-            {isSuperAdmin
-              ? "You have platform-wide access. Review analytics above while additional management modules are being rolled out."
-              : "You can manage your organization from this workspace. Additional modules will be available in upcoming releases."}
-          </p>
-          <div className="flex flex-wrap items-center gap-[10px]">
-            <Badge variant="secondary" className="text-body-sm capitalize">
-              {user?.role.replace(/_/g, " ")}
-            </Badge>
-            <Badge variant="outline" className="text-body-sm">
-              Admin access active
-            </Badge>
-            {!hasLiveApiAccess && isSuperAdmin && (
-              <Badge
-                variant="outline"
-                className={cn("text-body-sm", "border-figma-brand/40 text-figma-brand")}
-              >
-                Demo mode
-              </Badge>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="text-body-25 text-foreground">
-            Account overview
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-[12px]">
-          <div className="flex items-center justify-between gap-[12px]">
-            <span className="font-lato text-body-5 text-muted-foreground">
-              Account email
-            </span>
-            <span className="text-body-13 text-foreground">{user?.email}</span>
-          </div>
-          <div className="flex items-center justify-between gap-[12px]">
-            <span className="font-lato text-body-5 text-muted-foreground">
-              Admin access
-            </span>
-            <Badge className="text-body-sm">Active</Badge>
-          </div>
-          <div className="flex items-center justify-between gap-[12px]">
-            <span className="font-lato text-body-5 text-muted-foreground">
-              Signed in as
-            </span>
-            <span className="text-body-13 text-foreground">
-              {user?.firstName} {user?.lastName}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
+      <ModuleNavCards />
     </div>
   );
 }

@@ -1,7 +1,16 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, X } from "lucide-react";
+import {
+  Building2,
+  CreditCard,
+  LayoutDashboard,
+  LifeBuoy,
+  Users,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsSuperAdmin } from "@/hooks/useIsSuperAdmin";
 import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
@@ -9,16 +18,52 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const navItems = [
+interface NavItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  superAdminOnly?: boolean;
+}
+
+const navItems: NavItem[] = [
   {
     label: "Dashboard",
     href: "/admin/dashboard",
     icon: LayoutDashboard,
   },
-] as const;
+  {
+    label: "Organizations",
+    href: "/admin/organizations",
+    icon: Building2,
+    superAdminOnly: true,
+  },
+  {
+    label: "Users",
+    href: "/admin/users",
+    icon: Users,
+    superAdminOnly: true,
+  },
+  {
+    label: "Subscriptions",
+    href: "/admin/subscriptions",
+    icon: CreditCard,
+    superAdminOnly: true,
+  },
+  {
+    label: "Support",
+    href: "/admin/support-requests",
+    icon: LifeBuoy,
+    superAdminOnly: true,
+  },
+];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user } = useAuth();
+  const isSuperAdmin = useIsSuperAdmin();
+
+  const visibleItems = navItems.filter(
+    (item) => !item.superAdminOnly || isSuperAdmin,
+  );
 
   return (
     <>
@@ -58,11 +103,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 scrollbar-thin">
-          {navItems.map((item) => (
+          {visibleItems.map((item) => (
             <NavLink
               key={item.href}
               to={item.href}
-              end
+              end={item.href === "/admin/dashboard"}
               onClick={onClose}
               className={({ isActive }) =>
                 cn(
