@@ -3,7 +3,6 @@ import {
   Building2,
   CreditCard,
   LifeBuoy,
-  UserCircle,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -17,7 +16,7 @@ interface ModuleNavItem {
   description: string;
 }
 
-/** Ticket nav: Organizations, Coaches, Players, Subscriptions (+ Support from brief) */
+/** Ticket nav: Organizations, Users, Subscriptions, Support requests */
 const modules: ModuleNavItem[] = [
   {
     label: "Organizations",
@@ -26,16 +25,10 @@ const modules: ModuleNavItem[] = [
     description: "Manage platform organizations and contact details.",
   },
   {
-    label: "Coaches",
-    route: "/admin/users?role=coach",
-    icon: UserCircle,
-    description: "View and manage coach accounts across the platform.",
-  },
-  {
-    label: "Players",
-    route: "/admin/users?role=player",
+    label: "Users",
+    route: "/admin/users",
     icon: Users,
-    description: "View and manage player accounts across the platform.",
+    description: "View and manage platform user accounts.",
   },
   {
     label: "Subscriptions",
@@ -53,26 +46,26 @@ const modules: ModuleNavItem[] = [
 
 export function ModuleNavCards() {
   return (
-    <section aria-labelledby="module-nav-heading" className="space-y-[12px]">
+    <section aria-labelledby="module-nav-heading" className="space-y-3">
       <h2
         id="module-nav-heading"
         className="font-outfit text-body-25 text-foreground"
       >
         Core modules
       </h2>
-      <div className="grid w-full gap-[12px] sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+      <div className="grid w-full gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {modules.map((module) => (
           <Link
             key={module.route}
             to={module.route}
             className={cn(
-              "group block rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+              "group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             )}
             aria-label={`Navigate to ${module.label}`}
           >
             <Card className="h-full border-border bg-card transition-colors hover:border-primary/40 hover:bg-card/80 active:bg-card/70">
-              <CardHeader className="space-y-[12px] pb-[8px]">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-primary/15 transition-colors group-hover:bg-primary/20">
+              <CardHeader className="space-y-3 pb-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 transition-colors group-hover:bg-primary/20">
                   <module.icon
                     className="h-5 w-5 text-primary"
                     aria-hidden="true"

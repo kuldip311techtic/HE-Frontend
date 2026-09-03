@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { getApiFieldErrors } from "@/lib/api/client";
 import type { Organization } from "@/types/api";
 
-const organizationSchema = z.object({
+const createSchema = z.object({
   name: z.string().min(1, "Organization name is required."),
   contact_email: z
     .string()
@@ -33,7 +33,26 @@ const organizationSchema = z.object({
   address: z.string().min(1, "Address is required."),
 });
 
-type OrganizationFormValues = z.infer<typeof organizationSchema>;
+const editSchema = z.object({
+  name: z.string().min(1, "Organization name is required.").optional(),
+  contact_email: z
+    .string()
+    .email("Please enter a valid email address.")
+    .optional()
+    .or(z.literal("")),
+  phone_number: z
+    .string()
+    .min(1, "Phone number is required.")
+    .optional()
+    .or(z.literal("")),
+  address: z
+    .string()
+    .min(1, "Address is required.")
+    .optional()
+    .or(z.literal("")),
+});
+
+type OrganizationFormValues = z.infer<typeof createSchema>;
 
 interface OrganizationFormProps {
   open: boolean;
@@ -43,17 +62,25 @@ interface OrganizationFormProps {
   onSubmit: (values: OrganizationFormValues) => Promise<void>;
 }
 
-export function OrganizationForm({
+interface OrganizationFormContentProps {
+  open: boolean;
+  organization?: Organization | null;
+  isLoading: boolean;
+  onSubmit: (values: OrganizationFormValues) => Promise<void>;
+  onOpenChange: (open: boolean) => void;
+}
+
+function OrganizationFormContent({
   open,
-  onOpenChange,
   organization,
-  isLoading = false,
+  isLoading,
   onSubmit,
-}: OrganizationFormProps) {
+  onOpenChange,
+}: OrganizationFormContentProps) {
   const isEdit = Boolean(organization);
 
   const form = useForm<OrganizationFormValues>({
-    resolver: zodResolver(organizationSchema),
+    resolver: zodResolver(isEdit ? editSchema : createSchema),
     defaultValues: {
       name: "",
       contact_email: "",
@@ -87,6 +114,107 @@ export function OrganizationForm({
   };
 
   return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4"
+        noValidate
+      >
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Organization name</FormLabel>
+              <FormControl>
+                <Input placeholder="Acme Sports Club" disabled={isLoading} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="contact_email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Contact email</FormLabel>
+              <FormControl>
+                <Input
+                  type="email"
+                  placeholder="contact@example.com"
+                  disabled={isLoading}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone number</FormLabel>
+              <FormControl>
+                <Input placeholder="+1 555 0100" disabled={isLoading} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Address</FormLabel>
+              <FormControl>
+                <Input placeholder="123 Main St" disabled={isLoading} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" isLoading={isLoading} disabled={isLoading}>
+            {isLoading
+              ? isEdit
+                ? "Saving…"
+                : "Creating…"
+              : isEdit
+                ? "Save changes"
+                : "Create organization"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
+  );
+}
+
+export function OrganizationForm({
+  open,
+  onOpenChange,
+  organization,
+  isLoading = false,
+  onSubmit,
+}: OrganizationFormProps) {
+  const isEdit = Boolean(organization);
+
+  return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
@@ -100,94 +228,16 @@ export function OrganizationForm({
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-            noValidate
-          >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Organization name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Acme Sports Club" disabled={isLoading} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="contact_email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="contact@example.com"
-                      disabled={isLoading}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone number</FormLabel>
-                  <FormControl>
-                    <Input placeholder="+1 555 0100" disabled={isLoading} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="123 Main St" disabled={isLoading} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" isLoading={isLoading} disabled={isLoading}>
-                {isLoading
-                  ? isEdit
-                    ? "Saving…"
-                    : "Creating…"
-                  : isEdit
-                    ? "Save changes"
-                    : "Create organization"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        {open ? (
+          <OrganizationFormContent
+            key={organization?.id ?? "create"}
+            open={open}
+            organization={organization}
+            isLoading={isLoading}
+            onSubmit={onSubmit}
+            onOpenChange={onOpenChange}
+          />
+        ) : null}
       </DialogContent>
     </Dialog>
   );

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getApiFieldErrors } from "@/lib/api/client";
 import type {
   BillingFrequency,
   HistoricalRecordsDuration,
@@ -53,35 +54,39 @@ const durationOptions: { value: HistoricalRecordsDuration; label: string }[] = [
   { value: "unlimited", label: "Unlimited" },
 ];
 
-const formSchema = z
-  .object({
-    name: z.string().min(1, "Plan name is required."),
-    billing_frequency: z.enum(["monthly", "yearly"], {
-      required_error: "Please select a billing frequency.",
+const baseFormSchema = z.object({
+  name: z.string().min(1, "Plan name is required."),
+  billing_frequency: z.enum(["monthly", "yearly"], {
+    required_error: "Please select a billing frequency.",
+  }),
+  currency: z.string().length(3, "Currency must be a 3-letter code."),
+  price_amount: z
+    .string()
+    .min(1, "Price is required.")
+    .refine((val) => !Number.isNaN(Number(val)) && Number(val) >= 0, {
+      message: "Please enter a valid price.",
     }),
-    currency: z.string().length(3, "Currency must be a 3-letter code."),
-    price_amount: z
-      .string()
-      .min(1, "Price is required.")
-      .refine((val) => !Number.isNaN(Number(val)) && Number(val) >= 0, {
-        message: "Please enter a valid price.",
-      }),
-    teams_limit_type: z.enum(["limited", "unlimited"]),
-    teams_count: z.string().optional(),
-    players_limit_type: z.enum(["limited", "unlimited"]),
-    players_count: z.string().optional(),
-    historical_records_duration: z.enum([
-      "1_month",
-      "3_months",
-      "6_months",
-      "1_year",
-      "unlimited",
-    ]),
-    description: z.string().optional(),
-    features: z.string().optional(),
-    is_active: z.enum(["true", "false"]),
-  })
-  .superRefine((data, ctx) => {
+  teams_limit_type: z.enum(["limited", "unlimited"]),
+  teams_count: z.string().optional(),
+  coaches_limit_type: z.enum(["limited", "unlimited"]),
+  coaches_count: z.string().optional(),
+  players_limit_type: z.enum(["limited", "unlimited"]),
+  players_count: z.string().optional(),
+  historical_records_duration: z.enum([
+    "1_month",
+    "3_months",
+    "6_months",
+    "1_year",
+    "unlimited",
+  ]),
+  description: z.string().optional(),
+  features: z.string().optional(),
+  is_active: z.enum(["true", "false"]),
+  include_offline_sync: z.enum(["true", "false"]),
+});
+
+function buildFormSchema(role: SubscriptionPlanRole) {
+  return baseFormSchema.superRefine((data, ctx) => {
     if (data.teams_limit_type === "limited") {
       const count = Number(data.teams_count);
       if (!data.teams_count || Number.isNaN(count) || count < 1) {
@@ -89,6 +94,16 @@ const formSchema = z
           code: z.ZodIssueCode.custom,
           message: "Teams count is required when limited.",
           path: ["teams_count"],
+        });
+      }
+    }
+    if (role === "org_admin" && data.coaches_limit_type === "limited") {
+      const count = Number(data.coaches_count);
+      if (!data.coaches_count || Number.isNaN(count) || count < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Coaches count is required when limited.",
+          path: ["coaches_count"],
         });
       }
     }
@@ -103,8 +118,9 @@ const formSchema = z
       }
     }
   });
+}
 
-export type SubscriptionPlanFormValues = z.infer<typeof formSchema>;
+export type SubscriptionPlanFormValues = z.infer<typeof baseFormSchema>;
 
 interface SubscriptionPlanFormProps {
   open: boolean;
@@ -112,18 +128,28 @@ interface SubscriptionPlanFormProps {
   role: SubscriptionPlanRole;
   plan?: SubscriptionPlan | null;
   isLoading?: boolean;
-  onSubmit: (values: SubscriptionPlanFormValues) => void;
+  onSubmit: (values: SubscriptionPlanFormValues) => Promise<void>;
 }
 
-export function SubscriptionPlanForm({
+interface SubscriptionPlanFormContentProps {
+  open: boolean;
+  role: SubscriptionPlanRole;
+  plan?: SubscriptionPlan | null;
+  isLoading: boolean;
+  onSubmit: (values: SubscriptionPlanFormValues) => Promise<void>;
+  onOpenChange: (open: boolean) => void;
+}
+
+function SubscriptionPlanFormContent({
   open,
-  onOpenChange,
   role,
   plan,
-  isLoading = false,
+  isLoading,
   onSubmit,
-}: SubscriptionPlanFormProps) {
+  onOpenChange,
+}: SubscriptionPlanFormContentProps) {
   const isEdit = Boolean(plan);
+  const formSchema = useMemo(() => buildFormSchema(role), [role]);
 
   const form = useForm<SubscriptionPlanFormValues>({
     resolver: zodResolver(formSchema),
@@ -134,16 +160,20 @@ export function SubscriptionPlanForm({
       price_amount: "",
       teams_limit_type: "unlimited",
       teams_count: "",
+      coaches_limit_type: "unlimited",
+      coaches_count: "",
       players_limit_type: "unlimited",
       players_count: "",
       historical_records_duration: "1_year",
       description: "",
       features: "",
       is_active: "true",
+      include_offline_sync: "false",
     },
   });
 
   const teamsLimitType = form.watch("teams_limit_type");
+  const coachesLimitType = form.watch("coaches_limit_type");
   const playersLimitType = form.watch("players_limit_type");
 
   useEffect(() => {
@@ -156,6 +186,9 @@ export function SubscriptionPlanForm({
         teams_limit_type: plan?.teams_limit_type ?? "unlimited",
         teams_count:
           plan?.teams_count != null ? String(plan.teams_count) : "",
+        coaches_limit_type: plan?.coaches_limit_type ?? "unlimited",
+        coaches_count:
+          plan?.coaches_count != null ? String(plan.coaches_count) : "",
         players_limit_type: plan?.players_limit_type ?? "unlimited",
         players_count:
           plan?.players_count != null ? String(plan.players_count) : "",
@@ -164,30 +197,31 @@ export function SubscriptionPlanForm({
         description: plan?.description ?? "",
         features: plan?.features?.join(", ") ?? "",
         is_active: plan?.is_active === false ? "false" : "true",
+        include_offline_sync: plan?.include_offline_sync ? "true" : "false",
       });
     }
   }, [open, plan, form]);
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-outfit text-body-25">
-            {isEdit ? "Edit subscription plan" : "Add subscription plan"}
-          </DialogTitle>
-          <DialogDescription>
-            {isEdit
-              ? `Update plan details for ${role === "org_admin" ? "organization admins" : "coaches"}.`
-              : `Create a new plan for ${role === "org_admin" ? "organization admins" : "coaches"}.`}
-          </DialogDescription>
-        </DialogHeader>
+  const handleSubmit = async (values: SubscriptionPlanFormValues) => {
+    try {
+      await onSubmit(values);
+    } catch (error) {
+      const fieldErrors = getApiFieldErrors(error);
+      for (const [field, message] of Object.entries(fieldErrors)) {
+        if (field in values) {
+          form.setError(field as keyof SubscriptionPlanFormValues, { message });
+        }
+      }
+    }
+  };
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
-            noValidate
-          >
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4"
+        noValidate
+      >
             <FormField
               control={form.control}
               name="name"
@@ -327,6 +361,60 @@ export function SubscriptionPlanForm({
               )}
             </div>
 
+            {role === "org_admin" && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="coaches_limit_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Coaches limit</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={isLoading}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {limitTypeOptions.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {coachesLimitType === "limited" && (
+                  <FormField
+                    control={form.control}
+                    name="coaches_count"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Coaches count</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="1"
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+            )}
+
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
@@ -447,6 +535,32 @@ export function SubscriptionPlanForm({
 
             <FormField
               control={form.control}
+              name="include_offline_sync"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Offline sync</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isLoading}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="true">Included</SelectItem>
+                      <SelectItem value="false">Not included</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="is_active"
               render={({ field }) => (
                 <FormItem>
@@ -490,8 +604,46 @@ export function SubscriptionPlanForm({
                     : "Create plan"}
               </Button>
             </DialogFooter>
-          </form>
-        </Form>
+      </form>
+    </Form>
+  );
+}
+
+export function SubscriptionPlanForm({
+  open,
+  onOpenChange,
+  role,
+  plan,
+  isLoading = false,
+  onSubmit,
+}: SubscriptionPlanFormProps) {
+  const isEdit = Boolean(plan);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-outfit text-body-25">
+            {isEdit ? "Edit subscription plan" : "Add subscription plan"}
+          </DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? `Update plan details for ${role === "org_admin" ? "organization admins" : "coaches"}.`
+              : `Create a new plan for ${role === "org_admin" ? "organization admins" : "coaches"}.`}
+          </DialogDescription>
+        </DialogHeader>
+
+        {open ? (
+          <SubscriptionPlanFormContent
+            key={`${role}-${plan?.id ?? "create"}`}
+            open={open}
+            role={role}
+            plan={plan}
+            isLoading={isLoading}
+            onSubmit={onSubmit}
+            onOpenChange={onOpenChange}
+          />
+        ) : null}
       </DialogContent>
     </Dialog>
   );
@@ -519,6 +671,12 @@ export function mapSubscriptionPlanFormToCreateRequest(
       values.teams_limit_type === "limited"
         ? Number(values.teams_count)
         : null,
+    coaches_limit_type:
+      role === "org_admin" ? values.coaches_limit_type : null,
+    coaches_count:
+      role === "org_admin" && values.coaches_limit_type === "limited"
+        ? Number(values.coaches_count)
+        : null,
     players_limit_type: values.players_limit_type,
     players_count:
       values.players_limit_type === "limited"
@@ -526,6 +684,7 @@ export function mapSubscriptionPlanFormToCreateRequest(
         : null,
     historical_records_duration: values.historical_records_duration,
     is_active: values.is_active === "true",
+    include_offline_sync: values.include_offline_sync === "true",
     description: values.description || null,
     features: features.length > 0 ? features : undefined,
   };
@@ -533,6 +692,7 @@ export function mapSubscriptionPlanFormToCreateRequest(
 
 export function mapSubscriptionPlanFormToUpdateRequest(
   values: SubscriptionPlanFormValues,
+  role: SubscriptionPlanRole,
 ) {
   const features = values.features
     ? values.features
@@ -551,6 +711,12 @@ export function mapSubscriptionPlanFormToUpdateRequest(
       values.teams_limit_type === "limited"
         ? Number(values.teams_count)
         : null,
+    coaches_limit_type:
+      role === "org_admin" ? values.coaches_limit_type : null,
+    coaches_count:
+      role === "org_admin" && values.coaches_limit_type === "limited"
+        ? Number(values.coaches_count)
+        : null,
     players_limit_type: values.players_limit_type,
     players_count:
       values.players_limit_type === "limited"
@@ -558,6 +724,7 @@ export function mapSubscriptionPlanFormToUpdateRequest(
         : null,
     historical_records_duration: values.historical_records_duration,
     is_active: values.is_active === "true",
+    include_offline_sync: values.include_offline_sync === "true",
     description: values.description || null,
     features,
   };

@@ -118,6 +118,7 @@ export function SupportRequestsPage() {
             setPage(1);
           }}
           getRowId={(row) => row.id}
+          getRowAriaLabel={(row) => `View support request: ${row.subject}`}
         />
 
         <SupportRequestDetailPanel

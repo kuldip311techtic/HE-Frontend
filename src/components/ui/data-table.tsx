@@ -61,6 +61,8 @@ interface DataTableProps<T> {
   /** Highlights and handles click on table rows (e.g. master-detail layouts) */
   selectedRowId?: string | number | null;
   onRowClick?: (row: T) => void;
+  /** Accessible name for selectable rows (e.g. master-detail layouts) */
+  getRowAriaLabel?: (row: T) => string;
   className?: string;
 }
 
@@ -128,6 +130,7 @@ export function DataTable<T>({
   getRowId,
   selectedRowId,
   onRowClick,
+  getRowAriaLabel,
   className,
 }: DataTableProps<T>) {
   const [internalSearch, setInternalSearch] = useState("");
@@ -358,6 +361,10 @@ export function DataTable<T>({
                 const isSelected =
                   selectedRowId != null && String(selectedRowId) === rowKey;
 
+                const handleRowActivate = () => {
+                  onRowClick?.(row);
+                };
+
                 return (
                   <TableRow
                     key={rowKey}
@@ -366,8 +373,45 @@ export function DataTable<T>({
                       onRowClick && "cursor-pointer",
                       isSelected && "bg-primary/10 hover:bg-primary/10",
                     )}
-                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    aria-label={
+                      onRowClick
+                        ? getRowAriaLabel?.(row) ??
+                          `View details for row ${index + 1}`
+                        : undefined
+                    }
                     aria-selected={onRowClick ? isSelected : undefined}
+                    onClick={onRowClick ? handleRowActivate : undefined}
+                    onKeyDown={
+                      onRowClick
+                        ? (event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              handleRowActivate();
+                              return;
+                            }
+
+                            if (
+                              event.key === "ArrowDown" ||
+                              event.key === "ArrowUp"
+                            ) {
+                              event.preventDefault();
+                              const nextIndex =
+                                event.key === "ArrowDown" ? index + 1 : index - 1;
+                              const nextRow = paginatedRows[nextIndex];
+                              if (!nextRow) return;
+
+                              onRowClick(nextRow);
+                              const rowElements =
+                                event.currentTarget.parentElement?.children;
+                              const nextElement = rowElements?.[nextIndex];
+                              if (nextElement instanceof HTMLElement) {
+                                nextElement.focus();
+                              }
+                            }
+                          }
+                        : undefined
+                    }
                   >
                     {columns.map((column) => (
                       <TableCell

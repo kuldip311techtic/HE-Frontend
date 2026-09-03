@@ -201,23 +201,19 @@ export function SubscriptionsPage() {
   ];
 
   const handleFormSubmit = async (values: SubscriptionPlanFormValues) => {
-    try {
-      if (editingPlan) {
-        await updateMutation.mutateAsync({
-          planId: editingPlan.id,
-          role,
-          body: mapSubscriptionPlanFormToUpdateRequest(values),
-        });
-      } else {
-        await createMutation.mutateAsync(
-          mapSubscriptionPlanFormToCreateRequest(values, role),
-        );
-      }
-      setFormOpen(false);
-      setEditingPlan(null);
-    } catch {
-      // Errors surfaced via mutation toast handlers
+    if (editingPlan) {
+      await updateMutation.mutateAsync({
+        planId: editingPlan.id,
+        role,
+        body: mapSubscriptionPlanFormToUpdateRequest(values, role),
+      });
+    } else {
+      await createMutation.mutateAsync(
+        mapSubscriptionPlanFormToCreateRequest(values, role),
+      );
     }
+    setFormOpen(false);
+    setEditingPlan(null);
   };
 
   const handleDelete = async () => {
@@ -314,7 +310,7 @@ export function SubscriptionsPage() {
         role={role}
         plan={editingPlan}
         isLoading={isFormLoading}
-        onSubmit={(values) => void handleFormSubmit(values)}
+        onSubmit={handleFormSubmit}
       />
 
       <ConfirmDialog
