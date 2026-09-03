@@ -14,6 +14,7 @@ import {
   mapUserPublicToAuthUser,
   SUPER_ADMIN_ACCESS_DENIED_MESSAGE,
 } from '@/lib/api/auth';
+import { bootstrapValidationSession } from '@/lib/auth/bootstrap-validation-session';
 import {
   clearAuthStorage,
   getStoredUser,
@@ -38,12 +39,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isHydrating, setIsHydrating] = useState(true);
 
   useEffect(() => {
-    const token = getToken();
-    const storedUser = getStoredUser<AuthUser>();
-    if (token && storedUser) {
-      setUser(storedUser);
+    let cancelled = false;
+
+    async function hydrateAuth() {
+      const token = getToken();
+      const storedUser = getStoredUser<AuthUser>();
+
+      if (token && storedUser) {
+        if (!cancelled) {
+          setUser(storedUser);
+          setIsHydrating(false);
+        }
+        return;
+      }
+
+      const validationUser = await bootstrapValidationSession();
+      if (!cancelled) {
+        if (validationUser) {
+          setUser(validationUser);
+        }
+        setIsHydrating(false);
+      }
     }
-    setIsHydrating(false);
+
+    void hydrateAuth();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const loginWithCredentials = useCallback(async (email: string, password: string): Promise<void> => {

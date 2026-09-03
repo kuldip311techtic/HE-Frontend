@@ -6,7 +6,7 @@ export const SUPER_ADMIN_ACCESS_DENIED_MESSAGE =
   'This account does not have Super Admin access.';
 
 export async function loginWithEmail(credentials: LoginRequest): Promise<LoginResponse> {
-  const { data } = await apiClient.post<LoginResponse>('/super-admin/login', credentials);
+  const { data } = await apiClient.post<LoginResponse>('/v1/auth/login', credentials);
   return data;
 }
 

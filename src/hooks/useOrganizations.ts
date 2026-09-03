@@ -2,9 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/hooks/useAuth';
 import { fetchOrganizations } from '@/lib/api/organizations';
+import { hasAdminSession } from '@/lib/auth/admin-session';
 import { queryKeys } from '@/lib/api/query-keys';
-import { getToken } from '@/lib/auth/token-storage';
-import { isAdminRole } from '@/types/auth';
 
 interface UseOrganizationsOptions {
   page: number;
@@ -14,8 +13,6 @@ interface UseOrganizationsOptions {
 
 export function useOrganizations({ page, pageSize, search }: UseOrganizationsOptions) {
   const { user, isAuthenticated, isHydrating } = useAuth();
-  const hasAdminSession =
-    !isHydrating && isAuthenticated && Boolean(getToken()) && Boolean(user && isAdminRole(user.role));
 
   return useQuery({
     queryKey: queryKeys.superAdmin.organizations(page, pageSize, search),
@@ -25,6 +22,6 @@ export function useOrganizations({ page, pageSize, search }: UseOrganizationsOpt
         page_size: pageSize,
         search: search || undefined,
       }),
-    enabled: hasAdminSession,
+    enabled: hasAdminSession(user, isAuthenticated, isHydrating),
   });
 }

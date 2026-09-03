@@ -2,9 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAdminUsers } from '@/lib/api/users';
+import { hasAdminSession } from '@/lib/auth/admin-session';
 import { queryKeys } from '@/lib/api/query-keys';
-import { getToken } from '@/lib/auth/token-storage';
-import { isAdminRole } from '@/types/auth';
 import type { AdminUserRole } from '@/types/api';
 
 interface UseUsersOptions {
@@ -16,8 +15,6 @@ interface UseUsersOptions {
 
 export function useUsers({ page, pageSize, search, role }: UseUsersOptions) {
   const { user, isAuthenticated, isHydrating } = useAuth();
-  const hasAdminSession =
-    !isHydrating && isAuthenticated && Boolean(getToken()) && Boolean(user && isAdminRole(user.role));
 
   return useQuery({
     queryKey: queryKeys.superAdmin.users(page, pageSize, search, role),
@@ -28,6 +25,6 @@ export function useUsers({ page, pageSize, search, role }: UseUsersOptions) {
         search: search || undefined,
         role,
       }),
-    enabled: hasAdminSession,
+    enabled: hasAdminSession(user, isAuthenticated, isHydrating),
   });
 }
