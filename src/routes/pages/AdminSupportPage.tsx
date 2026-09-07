@@ -12,7 +12,10 @@ import { useSupportRequestMutations } from '@/hooks/useSupportRequestMutations';
 import { useSupportRequests } from '@/hooks/useSupportRequests';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 import { getApiErrorMessage } from '@/lib/utils/errors';
-import type { SupportRequestItem } from '@/types/support-requests';
+import {
+  resolveSupportRequestId,
+  type SupportRequestItem,
+} from '@/types/support-requests';
 
 const STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
   { value: '', label: 'All statuses' },
@@ -67,6 +70,7 @@ export function AdminSupportPage() {
 
   const requests = useMemo(() => data?.items ?? [], [data?.items]);
   const pagination = data?.pagination;
+  const pageSortOnly = Boolean(pagination && pagination.total > requests.length);
 
   useEffect(() => {
     setSearchInput(search);
@@ -86,11 +90,17 @@ export function AdminSupportPage() {
   }, [searchInput, search, updateParams]);
 
   useEffect(() => {
+    setSelectedRequest(null);
+  }, [page, pageSize, search, status]);
+
+  useEffect(() => {
     if (!selectedRequest?.id) return;
     const refreshed = requests.find((item) => item.id === selectedRequest.id);
     if (refreshed) {
       setSelectedRequest(refreshed);
+      return;
     }
+    setSelectedRequest(null);
   }, [requests, selectedRequest?.id]);
 
   const handleSelectRequest = (request: SupportRequestItem) => {
@@ -111,7 +121,7 @@ export function AdminSupportPage() {
     if (!selectedRequest) return;
     setCloseError(null);
     try {
-      const result = await close.mutateAsync(selectedRequest.id);
+      const result = await close.mutateAsync(resolveSupportRequestId(selectedRequest));
       setSelectedRequest(result);
       setCloseOpen(false);
     } catch (err) {
@@ -128,8 +138,8 @@ export function AdminSupportPage() {
       <div className="admin-manage-page__glow" aria-hidden="true" />
       <div className="admin-manage-page__inner">
         <header className="admin-manage-page__header">
-          <h2 className="admin-manage-page__title">Support Requests</h2>
-          <p className="admin-manage-page__description">
+          <h2 className="text-body-42 text-foreground">Support Requests</h2>
+          <p className="font-outfit text-body-sm text-muted-foreground">
             Review user inquiries, submit responses, and close resolved support requests.
           </p>
         </header>
@@ -203,6 +213,7 @@ export function AdminSupportPage() {
                 requests={requests}
                 selectedId={selectedRequest?.id ?? null}
                 onSelect={handleSelectRequest}
+                pageSortOnly={pageSortOnly}
               />
               <SupportRequestDetailPanel
                 request={selectedRequest}
@@ -215,6 +226,7 @@ export function AdminSupportPage() {
             {pagination ? (
               <TablePagination
                 pagination={pagination}
+                appearance="admin"
                 onPageChange={(nextPage) => updateParams({ page: String(nextPage) })}
                 onPageSizeChange={(nextSize) =>
                   updateParams({ page_size: String(nextSize), page: '1' })

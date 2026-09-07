@@ -11,6 +11,7 @@ interface SortableTableHeadProps<K extends string> {
   direction: SortDirection;
   onSort: (sortKey: K) => void;
   className?: string;
+  disabled?: boolean;
 }
 
 export function SortableTableHead<K extends string>({
@@ -20,6 +21,7 @@ export function SortableTableHead<K extends string>({
   direction,
   onSort,
   className,
+  disabled = false,
 }: SortableTableHeadProps<K>) {
   const isActive = activeSortKey === sortKey && direction !== 'none';
   const SortIcon = isActive ? (direction === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown;
@@ -27,15 +29,17 @@ export function SortableTableHead<K extends string>({
   const sortValue = isActive ? (direction === 'asc' ? 'ascending' : 'descending') : 'none';
 
   return (
-    <TableHead className={className} aria-sort={sortValue}>
+    <TableHead className={className} aria-sort={disabled ? undefined : sortValue}>
       <button
         type="button"
         onClick={() => onSort(sortKey)}
+        disabled={disabled}
         className={cn(
           'inline-flex items-center gap-1 font-outfit text-body-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           isActive && 'text-foreground',
+          disabled && 'cursor-not-allowed opacity-50 hover:text-muted-foreground',
         )}
-        aria-label={`Sort by ${label}`}
+        aria-label={disabled ? `${label} (sorting unavailable for paginated results)` : `Sort by ${label}`}
       >
         {label}
         <SortIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />

@@ -32,7 +32,7 @@ export function RemoveUserDialog({
       isLoading={isLoading}
       variant="destructive"
       errorMessage={errorMessage}
-      dialogClassName="admin-form-dialog"
+      appearance="admin-form"
     />
   );
 }

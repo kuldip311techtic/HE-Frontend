@@ -34,7 +34,7 @@ export function CloseSupportRequestDialog({
       onConfirm={onConfirm}
       isLoading={isLoading}
       errorMessage={errorMessage}
-      dialogClassName="admin-form-dialog"
+      appearance="admin-form"
     />
   );
 }

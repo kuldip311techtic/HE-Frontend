@@ -12,11 +12,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { parseApiError } from '@/lib/utils/errors';
-import type {
-  UserCreateRequest,
-  UserItem,
-  UserRole,
-  UserUpdateRequest,
+import {
+  isUserRole,
+  parseUserRole,
+  type UserCreateRequest,
+  type UserItem,
+  type UserRole,
+  type UserUpdateRequest,
 } from '@/types/users';
 
 const ROLE_OPTIONS: UserRole[] = ['Coach', 'Player'];
@@ -52,25 +54,13 @@ function userToFormState(user: UserItem): FormState {
     last_name: user.last_name,
     email: user.email,
     password: '',
-    role: (user.role as UserRole) || 'Coach',
+    role: parseUserRole(user.role),
   };
 }
 
 function validatePassword(password: string): string | null {
-  if (password.length < 8) {
-    return 'Password must be at least 8 characters.';
-  }
-  if (!/[A-Z]/.test(password)) {
-    return 'Password must include at least one uppercase letter.';
-  }
-  if (!/[a-z]/.test(password)) {
-    return 'Password must include at least one lowercase letter.';
-  }
-  if (!/[0-9]/.test(password)) {
-    return 'Password must include at least one number.';
-  }
-  if (!/[^A-Za-z0-9]/.test(password)) {
-    return 'Password must include at least one special character.';
+  if (!password) {
+    return 'Password is required.';
   }
   return null;
 }
@@ -333,7 +323,10 @@ export function UserForm({
               id="user-role"
               value={form.role}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, role: event.target.value as UserRole }))
+                setForm((prev) => ({
+                  ...prev,
+                  role: isUserRole(event.target.value) ? event.target.value : prev.role,
+                }))
               }
               aria-invalid={Boolean(fieldErrors.role)}
               aria-describedby={fieldErrors.role ? 'user-role-error' : undefined}

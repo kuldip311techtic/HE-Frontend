@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
+import { SupportRequestStatusBadge } from '@/components/features/support/SupportRequestStatusBadge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -75,14 +76,6 @@ export function SupportRequestDetailPanel({
       setFieldError('Response is required.');
       return false;
     }
-    if (trimmed.length < 10) {
-      setFieldError('Response must be at least 10 characters.');
-      return false;
-    }
-    if (trimmed.length > 2000) {
-      setFieldError('Response must be 2000 characters or fewer.');
-      return false;
-    }
     setFieldError(null);
     return true;
   };
@@ -118,9 +111,7 @@ export function SupportRequestDetailPanel({
               Submitted {formatDateTime(request.created_at)}
             </p>
           </div>
-          <span className="inline-flex w-fit rounded-full border border-figma-border bg-[var(--token-color-107)] px-2.5 py-0.5 font-lato text-body-sm capitalize text-[var(--token-color-114)]">
-            {request.status}
-          </span>
+          <SupportRequestStatusBadge status={request.status} />
         </div>
       </div>
 

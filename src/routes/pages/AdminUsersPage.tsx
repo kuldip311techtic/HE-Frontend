@@ -15,6 +15,12 @@ import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 import { getApiErrorMessage } from '@/lib/utils/errors';
 import type { UserCreateRequest, UserItem, UserRole, UserUpdateRequest } from '@/types/users';
 
+function isCreatePayload(
+  payload: UserCreateRequest | UserUpdateRequest,
+): payload is UserCreateRequest {
+  return 'password' in payload && typeof payload.password === 'string';
+}
+
 const ROLE_FILTER_OPTIONS: { value: string; label: string }[] = [
   { value: '', label: 'All roles' },
   { value: 'Coach', label: 'Coach' },
@@ -104,7 +110,10 @@ export function AdminUsersPage() {
 
   const handleFormSubmit = async (payload: UserCreateRequest | UserUpdateRequest) => {
     if (formMode === 'create') {
-      await create.mutateAsync(payload as UserCreateRequest);
+      if (!isCreatePayload(payload)) {
+        throw new Error('Unable to create user. Please check the form and try again.');
+      }
+      await create.mutateAsync(payload);
     } else if (selectedUser) {
       await update.mutateAsync({ userId: selectedUser.id, payload });
     }
@@ -129,14 +138,15 @@ export function AdminUsersPage() {
   const users = data?.items ?? [];
   const pagination = data?.pagination;
   const isFormSubmitting = create.isPending || update.isPending;
+  const pageSortOnly = Boolean(pagination && pagination.total > users.length);
 
   return (
     <div className="admin-manage-page">
       <div className="admin-manage-page__glow" aria-hidden="true" />
       <div className="admin-manage-page__inner">
         <header className="admin-manage-page__header">
-          <h2 className="admin-manage-page__title">Manage Users</h2>
-          <p className="admin-manage-page__description">
+          <h2 className="text-body-42 text-foreground">Manage Users</h2>
+          <p className="font-outfit text-body-sm text-muted-foreground">
             View, add, edit, and remove coach and player accounts on the platform.
           </p>
         </header>
@@ -215,10 +225,12 @@ export function AdminUsersPage() {
               currentUserId={user?.id}
               onEdit={handleEditUser}
               onRemove={handleRemoveUser}
+              pageSortOnly={pageSortOnly}
             />
             {pagination ? (
               <TablePagination
                 pagination={pagination}
+                appearance="admin"
                 onPageChange={(nextPage) => updateParams({ page: String(nextPage) })}
                 onPageSizeChange={(nextSize) =>
                   updateParams({ page_size: String(nextSize), page: '1' })

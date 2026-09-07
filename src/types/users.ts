@@ -2,6 +2,19 @@ import type { PaginationMeta } from '@/types/api';
 
 export type UserRole = 'Coach' | 'Player';
 
+const USER_ROLES: UserRole[] = ['Coach', 'Player'];
+
+export function parseUserRole(value: string | undefined | null): UserRole {
+  if (value === 'Coach' || value === 'Player') {
+    return value;
+  }
+  return 'Coach';
+}
+
+export function isUserRole(value: string): value is UserRole {
+  return USER_ROLES.includes(value as UserRole);
+}
+
 export interface UserItem {
   id: string;
   first_name: string;
