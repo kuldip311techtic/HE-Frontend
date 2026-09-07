@@ -70,6 +70,47 @@ export const CONTRACT_ROUTES = {
     path: '/api/v1/super-admin/organizations/{organization_id}',
     listUnwrapKey: null as string | null,
   },
+  superAdminUsers: {
+    method: 'GET' as const,
+    /** Ticket alias: GET /api/super-admin/users — live route is /api/v1/super-admin/users */
+    path: '/api/v1/super-admin/users',
+    listUnwrapKey: 'items' as string | null,
+  },
+  superAdminUsersCreate: {
+    method: 'POST' as const,
+    /** Ticket alias: POST /api/super-admin/users — live route is /api/v1/super-admin/users */
+    path: '/api/v1/super-admin/users',
+    listUnwrapKey: null as string | null,
+  },
+  superAdminUserDetail: {
+    method: 'GET' as const,
+    /** Ticket alias: PUT/DELETE /api/super-admin/users/{id} — live route uses {user_id} */
+    path: '/api/v1/super-admin/users/{user_id}',
+    listUnwrapKey: null as string | null,
+  },
+  superAdminSupportRequests: {
+    method: 'GET' as const,
+    /** Ticket alias: GET /api/super-admin/support-requests — live route is /api/v1/support-requests */
+    path: '/api/v1/support-requests',
+    listUnwrapKey: 'items' as string | null,
+  },
+  superAdminSupportRequestAttachment: {
+    method: 'GET' as const,
+    path: '/api/v1/support-requests/{request_id}/attachment',
+    listUnwrapKey: null as string | null,
+  },
+  superAdminSupportRequestsRespond: {
+    method: 'POST' as const,
+    /** Ticket-only respond route — live API has no admin reply endpoint */
+    path: '/api/super-admin/support-requests',
+    listUnwrapKey: null as string | null,
+  },
+  superAdminSupportRequestDetail: {
+    method: 'GET' as const,
+    /** Ticket-only close route — live API has no admin close endpoint */
+    path: '/api/super-admin/support-requests/{id}',
+    listUnwrapKey: null as string | null,
+  },
   playerRoleSelection: {
     method: 'GET' as const,
     path: '/api/v1/player/role-selection',

@@ -14,6 +14,8 @@ export const IMPLEMENTED_ADMIN_ROUTES = new Set<string>([
   '/admin',
   '/admin/organizations',
   '/admin/subscriptions',
+  '/admin/users',
+  '/admin/support',
 ]);
 
 export interface SidebarNavItemDefinition {
