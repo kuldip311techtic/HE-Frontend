@@ -1,11 +1,12 @@
 import { cn } from '@/lib/utils/cn';
 
 interface SupportRequestStatusBadgeProps {
-  status: string;
+  status?: string;
 }
 
 export function SupportRequestStatusBadge({ status }: SupportRequestStatusBadgeProps) {
-  const normalized = status.toLowerCase();
+  const label = status?.trim() || 'Submitted';
+  const normalized = label.toLowerCase();
   const isClosed = normalized === 'closed';
 
   return (
@@ -15,7 +16,7 @@ export function SupportRequestStatusBadge({ status }: SupportRequestStatusBadgeP
         isClosed ? 'bg-muted text-muted-foreground' : 'bg-sidebar-accent/15 text-sidebar-accent',
       )}
     >
-      {status}
+      {label}
     </span>
   );
 }

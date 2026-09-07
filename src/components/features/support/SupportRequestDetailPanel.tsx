@@ -3,6 +3,7 @@ import { SupportRequestStatusBadge } from '@/components/features/support/Support
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { downloadSupportRequestAttachment } from '@/lib/api/support-requests';
 import { parseApiError } from '@/lib/utils/errors';
 import {
   displaySupportRequestMessage,
@@ -44,11 +45,14 @@ export function SupportRequestDetailPanel({
   const [response, setResponse] = useState('');
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   useEffect(() => {
     setResponse('');
     setFieldError(null);
     setFormError(null);
+    setDownloadError(null);
   }, [request?.id]);
 
   if (!request) {
@@ -69,6 +73,7 @@ export function SupportRequestDetailPanel({
   const inquiry = displaySupportRequestMessage(request);
   const closed = isSupportRequestClosed(request);
   const isBusy = isResponding || isClosing;
+  const attachment = request.attachment;
 
   const validate = (): boolean => {
     const trimmed = response.trim();
@@ -116,12 +121,58 @@ export function SupportRequestDetailPanel({
       </div>
 
       <div className="admin-manage-panel__body space-y-5">
+        {request.subject?.trim() ? (
+          <div>
+            <h4 className="admin-field-label">Subject</h4>
+            <p className="mt-2 font-outfit text-body-sm text-foreground">{request.subject.trim()}</p>
+          </div>
+        ) : null}
+
+        {request.email?.trim() ? (
+          <p className="font-lato text-body-sm text-figma-accent">{request.email.trim()}</p>
+        ) : null}
+
         <div>
           <h4 className="admin-field-label">Inquiry</h4>
           <p className="mt-2 whitespace-pre-wrap font-outfit text-body-sm text-figma-accent">
             {inquiry}
           </p>
         </div>
+
+        {attachment?.download_url ? (
+          <div>
+            <h4 className="admin-field-label">Attachment</h4>
+            <Button
+              type="button"
+              variant="outline"
+              className="admin-outline-btn mt-2"
+              isLoading={isDownloading}
+              disabled={isDownloading}
+              onClick={async () => {
+                setDownloadError(null);
+                setIsDownloading(true);
+                try {
+                  await downloadSupportRequestAttachment(
+                    attachment.download_url,
+                    attachment.original_name,
+                  );
+                } catch (error) {
+                  const parsed = parseApiError(error, 'Unable to download attachment.');
+                  setDownloadError(parsed.message);
+                } finally {
+                  setIsDownloading(false);
+                }
+              }}
+            >
+              {attachment.original_name}
+            </Button>
+            {downloadError ? (
+              <p className="mt-2 font-outfit text-body-sm text-destructive" role="alert">
+                {downloadError}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         {request.response?.trim() ? (
           <div>

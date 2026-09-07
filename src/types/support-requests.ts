@@ -2,19 +2,28 @@ import type { PaginationMeta } from '@/types/api';
 
 export type SupportRequestStatus = 'open' | 'closed' | 'pending' | string;
 
+export interface SupportRequestAttachment {
+  original_name: string;
+  content_type?: string | null;
+  size_bytes: number;
+  download_url: string;
+}
+
 export interface SupportRequestItem {
   id: string;
   request_id?: string;
+  name?: string | null;
   user_name?: string | null;
   user_email?: string | null;
   email?: string | null;
-  status: SupportRequestStatus;
+  status?: SupportRequestStatus;
   subject?: string | null;
   message?: string | null;
   inquiry?: string | null;
   response?: string | null;
   created_at: string;
   updated_at?: string | null;
+  attachment?: SupportRequestAttachment | null;
 }
 
 export interface SupportRequestListResponse {
@@ -39,6 +48,9 @@ export interface SupportRequestMutationResponse extends SupportRequestItem {
 }
 
 export function displaySupportRequestUser(request: SupportRequestItem): string {
+  if (request.name?.trim()) {
+    return request.name.trim();
+  }
   if (request.user_name?.trim()) {
     return request.user_name.trim();
   }
@@ -50,7 +62,7 @@ export function displaySupportRequestMessage(request: SupportRequestItem): strin
 }
 
 export function isSupportRequestClosed(request: SupportRequestItem): boolean {
-  return request.status.toLowerCase() === 'closed';
+  return (request.status ?? '').toLowerCase() === 'closed';
 }
 
 export function resolveSupportRequestId(request: SupportRequestItem): string {

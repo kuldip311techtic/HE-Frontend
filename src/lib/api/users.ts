@@ -18,7 +18,12 @@ import { normalizePaginatedListResponse } from './normalize-list-response';
 const listRoute = CONTRACT_ROUTES.superAdminUsers;
 const createRoute = CONTRACT_ROUTES.superAdminUsersCreate;
 
-/** GET /api/super-admin/users */
+/** Live list filter accepts coach | player | org_admin | super_admin, not UI labels. */
+function toApiRoleFilter(role: string): string {
+  return role.trim().toLowerCase().replace(/\s+/g, '_');
+}
+
+/** GET /api/v1/super-admin/users */
 export async function fetchUsers(params: UserListParams): Promise<UserListResponse> {
   const { data } = await apiClient.request<unknown>({
     method: listRoute.method,
@@ -27,7 +32,7 @@ export async function fetchUsers(params: UserListParams): Promise<UserListRespon
       page: params.page ?? 1,
       page_size: params.page_size ?? 10,
       ...(params.search?.trim() ? { search: params.search.trim() } : {}),
-      ...(params.role?.trim() ? { role: params.role.trim() } : {}),
+      ...(params.role?.trim() ? { role: toApiRoleFilter(params.role) } : {}),
     },
   });
   return normalizePaginatedListResponse<UserItem>(
@@ -38,7 +43,7 @@ export async function fetchUsers(params: UserListParams): Promise<UserListRespon
   );
 }
 
-/** POST /api/super-admin/users */
+/** POST /api/v1/super-admin/users */
 export async function createUser(payload: UserCreateRequest): Promise<UserMutationResponse> {
   const { data } = await apiClient.request<UserMutationResponse>({
     method: createRoute.method,
@@ -48,13 +53,13 @@ export async function createUser(payload: UserCreateRequest): Promise<UserMutati
   return data;
 }
 
-/** PUT /api/super-admin/users/{id} */
+/** PUT /api/v1/super-admin/users/{user_id} */
 export async function updateUser(
   userId: string,
   payload: UserUpdateRequest,
 ): Promise<UserMutationResponse> {
   const contractPath = contractPathWithParams(CONTRACT_ROUTES.superAdminUserDetail.path, {
-    id: userId,
+    user_id: userId,
   });
   const { data } = await apiClient.request<UserMutationResponse>({
     method: 'PUT',
@@ -64,10 +69,10 @@ export async function updateUser(
   return data;
 }
 
-/** DELETE /api/super-admin/users/{id} */
+/** DELETE /api/v1/super-admin/users/{user_id} */
 export async function deleteUser(userId: string): Promise<UserDeleteResponse> {
   const contractPath = contractPathWithParams(CONTRACT_ROUTES.superAdminUserDetail.path, {
-    id: userId,
+    user_id: userId,
   });
   const { data } = await apiClient.request<UserDeleteResponse>({
     method: 'DELETE',

@@ -16,7 +16,7 @@ import { normalizePaginatedListResponse } from './normalize-list-response';
 const listRoute = CONTRACT_ROUTES.superAdminSupportRequests;
 const respondRoute = CONTRACT_ROUTES.superAdminSupportRequestsRespond;
 
-/** GET /api/super-admin/support-requests */
+/** GET /api/v1/support-requests */
 export async function fetchSupportRequests(
   params: SupportRequestListParams,
 ): Promise<SupportRequestListResponse> {
@@ -27,7 +27,6 @@ export async function fetchSupportRequests(
       page: params.page ?? 1,
       page_size: params.page_size ?? 10,
       ...(params.search?.trim() ? { search: params.search.trim() } : {}),
-      ...(params.status?.trim() ? { status: params.status.trim() } : {}),
     },
   });
   return normalizePaginatedListResponse<SupportRequestItem>(
@@ -38,7 +37,27 @@ export async function fetchSupportRequests(
   );
 }
 
-/** POST /api/super-admin/support-requests */
+/** GET /api/v1/support-requests/{request_id}/attachment */
+export async function downloadSupportRequestAttachment(
+  downloadUrl: string,
+  filename: string,
+): Promise<void> {
+  const { data } = await apiClient.request<Blob>({
+    method: CONTRACT_ROUTES.superAdminSupportRequestAttachment.method,
+    url: contractPathToClientPath(downloadUrl),
+    responseType: 'blob',
+  });
+  const objectUrl = window.URL.createObjectURL(data);
+  const link = document.createElement('a');
+  link.href = objectUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(objectUrl);
+}
+
+/** Ticket-only: live API has no admin reply endpoint */
 export async function respondToSupportRequest(
   payload: SupportRequestRespondRequest,
 ): Promise<SupportRequestMutationResponse> {
@@ -50,7 +69,7 @@ export async function respondToSupportRequest(
   return data;
 }
 
-/** PUT /api/super-admin/support-requests/{id} */
+/** Ticket-only: live API has no admin close endpoint */
 export async function closeSupportRequest(
   requestId: string,
 ): Promise<SupportRequestMutationResponse> {

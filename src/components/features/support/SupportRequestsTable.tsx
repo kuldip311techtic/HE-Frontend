@@ -53,7 +53,7 @@ function compareRequests(
     case 'date':
       return a.created_at.localeCompare(b.created_at);
     case 'status':
-      return a.status.localeCompare(b.status, undefined, { sensitivity: 'base' });
+      return (a.status ?? '').localeCompare(b.status ?? '', undefined, { sensitivity: 'base' });
     default:
       return 0;
   }

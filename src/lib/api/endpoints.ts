@@ -72,37 +72,42 @@ export const CONTRACT_ROUTES = {
   },
   superAdminUsers: {
     method: 'GET' as const,
-    /** Ticket path: GET /api/super-admin/users (JAW-9611) */
-    path: '/api/super-admin/users',
+    /** Ticket alias: GET /api/super-admin/users — live route is /api/v1/super-admin/users */
+    path: '/api/v1/super-admin/users',
     listUnwrapKey: 'items' as string | null,
   },
   superAdminUsersCreate: {
     method: 'POST' as const,
-    /** Ticket path: POST /api/super-admin/users */
-    path: '/api/super-admin/users',
+    /** Ticket alias: POST /api/super-admin/users — live route is /api/v1/super-admin/users */
+    path: '/api/v1/super-admin/users',
     listUnwrapKey: null as string | null,
   },
   superAdminUserDetail: {
     method: 'GET' as const,
-    /** Ticket path: PUT/DELETE /api/super-admin/users/{id} */
-    path: '/api/super-admin/users/{id}',
+    /** Ticket alias: PUT/DELETE /api/super-admin/users/{id} — live route uses {user_id} */
+    path: '/api/v1/super-admin/users/{user_id}',
     listUnwrapKey: null as string | null,
   },
   superAdminSupportRequests: {
     method: 'GET' as const,
-    /** Ticket path: GET /api/super-admin/support-requests (JAW-9613) */
-    path: '/api/super-admin/support-requests',
+    /** Ticket alias: GET /api/super-admin/support-requests — live route is /api/v1/support-requests */
+    path: '/api/v1/support-requests',
     listUnwrapKey: 'items' as string | null,
+  },
+  superAdminSupportRequestAttachment: {
+    method: 'GET' as const,
+    path: '/api/v1/support-requests/{request_id}/attachment',
+    listUnwrapKey: null as string | null,
   },
   superAdminSupportRequestsRespond: {
     method: 'POST' as const,
-    /** Ticket path: POST /api/super-admin/support-requests */
+    /** Ticket-only respond route — live API has no admin reply endpoint */
     path: '/api/super-admin/support-requests',
     listUnwrapKey: null as string | null,
   },
   superAdminSupportRequestDetail: {
     method: 'GET' as const,
-    /** Ticket path: PUT /api/super-admin/support-requests/{id} */
+    /** Ticket-only close route — live API has no admin close endpoint */
     path: '/api/super-admin/support-requests/{id}',
     listUnwrapKey: null as string | null,
   },
