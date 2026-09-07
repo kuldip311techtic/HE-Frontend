@@ -70,6 +70,42 @@ export const CONTRACT_ROUTES = {
     path: '/api/v1/super-admin/organizations/{organization_id}',
     listUnwrapKey: null as string | null,
   },
+  superAdminUsers: {
+    method: 'GET' as const,
+    /** Ticket path: GET /api/super-admin/users (JAW-9611) */
+    path: '/api/super-admin/users',
+    listUnwrapKey: 'items' as string | null,
+  },
+  superAdminUsersCreate: {
+    method: 'POST' as const,
+    /** Ticket path: POST /api/super-admin/users */
+    path: '/api/super-admin/users',
+    listUnwrapKey: null as string | null,
+  },
+  superAdminUserDetail: {
+    method: 'GET' as const,
+    /** Ticket path: PUT/DELETE /api/super-admin/users/{id} */
+    path: '/api/super-admin/users/{id}',
+    listUnwrapKey: null as string | null,
+  },
+  superAdminSupportRequests: {
+    method: 'GET' as const,
+    /** Ticket path: GET /api/super-admin/support-requests (JAW-9613) */
+    path: '/api/super-admin/support-requests',
+    listUnwrapKey: 'items' as string | null,
+  },
+  superAdminSupportRequestsRespond: {
+    method: 'POST' as const,
+    /** Ticket path: POST /api/super-admin/support-requests */
+    path: '/api/super-admin/support-requests',
+    listUnwrapKey: null as string | null,
+  },
+  superAdminSupportRequestDetail: {
+    method: 'GET' as const,
+    /** Ticket path: PUT /api/super-admin/support-requests/{id} */
+    path: '/api/super-admin/support-requests/{id}',
+    listUnwrapKey: null as string | null,
+  },
   playerRoleSelection: {
     method: 'GET' as const,
     path: '/api/v1/player/role-selection',

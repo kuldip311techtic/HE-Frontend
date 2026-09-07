@@ -5,6 +5,8 @@ import { AdminDashboardPage } from '@/routes/pages/AdminDashboardPage';
 import { AdminLoginPage } from '@/routes/pages/AdminLoginPage';
 import { AdminOrganizationsPage } from '@/routes/pages/AdminOrganizationsPage';
 import { AdminSubscriptionsPage } from '@/routes/pages/AdminSubscriptionsPage';
+import { AdminSupportPage } from '@/routes/pages/AdminSupportPage';
+import { AdminUsersPage } from '@/routes/pages/AdminUsersPage';
 import { AdminUnauthorizedPage } from '@/routes/pages/AdminUnauthorizedPage';
 
 export function AppRoutes() {
@@ -18,6 +20,8 @@ export function AppRoutes() {
           <Route index element={<AdminDashboardPage />} />
           <Route path="organizations" element={<AdminOrganizationsPage />} />
           <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="support" element={<AdminSupportPage />} />
         </Route>
       </Route>
       <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />

@@ -19,6 +19,7 @@ interface ConfirmDialogProps {
   isLoading?: boolean;
   variant?: 'default' | 'destructive';
   errorMessage?: string | null;
+  dialogClassName?: string;
 }
 
 export function ConfirmDialog({
@@ -32,18 +33,35 @@ export function ConfirmDialog({
   isLoading = false,
   variant = 'default',
   errorMessage = null,
+  dialogClassName,
 }: ConfirmDialogProps) {
   const confirmDescribedBy = errorMessage
     ? 'confirm-dialog-description confirm-dialog-error'
     : 'confirm-dialog-description';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} titleId="confirm-dialog-title" descriptionId="confirm-dialog-description">
-      <DialogHeader>
-        <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
-        <DialogDescription id="confirm-dialog-description">{description}</DialogDescription>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      titleId="confirm-dialog-title"
+      descriptionId="confirm-dialog-description"
+      className={dialogClassName}
+    >
+      <DialogHeader className={dialogClassName?.includes('admin-form-dialog') ? 'admin-form-dialog__header border-0 px-6 py-5' : undefined}>
+        <DialogTitle
+          id="confirm-dialog-title"
+          className={dialogClassName?.includes('admin-form-dialog') ? 'admin-form-dialog__title border-0' : undefined}
+        >
+          {title}
+        </DialogTitle>
+        <DialogDescription
+          id="confirm-dialog-description"
+          className={dialogClassName?.includes('admin-form-dialog') ? 'admin-form-dialog__description' : undefined}
+        >
+          {description}
+        </DialogDescription>
       </DialogHeader>
-      <DialogContent>
+      <DialogContent className={dialogClassName?.includes('admin-form-dialog') ? 'admin-form-dialog__content border-0 py-5' : undefined}>
         {errorMessage ? (
           <p
             id="confirm-dialog-error"
@@ -54,12 +72,13 @@ export function ConfirmDialog({
           </p>
         ) : null}
       </DialogContent>
-      <DialogFooter>
+      <DialogFooter className={dialogClassName?.includes('admin-form-dialog') ? 'admin-form-dialog__footer border-0' : undefined}>
         <Button
           type="button"
           variant="outline"
           onClick={() => onOpenChange(false)}
           disabled={isLoading}
+          className={dialogClassName?.includes('admin-form-dialog') ? 'admin-outline-btn' : undefined}
         >
           {cancelLabel}
         </Button>
@@ -71,6 +90,11 @@ export function ConfirmDialog({
           disabled={isLoading}
           aria-labelledby="confirm-dialog-title"
           aria-describedby={confirmDescribedBy}
+          className={
+            dialogClassName?.includes('admin-form-dialog') && variant !== 'destructive'
+              ? 'admin-primary-btn'
+              : undefined
+          }
         >
           {confirmLabel}
         </Button>

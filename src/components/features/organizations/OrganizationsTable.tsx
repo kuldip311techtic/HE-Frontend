@@ -53,7 +53,7 @@ export function OrganizationsTable({
   const { sortKey, sortDirection, sortedRows, handleSort } = useTableSort<
     OrganizationItem,
     OrganizationSortKey
-  >(organizations, compareOrganizations, 'name');
+  >(organizations, compareOrganizations);
 
   if (isLoading) {
     return (

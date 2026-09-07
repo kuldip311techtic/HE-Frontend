@@ -27,5 +27,14 @@ export const queryKeys = {
         '/api/v1/super-admin/organizations',
         params,
       ] as const,
+    users: (params: Record<string, string | number | null | undefined>) =>
+      ['super-admin', 'users', '/api/super-admin/users', params] as const,
+    supportRequests: (params: Record<string, string | number | null | undefined>) =>
+      [
+        'super-admin',
+        'support-requests',
+        '/api/super-admin/support-requests',
+        params,
+      ] as const,
   },
 } as const;

@@ -2,12 +2,12 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { TableHead } from '@/components/ui/table';
 import { cn } from '@/lib/utils/cn';
 
-export type SortDirection = 'asc' | 'desc';
+export type SortDirection = 'asc' | 'desc' | 'none';
 
 interface SortableTableHeadProps<K extends string> {
   label: string;
   sortKey: K;
-  activeSortKey: K;
+  activeSortKey: K | null;
   direction: SortDirection;
   onSort: (sortKey: K) => void;
   className?: string;
@@ -21,7 +21,7 @@ export function SortableTableHead<K extends string>({
   onSort,
   className,
 }: SortableTableHeadProps<K>) {
-  const isActive = activeSortKey === sortKey;
+  const isActive = activeSortKey === sortKey && direction !== 'none';
   const SortIcon = isActive ? (direction === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown;
 
   const sortValue = isActive ? (direction === 'asc' ? 'ascending' : 'descending') : 'none';
@@ -45,12 +45,18 @@ export function SortableTableHead<K extends string>({
 }
 
 export function getNextSortDirection<K extends string>(
-  activeSortKey: K,
+  activeSortKey: K | null,
   sortKey: K,
   currentDirection: SortDirection,
 ): SortDirection {
   if (activeSortKey !== sortKey) {
     return 'asc';
   }
-  return currentDirection === 'asc' ? 'desc' : 'asc';
+  if (currentDirection === 'asc') {
+    return 'desc';
+  }
+  if (currentDirection === 'desc') {
+    return 'none';
+  }
+  return 'asc';
 }

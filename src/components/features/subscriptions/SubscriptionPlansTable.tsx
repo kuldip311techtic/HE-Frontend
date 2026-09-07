@@ -89,7 +89,7 @@ export function SubscriptionPlansTable({
   const { sortKey, sortDirection, sortedRows, handleSort } = useTableSort<
     SubscriptionPlanItem,
     PlanSortKey
-  >(plans, comparePlans, 'name');
+  >(plans, comparePlans);
 
   if (isLoading) {
     return (
