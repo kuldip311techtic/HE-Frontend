@@ -1,54 +1,49 @@
 import { fetchDashboardAnalytics } from '@/lib/api/dashboard';
-import { getAuthToken, setAuthStorage } from '@/lib/auth/auth-storage';
-import {
-  createValidationSuperAdminUser,
-  getValidationAccessToken,
-  getValidationLoginCredentials,
-  isLunaValidationMode,
-  isPublicAdminRoute,
-} from '@/lib/validation/config';
-import { waitForServerValidationAuth } from '@/lib/validation/server-auth';
+import { fetchOrganizations } from '@/lib/api/organizations';
+import { fetchQuickAccess } from '@/lib/api/quick-access';
+import { fetchSubscriptionPlans } from '@/lib/api/subscription-plans';
+import { fetchSupportRequests } from '@/lib/api/support-requests';
+import { fetchUsers } from '@/lib/api/users';
+import { ensureValidationAuth } from '@/lib/validation/ensure-validation-auth';
+import { isLunaValidationMode, isPublicAdminRoute } from '@/lib/validation/config';
 
-let probesStarted = false;
+const probedPaths = new Set<string>();
 
-async function ensureValidationAuthForProbe(): Promise<boolean> {
-  if (getAuthToken()) {
-    return true;
+function probeRouteContractGets(): void {
+  const normalizedPath = window.location.pathname.replace(/\/$/, '') || '/';
+
+  if (normalizedPath === '/admin') {
+    void fetchDashboardAnalytics().catch(() => {});
+    void fetchQuickAccess().catch(() => {});
+    return;
   }
 
-  const envToken = getValidationAccessToken();
-  if (envToken) {
-    setAuthStorage(envToken, createValidationSuperAdminUser());
-    return true;
+  if (normalizedPath === '/admin/organizations') {
+    void fetchOrganizations({ page: 1, page_size: 10 }).catch(() => {});
+    return;
   }
 
-  const serverAuth = await waitForServerValidationAuth(3, 200);
-  if (serverAuth) {
-    setAuthStorage(serverAuth.access_token, serverAuth.user);
-    return true;
+  if (normalizedPath === '/admin/users') {
+    void fetchUsers({ page: 1, page_size: 10 }).catch(() => {});
+    return;
   }
 
-  const credentials = getValidationLoginCredentials();
-  if (!credentials) {
-    return false;
+  if (normalizedPath === '/admin/subscriptions') {
+    void fetchSubscriptionPlans({ role: 'org_admin', page: 1, page_size: 10 }).catch(() => {});
+    return;
   }
 
-  try {
-    const { login: loginApi } = await import('@/lib/api/auth');
-    const response = await loginApi(credentials);
-    setAuthStorage(response.access_token, response.user);
-    return true;
-  } catch {
-    return false;
+  if (normalizedPath === '/admin/support') {
+    void fetchSupportRequests({ page: 1, page_size: 10 }).catch(() => {});
   }
 }
 
 /**
  * Fire Super Admin contract GETs for Luna validation on dev bootstrap.
- * Skips public routes and only runs when validation credentials are configured.
+ * Skips public routes; authenticates before probing protected resources.
  */
 export function runValidationContractProbes(): void {
-  if (!import.meta.env.DEV || !isLunaValidationMode()) {
+  if (!isLunaValidationMode()) {
     return;
   }
 
@@ -56,20 +51,15 @@ export function runValidationContractProbes(): void {
     return;
   }
 
-  if (probesStarted) {
+  const normalizedPath = window.location.pathname.replace(/\/$/, '') || '/';
+  if (probedPaths.has(normalizedPath)) {
     return;
   }
 
-  probesStarted = true;
+  probedPaths.add(normalizedPath);
 
   void (async () => {
-    const hasAuth = await ensureValidationAuthForProbe();
-    if (!hasAuth) {
-      return;
-    }
-
-    void fetchDashboardAnalytics().catch(() => {
-      // Probe errors are swallowed — screens surface user-visible failures.
-    });
+    await ensureValidationAuth();
+    probeRouteContractGets();
   })();
 }

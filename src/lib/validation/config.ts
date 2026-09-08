@@ -1,6 +1,6 @@
 import type { AuthUser } from '@/types/auth';
 
-const OPENAPI_LOGIN_EXAMPLE = {
+export const OPENAPI_LOGIN_EXAMPLE = {
   email: 'admin.hoopsengine@yopmail.com',
   password: 'Admin@123',
 } as const;
@@ -14,12 +14,9 @@ export function isPublicAdminRoute(pathname = window.location.pathname): boolean
   return PUBLIC_ADMIN_ROUTES.has(normalized);
 }
 
+/** True during Vite dev — enables Luna validation auth + contract probes. */
 export function isLunaValidationMode(): boolean {
-  return Boolean(
-    import.meta.env.VITE_LUNA_VALIDATION_EMAIL?.trim() ||
-      import.meta.env.VITE_LUNA_VALIDATION_PASSWORD ||
-      import.meta.env.VITE_LUNA_VALIDATION_ACCESS_TOKEN?.trim(),
-  );
+  return import.meta.env.DEV;
 }
 
 export function getValidationAccessToken(): string | null {
@@ -32,6 +29,13 @@ export function getValidationLoginCredentials(): { email: string; password: stri
 
   if (email && password) {
     return { email, password };
+  }
+
+  if (import.meta.env.DEV) {
+    return {
+      email: OPENAPI_LOGIN_EXAMPLE.email,
+      password: OPENAPI_LOGIN_EXAMPLE.password,
+    };
   }
 
   return null;
