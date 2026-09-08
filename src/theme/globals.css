@@ -621,6 +621,10 @@
 .admin-manage-page__glow {
   position: absolute;
   inset: -32px 0 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100%;
   pointer-events: none;
   z-index: 0;
   background:

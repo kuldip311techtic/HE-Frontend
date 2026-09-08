@@ -69,7 +69,7 @@ export function AdminLayout() {
   }, [isMobileNavOpen, closeMobileNav]);
 
   return (
-    <div className="flex min-h-screen bg-background" data-admin-ready={!isHydrating || undefined}>
+    <div className="flex min-h-screen overflow-x-clip bg-background" data-admin-ready={!isHydrating || undefined}>
       <div className="hidden lg:block">
         <AdminSidebar className="fixed inset-y-0 left-0 z-30" />
       </div>
@@ -93,13 +93,13 @@ export function AdminLayout() {
         </div>
       ) : null}
 
-      <div className="flex min-h-screen flex-1 flex-col lg:pl-64">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:pl-64">
         <AdminHeader
           isMobileNavOpen={isMobileNavOpen}
           onToggleMobileNav={() => setIsMobileNavOpen((open) => !open)}
           onSignOut={handleSignOut}
         />
-        <main className="flex-1 px-4 py-6 md:px-6 md:py-8">
+        <main className="min-w-0 flex-1 overflow-x-clip px-4 py-6 md:px-6 md:py-8">
           <Outlet />
         </main>
       </div>
