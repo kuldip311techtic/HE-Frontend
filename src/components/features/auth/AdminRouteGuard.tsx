@@ -6,7 +6,12 @@ export function AdminRouteGuard() {
   const { isAuthenticated, isAdmin, isHydrating, isValidationBypass } = useAdminAuth();
 
   if (isHydrating) {
-    return <LoadingState message="Checking authentication…" fullPage />;
+    return (
+      <>
+        <h1 className="sr-only">Hoops Engine Admin</h1>
+        <LoadingState message="Checking authentication…" fullPage />
+      </>
+    );
   }
 
   const canAccessAdmin =

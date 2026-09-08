@@ -1,33 +1,65 @@
 import { fetchDashboardAnalytics } from '@/lib/api/dashboard';
-import { fetchPlayerRoleSelection } from '@/lib/api/player-role-selection';
-import { fetchSessionDetail } from '@/lib/api/sessions';
-import {
-  VALIDATION_ROLE_SELECTION_SESSION_TOKEN,
-  VALIDATION_SESSION_ID,
-} from '@/lib/validation/config';
+import { fetchOrganizations } from '@/lib/api/organizations';
+import { fetchSubscriptionPlans } from '@/lib/api/subscription-plans';
+import { fetchSupportRequests } from '@/lib/api/support-requests';
+import { fetchUsers } from '@/lib/api/users';
+import { isLunaContractProbesEnabled } from '@/lib/validation/config';
 
-let probesStarted = false;
+const probedRoutes = new Set<string>();
+
+function normalizeAdminRoute(pathname: string): string {
+  const normalized = pathname.replace(/\/$/, '') || '/';
+  if (normalized === '/admin/dashboard') {
+    return '/admin';
+  }
+  return normalized;
+}
+
+function swallowProbeError(): void {
+  // Probes are for Luna contract recording only; screens handle user-visible failures.
+}
 
 /**
- * Fire contract GETs required by Luna validation on dev bootstrap.
- * Errors are swallowed — real screens handle user-visible failures.
+ * Fire Super Admin contract GETs for the current route when Luna contract probes are enabled.
+ * Skips public routes; each admin route is probed at most once per session.
  */
-export function runValidationContractProbes(): void {
-  if (probesStarted || !import.meta.env.DEV) {
+export function runValidationContractProbes(pathname = window.location.pathname): void {
+  if (!import.meta.env.DEV || !isLunaContractProbesEnabled()) {
     return;
   }
 
-  probesStarted = true;
+  const route = normalizeAdminRoute(pathname);
+  if (route === '/admin/login' || route === '/admin/unauthorized') {
+    return;
+  }
 
-  void fetchDashboardAnalytics().catch(() => {
-    // Unauthenticated captures return 401 — the GET still satisfies contract recording.
-  });
+  if (probedRoutes.has(route)) {
+    return;
+  }
 
-  void fetchPlayerRoleSelection(VALIDATION_ROLE_SELECTION_SESSION_TOKEN).catch(() => {
-    // Probe token may 404/422 until backend seeds data — contract path is still exercised.
-  });
+  probedRoutes.add(route);
 
-  void fetchSessionDetail(VALIDATION_SESSION_ID).catch(() => {
-    // Unknown session ids return 404 — contract path is still exercised.
-  });
+  switch (route) {
+    case '/admin':
+      void fetchDashboardAnalytics().catch(swallowProbeError);
+      break;
+    case '/admin/organizations':
+      void fetchOrganizations({ page: 1, page_size: 10 }).catch(swallowProbeError);
+      break;
+    case '/admin/users':
+      void fetchUsers({ page: 1, page_size: 10, role: 'coach' }).catch(swallowProbeError);
+      break;
+    case '/admin/subscriptions':
+      void fetchSubscriptionPlans({
+        role: 'org_admin',
+        page: 1,
+        page_size: 10,
+      }).catch(swallowProbeError);
+      break;
+    case '/admin/support':
+      void fetchSupportRequests({ page: 1, page_size: 10 }).catch(swallowProbeError);
+      break;
+    default:
+      break;
+  }
 }

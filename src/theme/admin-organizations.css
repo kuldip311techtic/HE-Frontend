@@ -1,0 +1,314 @@
+/**
+ * Organizations page (JAW-9610) — Figma token overrides scoped to this screen only.
+ * Exact hex: accent #445154, brand/background #86d31f, border #0d1612
+ */
+
+.admin-organizations-page {
+  --orgs-accent: #445154;
+  --orgs-brand: #86d31f;
+  --orgs-border: #0d1612;
+  --orgs-input-fill: #0b1f12;
+  --orgs-surface: #13291b;
+  --orgs-page-bg: #081410;
+
+  position: relative;
+  font-family: Outfit, sans-serif;
+}
+
+.admin-organizations-page .admin-manage-page__glow {
+  inset: -32px 0 0;
+  background:
+    radial-gradient(
+      ellipse 58% 48% at 82% 38%,
+      color-mix(in srgb, #86d31f 32%, transparent) 0%,
+      color-mix(in srgb, #86d31f 10%, transparent) 40%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 46% 40% at 14% 68%,
+      color-mix(in srgb, #4bcd39 18%, transparent) 0%,
+      transparent 64%
+    ),
+    radial-gradient(
+      ellipse 36% 32% at 48% 8%,
+      color-mix(in srgb, #445154 34%, transparent) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 28% 24% at 62% 88%,
+      color-mix(in srgb, #86d31f 18%, transparent) 0%,
+      transparent 70%
+    );
+}
+
+.admin-organizations-page .admin-manage-page__inner {
+  gap: 24px;
+}
+
+.admin-organizations-page .admin-manage-page__header {
+  gap: 10px;
+}
+
+.admin-organizations-page .admin-manage-page__header h1 {
+  font-family: Outfit, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 22.68px;
+  color: #ffffff;
+}
+
+.admin-organizations-page .admin-manage-page__header p {
+  font-family: Outfit, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.64px;
+  color: #445154;
+}
+
+.admin-organizations-page .admin-manage-page__toolbar {
+  gap: 16px;
+}
+
+.admin-organizations-page .admin-manage-page__toolbar-filters {
+  gap: 12px;
+}
+
+.admin-organizations-page input.admin-field-input {
+  font-family: Outfit, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 22px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #0b1f12 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  padding: 0 14px !important;
+  box-shadow: none !important;
+}
+
+.admin-organizations-page input.admin-field-input::placeholder {
+  color: #9ca3af !important;
+}
+
+.admin-organizations-page input.admin-field-input:focus,
+.admin-organizations-page input.admin-field-input:focus-visible {
+  outline: none !important;
+  border-color: #0d1612 !important;
+  background-color: #0b1f12 !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #86d31f 45%, transparent) !important;
+}
+
+.admin-organizations-page button.admin-primary-btn {
+  font-family: Outfit, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 20.16px !important;
+  height: 44px !important;
+  padding: 0 16px !important;
+  gap: 8px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #86d31f !important;
+  color: #0d1612 !important;
+  box-shadow: none !important;
+}
+
+.admin-organizations-page button.admin-primary-btn:hover:not(:disabled) {
+  filter: brightness(0.92) !important;
+  background-color: #86d31f !important;
+  color: #0d1612 !important;
+}
+
+.admin-organizations-page button.admin-primary-btn svg {
+  color: #0d1612 !important;
+}
+
+.admin-organizations-page button.admin-outline-btn {
+  font-family: Lato, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 17.64px !important;
+  height: 36px !important;
+  padding: 0 14px !important;
+  gap: 8px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: transparent !important;
+  color: #445154 !important;
+  box-shadow: none !important;
+}
+
+.admin-organizations-page button.admin-outline-btn:hover:not(:disabled) {
+  background-color: color-mix(in srgb, #86d31f 12%, transparent) !important;
+  color: #445154 !important;
+}
+
+.admin-organizations-page button.admin-danger-btn {
+  font-family: Lato, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 17.64px !important;
+  height: 36px !important;
+  padding: 0 14px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #ff6b6b !important;
+  color: #0d1612 !important;
+  box-shadow: none !important;
+}
+
+.admin-organizations-page button.admin-danger-btn:hover:not(:disabled) {
+  filter: brightness(0.92) !important;
+}
+
+.admin-organizations-page button.admin-danger-btn:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.admin-organizations-page .admin-manage-table {
+  border: 1px solid #0d1612;
+  border-radius: 10px;
+  background-color: #13291b;
+}
+
+/* Portaled dialogs */
+dialog.admin-organizations-dialog {
+  width: calc(100% - 2rem) !important;
+  max-width: 440px !important;
+  border: 1px solid #0d1612 !important;
+  border-radius: 10px !important;
+  background-color: #13291b !important;
+  box-shadow: none !important;
+}
+
+dialog.admin-organizations-dialog .admin-form-dialog__header {
+  border-bottom: 1px solid #0d1612;
+  padding: 24px 24px 0;
+  gap: 10px;
+}
+
+dialog.admin-organizations-dialog .admin-form-dialog__content {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+dialog.admin-organizations-dialog .admin-form-dialog__footer {
+  border-top: 1px solid #0d1612;
+  padding: 16px 24px;
+  gap: 12px;
+}
+
+dialog.admin-organizations-dialog .admin-form-dialog__title {
+  font-family: Outfit, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 22.68px;
+  color: #ffffff;
+}
+
+dialog.admin-organizations-dialog .admin-form-dialog__description {
+  font-family: Lato, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.64px;
+  color: #445154;
+}
+
+dialog.admin-organizations-dialog .admin-field-label {
+  font-family: Lato, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 19.2px !important;
+  color: #445154 !important;
+}
+
+dialog.admin-organizations-dialog input.admin-field-input {
+  font-family: Outfit, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 22px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #0b1f12 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  padding: 0 14px !important;
+  box-shadow: none !important;
+}
+
+dialog.admin-organizations-dialog input.admin-field-input::placeholder {
+  color: #9ca3af !important;
+}
+
+dialog.admin-organizations-dialog input.admin-field-input:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #86d31f 45%, transparent) !important;
+}
+
+dialog.admin-organizations-dialog textarea.admin-field-textarea {
+  font-family: Outfit, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 20px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #0b1f12 !important;
+  color: #ffffff !important;
+  padding: 12px 14px !important;
+  box-shadow: none !important;
+  resize: vertical;
+}
+
+dialog.admin-organizations-dialog textarea.admin-field-textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+dialog.admin-organizations-dialog textarea.admin-field-textarea:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #86d31f 45%, transparent) !important;
+}
+
+dialog.admin-organizations-dialog .admin-field-group {
+  gap: 10px;
+}
+
+dialog.admin-organizations-dialog button.admin-primary-btn {
+  font-family: Outfit, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 20.16px !important;
+  height: 44px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #86d31f !important;
+  color: #0d1612 !important;
+}
+
+dialog.admin-organizations-dialog button.admin-outline-btn {
+  font-family: Lato, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  border: 1px solid #0d1612 !important;
+  background-color: transparent !important;
+  color: #445154 !important;
+}
+
+dialog.admin-organizations-dialog button.bg-destructive,
+dialog.admin-organizations-dialog button[class*='destructive'] {
+  font-family: Lato, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  height: 44px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #ff6b6b !important;
+  color: #0d1612 !important;
+}

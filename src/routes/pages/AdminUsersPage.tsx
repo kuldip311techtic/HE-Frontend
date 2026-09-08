@@ -11,8 +11,10 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { TablePagination } from '@/components/ui/pagination';
 import { useUserMutations } from '@/hooks/useUserMutations';
 import { useUsers } from '@/hooks/useUsers';
+import { DEFAULT_SEARCH_DEBOUNCE_MS } from '@/lib/constants/search';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 import { getApiErrorMessage } from '@/lib/utils/errors';
+import '@/theme/admin-users.css';
 import type { UserCreateRequest, UserItem, UserRole, UserUpdateRequest } from '@/types/users';
 
 function isCreatePayload(
@@ -85,7 +87,7 @@ export function AdminUsersPage() {
 
     const timer = window.setTimeout(() => {
       updateParams({ search: trimmed || null, page: '1' });
-    }, 300);
+    }, DEFAULT_SEARCH_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timer);
   }, [searchInput, search, updateParams]);
@@ -138,14 +140,13 @@ export function AdminUsersPage() {
   const users = data?.items ?? [];
   const pagination = data?.pagination;
   const isFormSubmitting = create.isPending || update.isPending;
-  const pageSortOnly = Boolean(pagination && pagination.total > users.length);
 
   return (
-    <div className="admin-manage-page">
+    <div className="admin-manage-page admin-users-page">
       <div className="admin-manage-page__glow" aria-hidden="true" />
       <div className="admin-manage-page__inner">
         <header className="admin-manage-page__header">
-          <h2 className="text-body-42 text-foreground">Manage Users</h2>
+          <h1 className="text-body-42 text-foreground">Manage Users</h1>
           <p className="font-outfit text-body-sm text-muted-foreground">
             View, add, edit, and remove coach and player accounts on the platform.
           </p>
@@ -225,7 +226,6 @@ export function AdminUsersPage() {
               currentUserId={user?.id}
               onEdit={handleEditUser}
               onRemove={handleRemoveUser}
-              pageSortOnly={pageSortOnly}
             />
             {pagination ? (
               <TablePagination

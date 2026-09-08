@@ -32,7 +32,7 @@ export function AdminHeader({ isMobileNavOpen, onToggleMobileNav, onSignOut }: A
             <Menu className="h-5 w-5" aria-hidden="true" />
           )}
         </Button>
-        <h1 className="font-outfit text-body-25 text-foreground">Hoops Engine Admin</h1>
+        <p className="font-outfit text-body-25 text-foreground">Hoops Engine Admin</p>
       </div>
       <div className="flex items-center gap-3">
         {user ? (

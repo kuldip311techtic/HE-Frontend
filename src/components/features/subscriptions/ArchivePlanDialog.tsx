@@ -36,6 +36,8 @@ export function ArchivePlanDialog({
       isLoading={isLoading}
       variant="destructive"
       errorMessage={errorMessage}
+      appearance="admin-form"
+      dialogClassName="admin-subscriptions-dialog"
     />
   );
 }

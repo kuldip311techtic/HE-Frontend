@@ -1,20 +1,19 @@
 import { NavLink } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import {
   MODULE_NAV_CARDS,
   getModuleNavHref,
   isAdminRouteImplemented,
 } from '@/lib/navigation/admin-routes';
+import { cn } from '@/lib/utils/cn';
 
 export function ModuleNavCards() {
   return (
-    <section aria-labelledby="platform-modules-heading">
-      <h3 id="platform-modules-heading" className="mb-4 font-outfit text-body-25 text-foreground">
+    <section className="admin-dashboard-modules" aria-labelledby="platform-modules-heading">
+      <h3 id="platform-modules-heading" className="admin-dashboard-modules__heading">
         Platform modules
       </h3>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="admin-dashboard-modules__grid">
         {MODULE_NAV_CARDS.map(({ title, description, targetPath, icon: Icon }) => {
           const href = getModuleNavHref(targetPath);
           const isAvailable = isAdminRouteImplemented(targetPath);
@@ -22,35 +21,39 @@ export function ModuleNavCards() {
           return (
             <Card
               key={title}
-              className={
-                isAvailable
-                  ? 'transition-colors hover:bg-muted/50 focus-within:ring-2 focus-within:ring-ring'
-                  : 'opacity-80'
-              }
+              className={cn(
+                'admin-dashboard-module-card focus-within:ring-2 focus-within:ring-ring',
+                !isAvailable && 'admin-dashboard-module-card--disabled',
+              )}
             >
-              <CardHeader>
+              <div className="admin-dashboard-module-card__header">
                 <div className="mb-2 flex items-start justify-between gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <div className="admin-dashboard-module-card__icon">
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </div>
-                  <Badge variant={isAvailable ? 'outline' : 'secondary'}>
+                  <span
+                    className={cn(
+                      'admin-dashboard-module-card__badge',
+                      isAvailable
+                        ? 'admin-dashboard-module-card__badge--available'
+                        : 'admin-dashboard-module-card__badge--soon',
+                    )}
+                  >
                     {isAvailable ? 'Available' : 'Coming soon'}
-                  </Badge>
+                  </span>
                 </div>
-                <CardTitle className="text-body-25">{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-              </CardHeader>
+                <h4>{title}</h4>
+                <p>{description}</p>
+              </div>
               {href ? (
-                <CardContent>
-                  <Button asChild variant="outline" size="sm">
-                    <NavLink
-                      to={href}
-                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      Open module
-                    </NavLink>
-                  </Button>
-                </CardContent>
+                <div className="admin-dashboard-module-card__content">
+                  <NavLink
+                    to={href}
+                    className="admin-dashboard-module-card__open focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    Open module
+                  </NavLink>
+                </div>
               ) : null}
             </Card>
           );

@@ -13,6 +13,8 @@ export default defineConfig(({ mode }) => {
       env.VITE_LUNA_VALIDATION_PASSWORD || process.env.LUNA_VALIDATION_PASSWORD || '',
     VITE_LUNA_VALIDATION_ACCESS_TOKEN:
       env.VITE_LUNA_VALIDATION_ACCESS_TOKEN || process.env.LUNA_VALIDATION_ACCESS_TOKEN || '',
+    VITE_LUNA_CONTRACT_PROBES:
+      env.VITE_LUNA_CONTRACT_PROBES || process.env.LUNA_CONTRACT_PROBES || '',
   };
 
   return {
@@ -31,6 +33,9 @@ export default defineConfig(({ mode }) => {
       ),
       'import.meta.env.VITE_LUNA_VALIDATION_ACCESS_TOKEN': JSON.stringify(
         validationEnv.VITE_LUNA_VALIDATION_ACCESS_TOKEN,
+      ),
+      'import.meta.env.VITE_LUNA_CONTRACT_PROBES': JSON.stringify(
+        validationEnv.VITE_LUNA_CONTRACT_PROBES,
       ),
     },
     server: {

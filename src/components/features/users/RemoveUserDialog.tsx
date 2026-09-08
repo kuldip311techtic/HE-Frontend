@@ -33,6 +33,7 @@ export function RemoveUserDialog({
       variant="destructive"
       errorMessage={errorMessage}
       appearance="admin-form"
+      dialogClassName="admin-users-dialog"
     />
   );
 }

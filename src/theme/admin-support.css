@@ -1,0 +1,282 @@
+/**
+ * Support page (JAW-9613) — Figma token overrides scoped to this screen only.
+ * Exact hex: accent #445154, brand/background #86d31f, border #0d1612
+ */
+
+.admin-support-page {
+  --support-accent: #445154;
+  --support-brand: #86d31f;
+  --support-border: #0d1612;
+  --support-input-fill: #0b1f12;
+  --support-surface: #13291b;
+
+  position: relative;
+  font-family: Outfit, sans-serif;
+}
+
+.admin-support-page .admin-manage-page__glow {
+  inset: -32px 0 0;
+  background:
+    radial-gradient(
+      ellipse 58% 48% at 82% 38%,
+      color-mix(in srgb, #86d31f 32%, transparent) 0%,
+      color-mix(in srgb, #86d31f 10%, transparent) 40%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 46% 40% at 14% 68%,
+      color-mix(in srgb, #4bcd39 18%, transparent) 0%,
+      transparent 64%
+    ),
+    radial-gradient(
+      ellipse 36% 32% at 48% 8%,
+      color-mix(in srgb, #445154 34%, transparent) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 28% 24% at 62% 88%,
+      color-mix(in srgb, #86d31f 18%, transparent) 0%,
+      transparent 70%
+    );
+}
+
+.admin-support-page .admin-manage-page__inner {
+  gap: 24px;
+}
+
+.admin-support-page .admin-manage-page__header {
+  gap: 10px;
+}
+
+.admin-support-page .admin-manage-page__header h1 {
+  font-family: Outfit, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 22.68px;
+  color: #ffffff;
+}
+
+.admin-support-page .admin-manage-page__header p {
+  font-family: Outfit, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.64px;
+  color: #445154;
+}
+
+.admin-support-page .admin-manage-page__toolbar {
+  gap: 16px;
+}
+
+.admin-support-page .admin-manage-page__toolbar-filters {
+  gap: 12px;
+}
+
+.admin-support-page input.admin-field-input {
+  font-family: Outfit, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 22px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #0b1f12 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  padding: 0 14px !important;
+  box-shadow: none !important;
+}
+
+.admin-support-page input.admin-field-input::placeholder {
+  color: #9ca3af !important;
+}
+
+.admin-support-page input.admin-field-input:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #86d31f 45%, transparent) !important;
+}
+
+.admin-support-page select.admin-field-select {
+  font-family: Outfit, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 17.64px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #0b1f12 !important;
+  color: #ffffff !important;
+  padding: 0 14px !important;
+  box-shadow: none !important;
+}
+
+.admin-support-page select.admin-field-select:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #86d31f 45%, transparent) !important;
+}
+
+.admin-support-page button.admin-primary-btn {
+  font-family: Outfit, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 20.16px !important;
+  height: 44px !important;
+  padding: 0 16px !important;
+  gap: 8px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #86d31f !important;
+  color: #0d1612 !important;
+  box-shadow: none !important;
+}
+
+.admin-support-page button.admin-primary-btn:hover:not(:disabled) {
+  filter: brightness(0.92) !important;
+}
+
+.admin-support-page button.admin-outline-btn {
+  font-family: Lato, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 17.64px !important;
+  height: 36px !important;
+  padding: 0 14px !important;
+  border-radius: 10px !important;
+  border: 1px solid #0d1612 !important;
+  background-color: transparent !important;
+  color: #445154 !important;
+  box-shadow: none !important;
+}
+
+.admin-support-page button.admin-outline-btn:hover:not(:disabled) {
+  background-color: color-mix(in srgb, #86d31f 12%, transparent) !important;
+}
+
+.admin-support-page .admin-manage-table {
+  border: 1px solid #0d1612;
+  border-radius: 10px;
+  background-color: #13291b;
+}
+
+.admin-support-page .admin-support-columns-menu,
+.admin-support-page .data-table-columns-menu.admin-support-columns-menu {
+  border: 1px solid #0d1612;
+  border-radius: 10px;
+  background-color: #13291b;
+  padding: 12px;
+}
+
+.admin-support-page .admin-support-columns-menu label,
+.admin-support-page .data-table-columns-menu.admin-support-columns-menu label {
+  font-family: Outfit, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.64px;
+  color: #445154;
+}
+
+.admin-support-page .admin-support-columns-menu label:hover,
+.admin-support-page .data-table-columns-menu.admin-support-columns-menu label:hover {
+  background-color: color-mix(in srgb, #86d31f 8%, transparent);
+}
+
+.admin-support-page .admin-manage-panel {
+  border: 1px solid #0d1612;
+  border-radius: 10px;
+  background-color: #13291b;
+}
+
+.admin-support-page .admin-manage-panel__header {
+  border-bottom: 1px solid #0d1612;
+}
+
+.admin-support-page .admin-manage-panel h3 {
+  color: #ffffff;
+}
+
+.admin-support-page .admin-field-label {
+  color: #445154 !important;
+}
+
+.admin-support-page textarea.admin-field-textarea {
+  border: 1px solid #0d1612 !important;
+  background-color: #0b1f12 !important;
+  color: #ffffff !important;
+}
+
+.admin-support-page textarea.admin-field-textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+.admin-support-page textarea.admin-field-textarea:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #86d31f 45%, transparent) !important;
+}
+
+.admin-support-page .admin-support-unavailable-note {
+  border: 1px solid #0d1612;
+  border-radius: 10px;
+  background-color: color-mix(in srgb, #ffb84d 12%, #13291b);
+  padding: 12px 14px;
+  font-family: Outfit, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.64px;
+  color: #445154;
+}
+
+.admin-support-page .admin-support-grid {
+  gap: 24px;
+}
+
+dialog.admin-support-dialog {
+  width: calc(100% - 2rem) !important;
+  max-width: 440px !important;
+  border: 1px solid #0d1612 !important;
+  border-radius: 10px !important;
+  background-color: #13291b !important;
+  box-shadow: none !important;
+}
+
+dialog.admin-support-dialog .admin-form-dialog__header {
+  border-bottom: 1px solid #0d1612;
+  padding: 24px 24px 0;
+}
+
+dialog.admin-support-dialog .admin-form-dialog__content {
+  padding: 20px 24px;
+}
+
+dialog.admin-support-dialog .admin-form-dialog__footer {
+  border-top: 1px solid #0d1612;
+  padding: 16px 24px;
+}
+
+dialog.admin-support-dialog .admin-form-dialog__title {
+  font-family: Outfit, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 22.68px;
+  color: #ffffff;
+}
+
+dialog.admin-support-dialog .admin-form-dialog__description {
+  font-family: Lato, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.64px;
+  color: #445154;
+}
+
+dialog.admin-support-dialog button.admin-outline-btn {
+  border: 1px solid #0d1612 !important;
+  background-color: transparent !important;
+  color: #445154 !important;
+}
+
+dialog.admin-support-dialog button.bg-destructive,
+dialog.admin-support-dialog button[class*='destructive'] {
+  border: 1px solid #0d1612 !important;
+  background-color: #ff6b6b !important;
+  color: #0d1612 !important;
+}

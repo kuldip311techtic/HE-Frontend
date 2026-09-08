@@ -12,4 +12,13 @@ describe('contractPathToClientPath', () => {
   it('returns path unchanged when it does not start with /api/', () => {
     expect(contractPathToClientPath('/sessions/{session_id}')).toBe('/sessions/{session_id}');
   });
+
+  it('maps locked organization ticket paths for /api baseURL', () => {
+    expect(contractPathToClientPath('/api/super-admin/organizations')).toBe(
+      '/super-admin/organizations',
+    );
+    expect(contractPathToClientPath('/api/super-admin/organizations/{id}')).toBe(
+      '/super-admin/organizations/{id}',
+    );
+  });
 });

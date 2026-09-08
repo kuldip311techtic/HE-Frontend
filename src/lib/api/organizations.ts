@@ -15,8 +15,10 @@ import {
 
 const listRoute = CONTRACT_ROUTES.superAdminOrganizations;
 const createRoute = CONTRACT_ROUTES.superAdminOrganizationsCreate;
+const updateRoute = CONTRACT_ROUTES.superAdminOrganizationUpdate;
+const deleteRoute = CONTRACT_ROUTES.superAdminOrganizationDelete;
 
-/** GET /api/v1/super-admin/organizations */
+/** GET /api/super-admin/organizations */
 export async function fetchOrganizations(
   params: OrganizationListParams,
 ): Promise<OrganizationListResponse> {
@@ -32,7 +34,7 @@ export async function fetchOrganizations(
   return data;
 }
 
-/** POST /api/v1/super-admin/organizations */
+/** POST /api/super-admin/organizations */
 export async function createOrganization(
   payload: OrganizationCreateRequest,
 ): Promise<OrganizationMutationResponse> {
@@ -44,33 +46,27 @@ export async function createOrganization(
   return data;
 }
 
-/** PUT /api/v1/super-admin/organizations/{organization_id} */
+/** PUT /api/super-admin/organizations/{id} */
 export async function updateOrganization(
   organizationId: string,
   payload: OrganizationUpdateRequest,
 ): Promise<OrganizationMutationResponse> {
-  const contractPath = contractPathWithParams(
-    CONTRACT_ROUTES.superAdminOrganizationDetail.path,
-    { organization_id: organizationId },
-  );
+  const contractPath = contractPathWithParams(updateRoute.path, { id: organizationId });
   const { data } = await apiClient.request<OrganizationMutationResponse>({
-    method: 'PUT',
+    method: updateRoute.method,
     url: contractPathToClientPath(contractPath),
     data: payload,
   });
   return data;
 }
 
-/** DELETE /api/v1/super-admin/organizations/{organization_id} */
+/** DELETE /api/super-admin/organizations/{id} */
 export async function deleteOrganization(
   organizationId: string,
 ): Promise<OrganizationDeleteResponse> {
-  const contractPath = contractPathWithParams(
-    CONTRACT_ROUTES.superAdminOrganizationDetail.path,
-    { organization_id: organizationId },
-  );
+  const contractPath = contractPathWithParams(deleteRoute.path, { id: organizationId });
   const { data } = await apiClient.request<OrganizationDeleteResponse>({
-    method: 'DELETE',
+    method: deleteRoute.method,
     url: contractPathToClientPath(contractPath),
   });
   return data;

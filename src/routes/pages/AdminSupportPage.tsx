@@ -10,12 +10,14 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { TablePagination } from '@/components/ui/pagination';
 import { useSupportRequestMutations } from '@/hooks/useSupportRequestMutations';
 import { useSupportRequests } from '@/hooks/useSupportRequests';
+import { DEFAULT_SEARCH_DEBOUNCE_MS } from '@/lib/constants/search';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
-import { getApiErrorMessage } from '@/lib/utils/errors';
+import { getApiErrorMessage, getSupportMutationErrorMessage } from '@/lib/utils/errors';
 import {
   resolveSupportRequestId,
   type SupportRequestItem,
 } from '@/types/support-requests';
+import '@/theme/admin-support.css';
 
 const STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
   { value: '', label: 'All statuses' },
@@ -70,7 +72,14 @@ export function AdminSupportPage() {
 
   const requests = useMemo(() => data?.items ?? [], [data?.items]);
   const pagination = data?.pagination;
-  const pageSortOnly = Boolean(pagination && pagination.total > requests.length);
+
+  /** Client-side status filter on the loaded page — API list has no status param. */
+  const visibleRequests = useMemo(() => {
+    if (!status) return requests;
+    return requests.filter(
+      (item) => (item.status ?? '').toLowerCase() === status.toLowerCase(),
+    );
+  }, [requests, status]);
 
   useEffect(() => {
     setSearchInput(search);
@@ -84,7 +93,7 @@ export function AdminSupportPage() {
 
     const timer = window.setTimeout(() => {
       updateParams({ search: trimmed || null, page: '1' });
-    }, 300);
+    }, DEFAULT_SEARCH_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timer);
   }, [searchInput, search, updateParams]);
@@ -125,7 +134,7 @@ export function AdminSupportPage() {
       setSelectedRequest(result);
       setCloseOpen(false);
     } catch (err) {
-      setCloseError(getApiErrorMessage(err, 'Unable to close support request. Please try again.'));
+      setCloseError(getSupportMutationErrorMessage(err, 'close'));
     }
   };
 
@@ -133,15 +142,16 @@ export function AdminSupportPage() {
     return <LoadingState message="Loading support requests…" fullPage />;
   }
 
+  const hasServerData = requests.length > 0;
+  const hasVisibleRows = visibleRequests.length > 0;
+
   return (
-    <div className="admin-manage-page">
+    <div className="admin-manage-page admin-support-page">
       <div className="admin-manage-page__glow" aria-hidden="true" />
       <div className="admin-manage-page__inner">
         <header className="admin-manage-page__header">
-          <h2 className="text-body-42 text-foreground">Support Requests</h2>
-          <p className="font-outfit text-body-sm text-muted-foreground">
-            Review user inquiries, submit responses, and close resolved support requests.
-          </p>
+          <h1>Support Requests</h1>
+          <p>Review user inquiries, submit responses, and close resolved support requests.</p>
         </header>
 
         <div className="admin-manage-page__toolbar">
@@ -199,21 +209,27 @@ export function AdminSupportPage() {
           </div>
         ) : null}
 
-        {!isError && !isLoading && requests.length === 0 ? (
+        {!isError && !isLoading && !hasServerData ? (
           <EmptyState
             title="No support requests"
             description="When users submit support inquiries, they will appear here for review."
           />
         ) : null}
 
-        {!isError && !isLoading && requests.length > 0 ? (
+        {!isError && !isLoading && hasServerData && !hasVisibleRows ? (
+          <EmptyState
+            title="No matching requests on this page"
+            description="Try a different status filter or go to another page."
+          />
+        ) : null}
+
+        {!isError && !isLoading && hasVisibleRows ? (
           <div className="flex flex-col gap-4">
             <div className="admin-support-grid">
               <SupportRequestsTable
-                requests={requests}
+                requests={visibleRequests}
                 selectedId={selectedRequest?.id ?? null}
                 onSelect={handleSelectRequest}
-                pageSortOnly={pageSortOnly}
               />
               <SupportRequestDetailPanel
                 request={selectedRequest}
