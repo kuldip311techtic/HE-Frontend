@@ -72,16 +72,21 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (isLunaValidationMode()) {
-        const authenticated = await ensureValidationAuth();
         if (!cancelled) {
-          if (authenticated) {
-            setUser(getStoredUser());
-            setIsValidationBypass(false);
-          } else {
-            setUser(createValidationSuperAdminUser());
-            setIsValidationBypass(true);
-          }
+          setUser(createValidationSuperAdminUser());
+          setIsValidationBypass(true);
+          setIsHydrating(false);
         }
+
+        void ensureValidationAuth().then((authenticated) => {
+          if (cancelled || !authenticated) {
+            return;
+          }
+
+          setUser(getStoredUser());
+          setIsValidationBypass(false);
+        });
+        return;
       }
 
       if (!cancelled) {

@@ -18,7 +18,7 @@ export async function ensureValidationAuth(): Promise<boolean> {
     return true;
   }
 
-  const serverAuth = await waitForServerValidationAuth(30, 500);
+  const serverAuth = await waitForServerValidationAuth(5, 500);
   if (serverAuth) {
     setAuthStorage(serverAuth.access_token, serverAuth.user);
     return true;

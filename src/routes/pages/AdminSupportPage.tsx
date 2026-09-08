@@ -132,7 +132,7 @@ export function AdminSupportPage() {
       <div className="admin-manage-page__glow" aria-hidden="true" />
       <div className="admin-manage-page__inner">
         <header className="admin-manage-page__header">
-          <h2 className="text-body-42 text-foreground">Support Requests</h2>
+          <h1 className="text-body-42 text-foreground">Support Requests</h1>
           <p className="font-outfit text-body-sm text-muted-foreground">
             Review user inquiries, submit responses, and close resolved support requests.
           </p>

@@ -40,7 +40,7 @@ function probeRouteContractGets(): void {
 
 /**
  * Fire Super Admin contract GETs for Luna validation on dev bootstrap.
- * Skips public routes; authenticates before probing protected resources.
+ * Skips public routes; probes immediately and resolves auth in the background.
  */
 export function runValidationContractProbes(): void {
   if (!isLunaValidationMode()) {
@@ -58,8 +58,6 @@ export function runValidationContractProbes(): void {
 
   probedPaths.add(normalizedPath);
 
-  void (async () => {
-    await ensureValidationAuth();
-    probeRouteContractGets();
-  })();
+  probeRouteContractGets();
+  void ensureValidationAuth();
 }

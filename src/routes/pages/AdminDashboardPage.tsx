@@ -63,7 +63,7 @@ export function AdminDashboardPage() {
       <div className="admin-dashboard-page__inner">
         <header className="admin-dashboard-page__header">
           <div>
-            <h2 className="admin-dashboard-page__title">Dashboard</h2>
+            <h1 className="admin-dashboard-page__title">Dashboard</h1>
             <p className="admin-dashboard-page__description">
               Platform overview and key metrics for Hoops Engine.
             </p>
