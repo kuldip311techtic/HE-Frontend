@@ -21,10 +21,21 @@ export function TogglePlanActiveDialog({
   errorMessage = null,
 }: TogglePlanActiveDialogProps) {
   const planName = plan?.name ?? 'this plan';
-
   const description = nextActive
-    ? `This will activate "${planName}" and make it available for new subscriptions.`
-    : `This will deactivate "${planName}". Existing subscriptions may remain, but new assignments could be prevented.`;
+    ? 'This will activate "' +
+      planName +
+      '" and make it available for new subscriptions.'
+    : 'This will deactivate "' +
+      planName +
+      '". Existing subscriptions may remain, but new assignments could be prevented.';
+
+  const confirmLabel = isLoading
+    ? nextActive
+      ? 'Activating…'
+      : 'Deactivating…'
+    : nextActive
+      ? 'Activate'
+      : 'Deactivate';
 
   return (
     <ConfirmDialog
@@ -32,7 +43,7 @@ export function TogglePlanActiveDialog({
       onOpenChange={onOpenChange}
       title={nextActive ? 'Activate subscription plan?' : 'Deactivate subscription plan?'}
       description={description}
-      confirmLabel={nextActive ? 'Activate' : 'Deactivate'}
+      confirmLabel={confirmLabel}
       cancelLabel="Cancel"
       onConfirm={onConfirm}
       isLoading={isLoading}

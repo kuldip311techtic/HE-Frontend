@@ -23,13 +23,13 @@ import type {
   SubscriptionPlanUpdateRequest,
 } from '@/types/subscriptions';
 
-const CREATE_PLAN_DEFAULTS = {
-  teams_limit_type: 'unlimited' as LimitType,
-  players_limit_type: 'unlimited' as LimitType,
-  historical_records_duration: 'unlimited' as HistoricalRecordsDuration,
-  include_offline_sync: false,
-  features: [] as string[],
-};
+const HISTORICAL_DURATION_OPTIONS: { value: HistoricalRecordsDuration; label: string }[] = [
+  { value: '1_month', label: '1 month' },
+  { value: '3_months', label: '3 months' },
+  { value: '6_months', label: '6 months' },
+  { value: '1_year', label: '1 year' },
+  { value: 'unlimited', label: 'Unlimited' },
+];
 
 interface SubscriptionPlanFormProps {
   open: boolean;
@@ -50,6 +50,15 @@ interface FormState {
   billing_frequency: BillingFrequency;
   description: string;
   is_active: boolean;
+  teams_limit_type: LimitType;
+  teams_count: string;
+  coaches_limit_type: LimitType | '';
+  coaches_count: string;
+  players_limit_type: LimitType;
+  players_count: string;
+  historical_records_duration: HistoricalRecordsDuration;
+  include_offline_sync: boolean;
+  featuresText: string;
 }
 
 const defaultFormState = (currency = 'USD'): FormState => ({
@@ -59,6 +68,15 @@ const defaultFormState = (currency = 'USD'): FormState => ({
   billing_frequency: 'monthly',
   description: '',
   is_active: true,
+  teams_limit_type: 'unlimited',
+  teams_count: '',
+  coaches_limit_type: '',
+  coaches_count: '',
+  players_limit_type: 'unlimited',
+  players_count: '',
+  historical_records_duration: 'unlimited',
+  include_offline_sync: false,
+  featuresText: '',
 });
 
 function planToFormState(plan: SubscriptionPlanItem): FormState {
@@ -69,33 +87,100 @@ function planToFormState(plan: SubscriptionPlanItem): FormState {
     billing_frequency: plan.billing_frequency,
     description: plan.description ?? '',
     is_active: plan.is_active,
+    teams_limit_type: plan.teams_limit_type,
+    teams_count: plan.teams_count == null ? '' : String(plan.teams_count),
+    coaches_limit_type: plan.coaches_limit_type ?? '',
+    coaches_count: plan.coaches_count == null ? '' : String(plan.coaches_count),
+    players_limit_type: plan.players_limit_type,
+    players_count: plan.players_count == null ? '' : String(plan.players_count),
+    historical_records_duration: plan.historical_records_duration,
+    include_offline_sync: plan.include_offline_sync,
+    featuresText: plan.features.join('\n'),
   };
 }
 
-function buildCreatePayload(form: FormState, role: SubscriptionPlanRole): SubscriptionPlanCreateRequest {
+function parseFeatures(text: string): string[] {
+  return text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function parseOptionalCount(
+  limitType: LimitType | '',
+  countValue: string,
+): number | null | undefined {
+  if (limitType !== 'limited') {
+    return null;
+  }
+  const parsed = Number.parseInt(countValue, 10);
+  return Number.isNaN(parsed) ? undefined : parsed;
+}
+
+function buildLimitFields(form: FormState, planRole: SubscriptionPlanRole) {
+  const teams_count = parseOptionalCount(form.teams_limit_type, form.teams_count);
+  const players_count = parseOptionalCount(form.players_limit_type, form.players_count);
+  const coaches_limit_type =
+    planRole === 'org_admin' && form.coaches_limit_type
+      ? (form.coaches_limit_type as LimitType)
+      : null;
+  const coaches_count =
+    coaches_limit_type === 'limited'
+      ? parseOptionalCount('limited', form.coaches_count)
+      : null;
+
   return {
-    role,
+    teams_limit_type: form.teams_limit_type,
+    teams_count,
+    coaches_limit_type,
+    coaches_count,
+    players_limit_type: form.players_limit_type,
+    players_count,
+    historical_records_duration: form.historical_records_duration,
+    include_offline_sync: form.include_offline_sync,
+    features: parseFeatures(form.featuresText),
+  };
+}
+
+function buildCreatePayload(form: FormState, planRole: SubscriptionPlanRole): SubscriptionPlanCreateRequest {
+  return {
+    role: planRole,
     name: form.name.trim(),
     billing_frequency: form.billing_frequency,
     currency: form.currency,
     price_amount: form.price_amount.trim(),
-    teams_limit_type: CREATE_PLAN_DEFAULTS.teams_limit_type,
-    players_limit_type: CREATE_PLAN_DEFAULTS.players_limit_type,
-    historical_records_duration: CREATE_PLAN_DEFAULTS.historical_records_duration,
     is_active: form.is_active,
-    include_offline_sync: CREATE_PLAN_DEFAULTS.include_offline_sync,
     description: form.description.trim() || null,
-    features: CREATE_PLAN_DEFAULTS.features,
+    ...buildLimitFields(form, planRole),
   };
 }
 
-function buildUpdatePayload(form: FormState): SubscriptionPlanUpdateRequest {
+function buildUpdatePayload(form: FormState, planRole: SubscriptionPlanRole): SubscriptionPlanUpdateRequest {
   return {
     name: form.name.trim(),
     price_amount: form.price_amount.trim(),
     is_active: form.is_active,
     description: form.description.trim() || null,
+    ...buildLimitFields(form, planRole),
   };
+}
+
+function validateLimitCount(
+  errors: Record<string, string>,
+  fieldKey: string,
+  limitType: LimitType | '',
+  countValue: string,
+  label: string,
+): void {
+  if (limitType !== 'limited') return;
+  if (!countValue.trim()) {
+    errors[fieldKey] = label + ' is required when the limit type is limited.';
+    return;
+  }
+  const parsed = Number.parseInt(countValue, 10);
+  if (Number.isNaN(parsed) || parsed < 0) {
+    errors[fieldKey] = 'Please enter a valid ' + label.toLowerCase() + '.';
+  }
 }
 
 export function SubscriptionPlanForm({
@@ -145,6 +230,24 @@ export function SubscriptionPlanForm({
       errors.currency = 'Please select a currency.';
     }
 
+    validateLimitCount(errors, 'teams_count', form.teams_limit_type, form.teams_count, 'Teams count');
+    validateLimitCount(
+      errors,
+      'players_count',
+      form.players_limit_type,
+      form.players_count,
+      'Players count',
+    );
+    if (role === 'org_admin' && form.coaches_limit_type === 'limited') {
+      validateLimitCount(
+        errors,
+        'coaches_count',
+        form.coaches_limit_type,
+        form.coaches_count,
+        'Coaches count',
+      );
+    }
+
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -157,7 +260,7 @@ export function SubscriptionPlanForm({
 
     try {
       const payload =
-        mode === 'create' ? buildCreatePayload(form, role) : buildUpdatePayload(form);
+        mode === 'create' ? buildCreatePayload(form, role) : buildUpdatePayload(form, role);
       await onSubmit(payload);
       onOpenChange(false);
     } catch (error) {
@@ -185,21 +288,10 @@ export function SubscriptionPlanForm({
           <DialogTitle className="admin-form-dialog__title">{title}</DialogTitle>
           <DialogDescription className="admin-form-dialog__description">{description}</DialogDescription>
         </DialogHeader>
-        <DialogContent className="admin-form-dialog__content border-0 py-5">
+        <DialogContent className="admin-form-dialog__content max-h-[70vh] overflow-y-auto border-0 py-5">
           {formError ? (
             <p className="font-outfit text-body-sm text-destructive" role="alert">
               {formError}
-            </p>
-          ) : null}
-
-          {mode === 'create' ? (
-            <p
-              id="plan-defaults-note"
-              className="rounded-figma-10 border border-[#0d1612] bg-[#0b1f12] px-3 py-2 font-outfit text-body-sm text-[#9ca3af]"
-            >
-              New plans are created with unlimited team and player limits, unlimited historical
-              records, and offline sync disabled. These defaults match the platform standard for
-              initial subscription offerings.
             </p>
           ) : null}
 
@@ -285,7 +377,7 @@ export function SubscriptionPlanForm({
             ) : (
               <div className="admin-field-group">
                 <Label className="admin-field-label">Currency</Label>
-                <p className="flex h-11 items-center font-outfit text-body-sm text-[#9ca3af]">
+                <p className="flex h-11 items-center font-outfit text-body-sm text-muted-foreground">
                   {form.currency}
                 </p>
               </div>
@@ -294,7 +386,7 @@ export function SubscriptionPlanForm({
 
           <div className="admin-field-group">
             <Label htmlFor="plan-duration" className="admin-field-label">
-              Duration
+              Billing frequency
             </Label>
             {mode === 'create' ? (
               <select
@@ -313,10 +405,198 @@ export function SubscriptionPlanForm({
                 <option value="yearly">Yearly</option>
               </select>
             ) : (
-              <p className="flex h-11 items-center font-outfit text-body-sm text-[#9ca3af]">
+              <p className="flex h-11 items-center font-outfit text-body-sm text-muted-foreground">
                 {form.billing_frequency === 'monthly' ? 'Monthly' : 'Yearly'}
               </p>
             )}
+          </div>
+
+          <div className="admin-form-grid admin-form-grid--split">
+            <div className="admin-field-group">
+              <Label htmlFor="plan-teams-limit-type" className="admin-field-label">
+                Teams limit type
+              </Label>
+              <select
+                id="plan-teams-limit-type"
+                value={form.teams_limit_type}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    teams_limit_type: event.target.value as LimitType,
+                    teams_count: event.target.value === 'unlimited' ? '' : prev.teams_count,
+                  }))
+                }
+                disabled={isSubmitting}
+                className="admin-field-select"
+              >
+                <option value="limited">Limited</option>
+                <option value="unlimited">Unlimited</option>
+              </select>
+            </div>
+            <div className="admin-field-group">
+              <Label htmlFor="plan-teams-count" className="admin-field-label">
+                Teams count
+              </Label>
+              <Input
+                id="plan-teams-count"
+                type="number"
+                min="0"
+                step="1"
+                value={form.teams_count}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, teams_count: event.target.value }))
+                }
+                disabled={isSubmitting || form.teams_limit_type !== 'limited'}
+                aria-invalid={Boolean(fieldErrors.teams_count)}
+                aria-describedby={fieldErrors.teams_count ? 'plan-teams-count-error' : undefined}
+                className="admin-field-input"
+              />
+              {fieldErrors.teams_count ? (
+                <p
+                  id="plan-teams-count-error"
+                  className="font-outfit text-body-sm text-destructive"
+                  role="alert"
+                >
+                  {fieldErrors.teams_count}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          {role === 'org_admin' ? (
+            <div className="admin-form-grid admin-form-grid--split">
+              <div className="admin-field-group">
+                <Label htmlFor="plan-coaches-limit-type" className="admin-field-label">
+                  Coaches limit type
+                </Label>
+                <select
+                  id="plan-coaches-limit-type"
+                  value={form.coaches_limit_type}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      coaches_limit_type: event.target.value as LimitType | '',
+                      coaches_count:
+                        event.target.value !== 'limited' ? '' : prev.coaches_count,
+                    }))
+                  }
+                  disabled={isSubmitting}
+                  className="admin-field-select"
+                >
+                  <option value="">Not set</option>
+                  <option value="limited">Limited</option>
+                  <option value="unlimited">Unlimited</option>
+                </select>
+              </div>
+              <div className="admin-field-group">
+                <Label htmlFor="plan-coaches-count" className="admin-field-label">
+                  Coaches count
+                </Label>
+                <Input
+                  id="plan-coaches-count"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.coaches_count}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, coaches_count: event.target.value }))
+                  }
+                  disabled={isSubmitting || form.coaches_limit_type !== 'limited'}
+                  aria-invalid={Boolean(fieldErrors.coaches_count)}
+                  aria-describedby={
+                    fieldErrors.coaches_count ? 'plan-coaches-count-error' : undefined
+                  }
+                  className="admin-field-input"
+                />
+                {fieldErrors.coaches_count ? (
+                  <p
+                    id="plan-coaches-count-error"
+                    className="font-outfit text-body-sm text-destructive"
+                    role="alert"
+                  >
+                    {fieldErrors.coaches_count}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="admin-form-grid admin-form-grid--split">
+            <div className="admin-field-group">
+              <Label htmlFor="plan-players-limit-type" className="admin-field-label">
+                Players limit type
+              </Label>
+              <select
+                id="plan-players-limit-type"
+                value={form.players_limit_type}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    players_limit_type: event.target.value as LimitType,
+                    players_count: event.target.value === 'unlimited' ? '' : prev.players_count,
+                  }))
+                }
+                disabled={isSubmitting}
+                className="admin-field-select"
+              >
+                <option value="limited">Limited</option>
+                <option value="unlimited">Unlimited</option>
+              </select>
+            </div>
+            <div className="admin-field-group">
+              <Label htmlFor="plan-players-count" className="admin-field-label">
+                Players count
+              </Label>
+              <Input
+                id="plan-players-count"
+                type="number"
+                min="0"
+                step="1"
+                value={form.players_count}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, players_count: event.target.value }))
+                }
+                disabled={isSubmitting || form.players_limit_type !== 'limited'}
+                aria-invalid={Boolean(fieldErrors.players_count)}
+                aria-describedby={
+                  fieldErrors.players_count ? 'plan-players-count-error' : undefined
+                }
+                className="admin-field-input"
+              />
+              {fieldErrors.players_count ? (
+                <p
+                  id="plan-players-count-error"
+                  className="font-outfit text-body-sm text-destructive"
+                  role="alert"
+                >
+                  {fieldErrors.players_count}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="admin-field-group">
+            <Label htmlFor="plan-historical-duration" className="admin-field-label">
+              Historical records duration
+            </Label>
+            <select
+              id="plan-historical-duration"
+              value={form.historical_records_duration}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  historical_records_duration: event.target.value as HistoricalRecordsDuration,
+                }))
+              }
+              disabled={isSubmitting}
+              className="admin-field-select"
+            >
+              {HISTORICAL_DURATION_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="admin-field-group">
@@ -336,7 +616,40 @@ export function SubscriptionPlanForm({
             />
           </div>
 
-          {mode === 'edit' ? (
+          <div className="admin-field-group">
+            <Label htmlFor="plan-features" className="admin-field-label">
+              Features
+            </Label>
+            <Textarea
+              id="plan-features"
+              value={form.featuresText}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, featuresText: event.target.value }))
+              }
+              disabled={isSubmitting}
+              placeholder="One feature per line"
+              rows={4}
+              className="admin-field-textarea"
+            />
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <input
+                id="plan-offline-sync"
+                type="checkbox"
+                checked={form.include_offline_sync}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, include_offline_sync: event.target.checked }))
+                }
+                disabled={isSubmitting}
+                className="h-4 w-4 rounded border-figma-border accent-figma-brand focus-visible:ring-2 focus-visible:ring-primary"
+              />
+              <Label htmlFor="plan-offline-sync" className="admin-field-label">
+                Include offline sync
+              </Label>
+            </div>
+
             <div className="flex items-center gap-2">
               <input
                 id="plan-active"
@@ -346,13 +659,13 @@ export function SubscriptionPlanForm({
                   setForm((prev) => ({ ...prev, is_active: event.target.checked }))
                 }
                 disabled={isSubmitting}
-                className="h-4 w-4 rounded border-[#0d1612] accent-[#86d31f] focus-visible:ring-2 focus-visible:ring-[#86d31f]"
+                className="h-4 w-4 rounded border-figma-border accent-figma-brand focus-visible:ring-2 focus-visible:ring-primary"
               />
               <Label htmlFor="plan-active" className="admin-field-label">
                 Plan is active
               </Label>
             </div>
-          ) : null}
+          </div>
         </DialogContent>
         <DialogFooter className="admin-form-dialog__footer border-0">
           <Button
@@ -368,7 +681,7 @@ export function SubscriptionPlanForm({
             type="submit"
             isLoading={isSubmitting}
             disabled={isSubmitting}
-            className="admin-primary-btn border-[#0d1612] bg-[#86d31f] text-[#0d1612]"
+            className="admin-primary-btn"
           >
             {isSubmitting ? 'Saving…' : 'Save'}
           </Button>

@@ -360,7 +360,7 @@ export function UserForm({
             type="submit"
             isLoading={isSubmitting}
             disabled={isSubmitting}
-            className="admin-primary-btn border-[#0d1612] bg-[#86d31f] text-[#0d1612]"
+            className="admin-primary-btn"
           >
             {isSubmitting
               ? mode === 'create'

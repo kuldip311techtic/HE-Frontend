@@ -28,28 +28,48 @@ import type { SubscriptionPlanItem } from '@/types/subscriptions';
 interface SubscriptionPlansTableProps {
   plans: SubscriptionPlanItem[];
   isLoading?: boolean;
+  toggleBusyPlanId?: string | null;
   onView: (plan: SubscriptionPlanItem) => void;
   onEdit: (plan: SubscriptionPlanItem) => void;
   onArchive: (plan: SubscriptionPlanItem) => void;
   onToggleActive: (plan: SubscriptionPlanItem) => void;
 }
 
+const ADMIN_BADGE_ACTIVE =
+  'border-figma-border bg-[var(--token-color-107)] text-[var(--token-color-114)]';
+const ADMIN_BADGE_MUTED =
+  'border-figma-border bg-[var(--token-color-103)] text-figma-accent';
+
 function PlanStatusBadge({ plan }: { plan: SubscriptionPlanItem }) {
   if (plan.status === 'archived') {
-    return <Badge variant="outline">Archived</Badge>;
+    return (
+      <Badge variant="outline" className={ADMIN_BADGE_MUTED}>
+        Archived
+      </Badge>
+    );
   }
   if (plan.is_active) {
-    return <Badge variant="default">Active</Badge>;
+    return (
+      <Badge variant="outline" className={ADMIN_BADGE_ACTIVE}>
+        Active
+      </Badge>
+    );
   }
-  return <Badge variant="secondary">Inactive</Badge>;
+  return (
+    <Badge variant="outline" className={ADMIN_BADGE_MUTED}>
+      Inactive
+    </Badge>
+  );
 }
 
 function ActiveToggle({
   plan,
   onToggle,
+  isBusy = false,
 }: {
   plan: SubscriptionPlanItem;
   onToggle: (plan: SubscriptionPlanItem) => void;
+  isBusy?: boolean;
 }) {
   if (plan.status === 'archived') {
     return <span className="text-muted-foreground">—</span>;
@@ -60,11 +80,13 @@ function ActiveToggle({
       type="button"
       role="switch"
       aria-checked={plan.is_active}
-      aria-label={`${plan.is_active ? 'Deactivate' : 'Activate'} ${plan.name}`}
+      aria-busy={isBusy}
+      aria-label={(plan.is_active ? 'Deactivate ' : 'Activate ') + plan.name}
+      disabled={isBusy}
       onClick={() => onToggle(plan)}
       className={cn(
-        'relative inline-flex h-6 w-11 shrink-0 rounded-full border border-[#0d1612] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#86d31f]',
-        plan.is_active ? 'bg-[#86d31f]' : 'bg-[#0b1f12]',
+        'relative inline-flex h-6 w-11 shrink-0 rounded-full border border-figma-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand disabled:cursor-not-allowed disabled:opacity-50',
+        plan.is_active ? 'bg-figma-brand' : 'bg-[var(--figma-surface-deep)]',
       )}
     >
       <span
@@ -81,6 +103,7 @@ function ActiveToggle({
 export function SubscriptionPlansTable({
   plans,
   isLoading = false,
+  toggleBusyPlanId = null,
   onView,
   onEdit,
   onArchive,
@@ -116,7 +139,10 @@ export function SubscriptionPlansTable({
       <div className="admin-table">
         <div className="space-y-3 p-4">
           {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={`plan-skeleton-${index}`} className="h-12 w-full" />
+            <Skeleton
+              key={'plan-skeleton-' + index}
+              className="h-12 w-full bg-[var(--figma-surface)]"
+            />
           ))}
         </div>
       </div>
@@ -155,7 +181,7 @@ export function SubscriptionPlansTable({
               <TableRow key={plan.id}>
                 {visibleColumns.map((column) => (
                   <TableCell
-                    key={`${plan.id}-${column.id}`}
+                    key={plan.id + '-' + column.id}
                     className={cn(column.id === 'name' && 'font-medium max-w-[16rem] truncate')}
                     title={
                       column.id === 'description' || column.id === 'features'
@@ -166,7 +192,11 @@ export function SubscriptionPlansTable({
                     {column.id === 'status' ? (
                       <PlanStatusBadge plan={plan} />
                     ) : column.id === 'is_active' ? (
-                      <ActiveToggle plan={plan} onToggle={onToggleActive} />
+                      <ActiveToggle
+                        plan={plan}
+                        onToggle={onToggleActive}
+                        isBusy={toggleBusyPlanId === plan.id}
+                      />
                     ) : (
                       getPlanCellDisplayValue(plan, column.id)
                     )}
@@ -176,32 +206,33 @@ export function SubscriptionPlansTable({
                   <div className="flex items-center justify-end gap-1">
                     <button
                       type="button"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-figma-10 border border-[#0d1612] text-[#9ca3af] transition-colors hover:bg-[#13291b] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#86d31f]"
-                      aria-label={`View ${plan.name}`}
-                      title={`View ${plan.name}`}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-figma-10 border border-figma-border text-muted-foreground transition-colors hover:bg-[var(--figma-surface)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand"
+                      aria-label={'View ' + plan.name}
+                      title={'View ' + plan.name}
                       onClick={() => onView(plan)}
                     >
                       <Eye className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <RowActionsMenu
-                      ariaLabel={`Actions for ${plan.name}`}
+                      appearance="admin"
+                      ariaLabel={'Actions for ' + plan.name}
                       actions={[
                         ...(plan.status !== 'archived'
-                        ? [
-                            {
-                              id: 'edit',
-                              label: 'Edit',
-                              onSelect: () => onEdit(plan),
-                            },
-                            {
-                              id: 'archive',
-                              label: 'Archive',
-                              onSelect: () => onArchive(plan),
-                              destructive: true,
-                            },
-                          ]
-                        : []),
-                    ]}
+                          ? [
+                              {
+                                id: 'edit',
+                                label: 'Edit',
+                                onSelect: () => onEdit(plan),
+                              },
+                              {
+                                id: 'archive',
+                                label: 'Archive',
+                                onSelect: () => onArchive(plan),
+                                destructive: true,
+                              },
+                            ]
+                          : []),
+                      ]}
                     />
                   </div>
                 </TableCell>

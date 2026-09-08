@@ -24,12 +24,12 @@ export function ModuleNavCards() {
               key={title}
               className={
                 isAvailable
-                  ? 'admin-module-card transition-colors focus-within:ring-2 focus-within:ring-[#86d31f]'
+                  ? 'admin-module-card transition-colors focus-within:ring-2 focus-within:ring-figma-brand'
                   : 'admin-module-card opacity-80'
               }
             >
-              <CardHeader className="gap-[10px] p-5">
-                <div className="flex items-start justify-between gap-[12px]">
+              <CardHeader className="gap-figma-10 p-5">
+                <div className="flex items-start justify-between gap-figma-12">
                   <div className="admin-module-card__icon">
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </div>
@@ -37,15 +37,15 @@ export function ModuleNavCards() {
                     variant={isAvailable ? 'outline' : 'secondary'}
                     className={
                       isAvailable
-                        ? 'border-[#0d1612] bg-[#1bc94f1f] text-[#4bcd39]'
-                        : 'border-[#0d1612] bg-[#c0c0c033] text-[#445154]'
+                        ? 'border-figma-border bg-[var(--token-color-107)] text-[var(--token-color-114)]'
+                        : 'border-figma-border bg-[var(--token-color-103)] text-figma-accent'
                     }
                   >
                     {isAvailable ? 'Available' : 'Coming soon'}
                   </Badge>
                 </div>
                 <CardTitle className="font-outfit text-body-25 text-white">{title}</CardTitle>
-                <CardDescription className="font-lato text-body-5 text-[#445154]">
+                <CardDescription className="font-lato text-body-5 text-figma-accent">
                   {description}
                 </CardDescription>
               </CardHeader>
@@ -54,7 +54,7 @@ export function ModuleNavCards() {
                   <Button asChild variant="outline" size="sm" className="admin-outline-btn">
                     <NavLink
                       to={href}
-                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#86d31f]"
+                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand"
                     >
                       Open module
                     </NavLink>

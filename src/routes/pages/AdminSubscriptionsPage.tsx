@@ -51,6 +51,7 @@ export function AdminSubscriptionsPage() {
   const [toggleOpen, setToggleOpen] = useState(false);
   const [toggleNextActive, setToggleNextActive] = useState(false);
   const [toggleError, setToggleError] = useState<string | null>(null);
+  const [toggleBusyPlanId, setToggleBusyPlanId] = useState<string | null>(null);
 
   const listParams = useMemo(
     () => ({
@@ -162,6 +163,7 @@ export function AdminSubscriptionsPage() {
   const handleConfirmToggleActive = async () => {
     if (!selectedPlan) return;
     setToggleError(null);
+    setToggleBusyPlanId(selectedPlan.id);
     try {
       await update.mutateAsync({
         planId: selectedPlan.id,
@@ -173,6 +175,8 @@ export function AdminSubscriptionsPage() {
       setToggleError(
         getApiErrorMessage(err, 'Unable to update subscription plan status. Please try again.'),
       );
+    } finally {
+      setToggleBusyPlanId(null);
     }
   };
 
@@ -182,7 +186,7 @@ export function AdminSubscriptionsPage() {
 
   const plans = data?.items ?? [];
   const pagination = data?.pagination;
-  const isFormSubmitting = create.isPending || update.isPending;
+  const isFormSubmitting = create.isPending || (update.isPending && formOpen);
 
   return (
     <div className="admin-manage-page">
@@ -302,6 +306,7 @@ export function AdminSubscriptionsPage() {
           <div className="flex flex-col gap-4">
             <SubscriptionPlansTable
               plans={plans}
+              toggleBusyPlanId={toggleBusyPlanId}
               onView={handleViewPlan}
               onEdit={handleEditPlan}
               onArchive={handleArchivePlan}
@@ -352,7 +357,7 @@ export function AdminSubscriptionsPage() {
         plan={selectedPlan}
         nextActive={toggleNextActive}
         onConfirm={handleConfirmToggleActive}
-        isLoading={update.isPending}
+        isLoading={toggleBusyPlanId !== null && update.isPending}
         errorMessage={toggleError}
       />
     </div>

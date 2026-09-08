@@ -225,7 +225,7 @@ export function SupportRequestDetailPanel({
                 type="submit"
                 isLoading={isResponding}
                 disabled={isBusy}
-                className="admin-primary-btn border-[#0d1612] bg-[#86d31f] text-[#0d1612]"
+                className="admin-primary-btn"
               >
                 {isResponding ? 'Submitting…' : 'Submit response'}
               </Button>
