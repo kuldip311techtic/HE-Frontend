@@ -20,7 +20,7 @@ const listRoute = CONTRACT_ROUTES.superAdminSubscriptionPlans;
 const createRoute = CONTRACT_ROUTES.superAdminSubscriptionPlansCreate;
 const currenciesRoute = CONTRACT_ROUTES.superAdminSubscriptionPlansCurrencies;
 
-/** GET /api/super-admin/subscriptions (JAW-9612) */
+/** GET /api/v1/super-admin/subscription-plans (JAW-9612) */
 export async function fetchSubscriptionPlans(
   params: SubscriptionPlanListParams,
 ): Promise<SubscriptionPlanListResponse> {

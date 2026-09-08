@@ -26,8 +26,8 @@ export const CONTRACT_ROUTES = {
   },
   superAdminSubscriptionPlans: {
     method: 'GET' as const,
-    /** JAW-9612: GET /api/super-admin/subscriptions */
-    path: '/api/super-admin/subscriptions',
+    /** Live route: GET /api/v1/super-admin/subscription-plans (JAW-9612) */
+    path: '/api/v1/super-admin/subscription-plans',
     listUnwrapKey: 'items' as string | null,
   },
   superAdminSubscriptionPlansCreate: {
