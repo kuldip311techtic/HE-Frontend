@@ -152,8 +152,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = Boolean(user && getAuthToken());
   const isAdmin = isAdminRole(user);
-  const canFetchAdminData =
-    !isHydrating && ((isAuthenticated && isAdmin) || (isValidationBypass && isAdmin));
+  const canFetchAdminData = !isHydrating && isAuthenticated && isAdmin;
 
   const value = useMemo<AdminAuthContextValue>(
     () => ({

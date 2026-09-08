@@ -6,7 +6,7 @@ describe('contractPathToClientPath', () => {
     expect(contractPathToClientPath('/api/v1/super-admin/dashboard')).toBe(
       '/v1/super-admin/dashboard',
     );
-    expect(contractPathToClientPath('/api/super-admin/login')).toBe('/super-admin/login');
+    expect(contractPathToClientPath('/api/v1/auth/login')).toBe('/v1/auth/login');
     expect(contractPathToClientPath('/api/super-admin/subscriptions')).toBe('/super-admin/subscriptions');
     expect(contractPathToClientPath('/api/super-admin/support-requests')).toBe(
       '/super-admin/support-requests',

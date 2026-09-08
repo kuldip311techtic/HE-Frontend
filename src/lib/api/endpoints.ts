@@ -8,8 +8,8 @@
 export const CONTRACT_ROUTES = {
   authLogin: {
     method: 'POST' as const,
-    /** JAW-9607: POST /api/super-admin/login */
-    path: '/api/super-admin/login',
+    /** Live OpenAPI: POST /api/v1/auth/login (JAW-9607 ticket alias: /api/super-admin/login) */
+    path: '/api/v1/auth/login',
     listUnwrapKey: null as string | null,
   },
   superAdminDashboard: {
