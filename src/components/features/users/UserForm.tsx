@@ -175,7 +175,7 @@ export function UserForm({
       : 'Update user details and role assignment.';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} className="admin-form-dialog">
+    <Dialog open={open} onOpenChange={onOpenChange} className="admin-form-dialog admin-users-dialog">
       <form onSubmit={handleSubmit}>
         <DialogHeader className="admin-form-dialog__header border-0 px-6 py-5">
           <DialogTitle className="admin-form-dialog__title">{title}</DialogTitle>

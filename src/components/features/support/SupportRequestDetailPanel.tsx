@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { downloadSupportRequestAttachment } from '@/lib/api/support-requests';
-import { parseApiError } from '@/lib/utils/errors';
+import { parseApiError, parseSupportMutationError } from '@/lib/utils/errors';
 import {
   displaySupportRequestMessage,
   displaySupportRequestUser,
@@ -98,7 +98,7 @@ export function SupportRequestDetailPanel({
       });
       setResponse('');
     } catch (error) {
-      const parsed = parseApiError(error, 'Unable to submit response. Please try again.');
+      const parsed = parseSupportMutationError(error, 'respond');
       setFormError(parsed.message);
       if (parsed.fieldErrors.response) {
         setFieldError(parsed.fieldErrors.response);

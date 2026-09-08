@@ -1,9 +1,12 @@
-import { useCallback, useMemo, useState } from 'react';
+import '@/theme/admin-subscriptions.css';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { ArchivePlanDialog } from '@/components/features/subscriptions/ArchivePlanDialog';
 import { SubscriptionPlanForm } from '@/components/features/subscriptions/SubscriptionPlanForm';
 import { SubscriptionPlansTable } from '@/components/features/subscriptions/SubscriptionPlansTable';
+import { SubscriptionPlanViewDialog } from '@/components/features/subscriptions/SubscriptionPlanViewDialog';
+import { TogglePlanActiveDialog } from '@/components/features/subscriptions/TogglePlanActiveDialog';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
@@ -11,6 +14,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { TablePagination } from '@/components/ui/pagination';
 import { useSubscriptionPlanMutations } from '@/hooks/useSubscriptionPlanMutations';
 import { useSubscriptionPlans } from '@/hooks/useSubscriptionPlans';
+import { DEFAULT_SEARCH_DEBOUNCE_MS } from '@/lib/constants/search';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 import { getApiErrorMessage } from '@/lib/utils/errors';
 import type {
@@ -44,6 +48,10 @@ export function AdminSubscriptionsPage() {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanItem | null>(null);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiveError, setArchiveError] = useState<string | null>(null);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [toggleActiveOpen, setToggleActiveOpen] = useState(false);
+  const [toggleActiveTarget, setToggleActiveTarget] = useState(true);
+  const [toggleActiveError, setToggleActiveError] = useState<string | null>(null);
 
   const listParams = useMemo(
     () => ({
@@ -77,19 +85,36 @@ export function AdminSubscriptionsPage() {
     [setSearchParams],
   );
 
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  useEffect(() => {
+    const trimmed = searchInput.trim();
+    if (trimmed === search) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      updateParams({ search: trimmed || null, page: '1' });
+    }, DEFAULT_SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [searchInput, search, updateParams]);
+
   const handleRoleChange = (nextRole: SubscriptionPlanRole) => {
     updateParams({ role: nextRole, page: '1' });
-  };
-
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    updateParams({ search: searchInput.trim() || null, page: '1' });
   };
 
   const handleAddPlan = () => {
     setFormMode('create');
     setSelectedPlan(null);
     setFormOpen(true);
+  };
+
+  const handleViewPlan = (plan: SubscriptionPlanItem) => {
+    setSelectedPlan(plan);
+    setViewOpen(true);
   };
 
   const handleEditPlan = (plan: SubscriptionPlanItem) => {
@@ -102,6 +127,13 @@ export function AdminSubscriptionsPage() {
     setSelectedPlan(plan);
     setArchiveError(null);
     setArchiveOpen(true);
+  };
+
+  const handleToggleActive = (plan: SubscriptionPlanItem) => {
+    setSelectedPlan(plan);
+    setToggleActiveTarget(!plan.is_active);
+    setToggleActiveError(null);
+    setToggleActiveOpen(true);
   };
 
   const handleFormSubmit = async (
@@ -128,6 +160,23 @@ export function AdminSubscriptionsPage() {
     }
   };
 
+  const handleConfirmToggleActive = async () => {
+    if (!selectedPlan) return;
+    setToggleActiveError(null);
+    try {
+      await update.mutateAsync({
+        planId: selectedPlan.id,
+        payload: { is_active: toggleActiveTarget },
+      });
+      setToggleActiveOpen(false);
+      setSelectedPlan(null);
+    } catch (err) {
+      setToggleActiveError(
+        getApiErrorMessage(err, 'Unable to update plan status. Please try again.'),
+      );
+    }
+  };
+
   if (isHydrating) {
     return <LoadingState message="Loading subscriptions…" fullPage />;
   }
@@ -137,127 +186,136 @@ export function AdminSubscriptionsPage() {
   const isFormSubmitting = create.isPending || update.isPending;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="text-body-42 text-foreground">Manage Subscriptions</h2>
-          <p className="mt-1 font-outfit text-body-sm text-muted-foreground">
+    <div className="admin-manage-page admin-subscriptions-page">
+      <div className="admin-manage-page__glow" aria-hidden="true" />
+      <div className="admin-manage-page__inner">
+        <header className="admin-manage-page__header">
+          <h2 className="text-body-42">Manage Subscriptions</h2>
+          <p className="text-body-sm">
             View, add, edit, and archive subscription plans for organizations and coaches.
           </p>
+        </header>
+
+        <div className="admin-subscriptions-page__role-tabs" role="tablist" aria-label="Plan role">
+          {ROLE_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              role="tab"
+              aria-selected={role === tab.value}
+              onClick={() => handleRoleChange(tab.value)}
+              className={role === tab.value ? 'admin-primary-btn' : 'admin-outline-btn'}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-        <Button type="button" onClick={handleAddPlan} className="shrink-0">
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          Add plan
-        </Button>
-      </div>
 
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Plan role">
-        {ROLE_TABS.map((tab) => (
-          <Button
-            key={tab.value}
-            type="button"
-            role="tab"
-            aria-selected={role === tab.value}
-            variant={role === tab.value ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleRoleChange(tab.value)}
-          >
-            {tab.label}
-          </Button>
-        ))}
-      </div>
-
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <form onSubmit={handleSearchSubmit} className="flex w-full max-w-md gap-2">
-          <Input
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-            placeholder="Search plans…"
-            aria-label="Search subscription plans"
-          />
-          <Button type="submit" variant="outline">
-            Search
-          </Button>
-        </form>
-
-        <div className="flex flex-wrap gap-3">
-          <select
-            value={status}
-            onChange={(event) =>
-              updateParams({ status: event.target.value || null, page: '1' })
-            }
-            aria-label="Filter by status"
-            className="h-10 rounded-lg border border-border bg-input px-3 font-outfit text-body-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <option value="">All statuses</option>
-            <option value="active">Active</option>
-            <option value="archived">Archived</option>
-          </select>
-
-          <select
-            value={billingFrequency}
-            onChange={(event) =>
-              updateParams({ billing_frequency: event.target.value || null, page: '1' })
-            }
-            aria-label="Filter by duration"
-            className="h-10 rounded-lg border border-border bg-input px-3 font-outfit text-body-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <option value="">All durations</option>
-            <option value="monthly">Monthly</option>
-            <option value="yearly">Yearly</option>
-          </select>
-        </div>
-      </div>
-
-      {isError ? (
-        <EmptyState
-          title="Unable to load subscription plans"
-          description={getApiErrorMessage(
-            error,
-            'Unable to load subscription plans. Please try again.',
-          )}
-          action={
-            <Button onClick={() => refetch()} isLoading={isFetching} disabled={isFetching}>
-              {isFetching ? 'Retrying…' : 'Retry'}
-            </Button>
-          }
-        />
-      ) : null}
-
-      {!isError && isLoading ? (
-        <SubscriptionPlansTable plans={[]} isLoading onEdit={() => {}} onArchive={() => {}} />
-      ) : null}
-
-      {!isError && !isLoading && plans.length === 0 ? (
-        <EmptyState
-          title="No subscription plans yet"
-          description="Create your first subscription plan to offer it to organizations."
-          action={
-            <Button type="button" onClick={handleAddPlan}>
-              Add plan
-            </Button>
-          }
-        />
-      ) : null}
-
-      {!isError && !isLoading && plans.length > 0 ? (
-        <div className="space-y-4">
-          <SubscriptionPlansTable
-            plans={plans}
-            onEdit={handleEditPlan}
-            onArchive={handleArchivePlan}
-          />
-          {pagination ? (
-            <TablePagination
-              pagination={pagination}
-              onPageChange={(nextPage) => updateParams({ page: String(nextPage) })}
-              onPageSizeChange={(nextSize) =>
-                updateParams({ page_size: String(nextSize), page: '1' })
-              }
+        <div className="admin-manage-page__toolbar">
+          <div className="admin-manage-page__toolbar-filters">
+            <Input
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder="Search plans…"
+              aria-label="Search subscription plans"
+              className="admin-field-input w-full sm:max-w-md"
             />
-          ) : null}
+            <select
+              value={status}
+              onChange={(event) =>
+                updateParams({ status: event.target.value || null, page: '1' })
+              }
+              aria-label="Filter by status"
+              className="admin-field-select sm:w-auto"
+            >
+              <option value="">All statuses</option>
+              <option value="active">Active</option>
+              <option value="archived">Archived</option>
+            </select>
+            <select
+              value={billingFrequency}
+              onChange={(event) =>
+                updateParams({ billing_frequency: event.target.value || null, page: '1' })
+              }
+              aria-label="Filter by duration"
+              className="admin-field-select sm:w-auto"
+            >
+              <option value="">All durations</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <Button type="button" onClick={handleAddPlan} className="admin-primary-btn shrink-0">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add plan
+          </Button>
         </div>
-      ) : null}
+
+        {isError ? (
+          <EmptyState
+            title="Unable to load subscription plans"
+            description={getApiErrorMessage(
+              error,
+              'Unable to load subscription plans. Please try again.',
+            )}
+            action={
+              <Button
+                onClick={() => refetch()}
+                isLoading={isFetching}
+                disabled={isFetching}
+                className="admin-primary-btn"
+              >
+                {isFetching ? 'Retrying…' : 'Retry'}
+              </Button>
+            }
+          />
+        ) : null}
+
+        {!isError && isLoading ? (
+          <SubscriptionPlansTable
+            plans={[]}
+            isLoading
+            onView={() => {}}
+            onEdit={() => {}}
+            onArchive={() => {}}
+            onToggleActive={() => {}}
+          />
+        ) : null}
+
+        {!isError && !isLoading && plans.length === 0 ? (
+          <EmptyState
+            title="No subscription plans yet"
+            description="Create your first subscription plan to offer it to organizations."
+            action={
+              <Button type="button" onClick={handleAddPlan} className="admin-primary-btn">
+                Add plan
+              </Button>
+            }
+          />
+        ) : null}
+
+        {!isError && !isLoading && plans.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            <SubscriptionPlansTable
+              plans={plans}
+              onView={handleViewPlan}
+              onEdit={handleEditPlan}
+              onArchive={handleArchivePlan}
+              onToggleActive={handleToggleActive}
+            />
+            {pagination ? (
+              <TablePagination
+                pagination={pagination}
+                appearance="admin"
+                onPageChange={(nextPage) => updateParams({ page: String(nextPage) })}
+                onPageSizeChange={(nextSize) =>
+                  updateParams({ page_size: String(nextSize), page: '1' })
+                }
+              />
+            ) : null}
+          </div>
+        ) : null}
+      </div>
 
       <SubscriptionPlanForm
         open={formOpen}
@@ -269,6 +327,12 @@ export function AdminSubscriptionsPage() {
         isSubmitting={isFormSubmitting}
       />
 
+      <SubscriptionPlanViewDialog
+        open={viewOpen}
+        onOpenChange={setViewOpen}
+        plan={selectedPlan}
+      />
+
       <ArchivePlanDialog
         open={archiveOpen}
         onOpenChange={setArchiveOpen}
@@ -276,6 +340,16 @@ export function AdminSubscriptionsPage() {
         onConfirm={handleConfirmArchive}
         isLoading={archive.isPending}
         errorMessage={archiveError}
+      />
+
+      <TogglePlanActiveDialog
+        open={toggleActiveOpen}
+        onOpenChange={setToggleActiveOpen}
+        plan={selectedPlan}
+        nextActive={toggleActiveTarget}
+        onConfirm={handleConfirmToggleActive}
+        isLoading={update.isPending}
+        errorMessage={toggleActiveError}
       />
     </div>
   );

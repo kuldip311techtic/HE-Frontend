@@ -70,6 +70,18 @@ export const CONTRACT_ROUTES = {
     path: '/api/v1/super-admin/organizations/{organization_id}',
     listUnwrapKey: null as string | null,
   },
+  superAdminOrganizationUpdate: {
+    method: 'PUT' as const,
+    /** Locked contract: PUT /api/super-admin/organizations/{id} (JAW-9610) */
+    path: '/api/super-admin/organizations/{id}',
+    listUnwrapKey: null as string | null,
+  },
+  superAdminOrganizationDelete: {
+    method: 'DELETE' as const,
+    /** Locked contract: DELETE /api/super-admin/organizations/{id} (JAW-9610) */
+    path: '/api/super-admin/organizations/{id}',
+    listUnwrapKey: null as string | null,
+  },
   superAdminUsers: {
     method: 'GET' as const,
     /** Ticket alias: GET /api/super-admin/users — live route is /api/v1/super-admin/users */

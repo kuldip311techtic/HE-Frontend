@@ -179,13 +179,19 @@ export function SubscriptionPlanForm({
       : 'Update subscription plan details. Currency and billing frequency cannot be changed.';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      className="admin-form-dialog admin-subscriptions-dialog"
+    >
       <form onSubmit={handleSubmit}>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+        <DialogHeader className="admin-form-dialog__header border-0 px-6 py-5">
+          <DialogTitle className="admin-form-dialog__title">{title}</DialogTitle>
+          <DialogDescription className="admin-form-dialog__description">
+            {description}
+          </DialogDescription>
         </DialogHeader>
-        <DialogContent className="space-y-4">
+        <DialogContent className="admin-form-dialog__content max-h-[70vh] space-y-4 overflow-y-auto border-0 py-5">
           {formError ? (
             <p className="font-outfit text-body-sm text-destructive" role="alert">
               {formError}
@@ -193,18 +199,15 @@ export function SubscriptionPlanForm({
           ) : null}
 
           {mode === 'create' ? (
-            <p
-              id="plan-defaults-note"
-              className="rounded-lg border border-border bg-muted/30 px-3 py-2 font-outfit text-body-sm text-muted-foreground"
-            >
+            <p id="plan-defaults-note" className="admin-subscriptions-defaults-note">
               New plans are created with unlimited team and player limits, unlimited historical
               records, and offline sync disabled. These defaults match the platform standard for
               initial subscription offerings.
             </p>
           ) : null}
 
-          <div className="space-y-2">
-            <Label htmlFor="plan-name" className="text-body-5">
+          <div className="admin-field-group">
+            <Label htmlFor="plan-name" className="admin-field-label">
               Subscription name
             </Label>
             <Input
@@ -215,6 +218,7 @@ export function SubscriptionPlanForm({
               aria-describedby={fieldErrors.name ? 'plan-name-error' : undefined}
               disabled={isSubmitting}
               placeholder="e.g. Pro Plan"
+              className="admin-field-input"
             />
             {fieldErrors.name ? (
               <p id="plan-name-error" className="font-outfit text-body-sm text-destructive" role="alert">
@@ -223,9 +227,9 @@ export function SubscriptionPlanForm({
             ) : null}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="plan-price" className="text-body-5">
+          <div className="admin-form-grid">
+            <div className="admin-field-group">
+              <Label htmlFor="plan-price" className="admin-field-label">
                 Price
               </Label>
               <Input
@@ -241,6 +245,7 @@ export function SubscriptionPlanForm({
                 aria-describedby={fieldErrors.price_amount ? 'plan-price-error' : undefined}
                 disabled={isSubmitting}
                 placeholder="0.00"
+                className="admin-field-input"
               />
               {fieldErrors.price_amount ? (
                 <p id="plan-price-error" className="font-outfit text-body-sm text-destructive" role="alert">
@@ -250,8 +255,8 @@ export function SubscriptionPlanForm({
             </div>
 
             {mode === 'create' ? (
-              <div className="space-y-2">
-                <Label htmlFor="plan-currency" className="text-body-5">
+              <div className="admin-field-group">
+                <Label htmlFor="plan-currency" className="admin-field-label">
                   Currency
                 </Label>
                 <select
@@ -262,7 +267,7 @@ export function SubscriptionPlanForm({
                   }
                   disabled={isSubmitting || currenciesLoading}
                   aria-invalid={Boolean(fieldErrors.currency)}
-                  className="flex h-10 w-full rounded-lg border border-border bg-input px-3 font-outfit text-body-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  className="admin-field-select"
                 >
                   {currencies.length === 0 ? (
                     <option value="USD">USD</option>
@@ -281,17 +286,17 @@ export function SubscriptionPlanForm({
                 ) : null}
               </div>
             ) : (
-              <div className="space-y-2">
-                <Label className="text-body-5">Currency</Label>
-                <p className="flex h-10 items-center font-outfit text-body-sm text-muted-foreground">
+              <div className="admin-field-group">
+                <Label className="admin-field-label">Currency</Label>
+                <p className="flex h-11 items-center font-outfit text-body-sm text-foreground">
                   {form.currency}
                 </p>
               </div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="plan-duration" className="text-body-5">
+          <div className="admin-field-group">
+            <Label htmlFor="plan-duration" className="admin-field-label">
               Duration
             </Label>
             {mode === 'create' ? (
@@ -305,7 +310,7 @@ export function SubscriptionPlanForm({
                   }))
                 }
                 disabled={isSubmitting}
-                className="flex h-10 w-full rounded-lg border border-border bg-input px-3 font-outfit text-body-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="admin-field-select"
               >
                 <option value="monthly">Monthly</option>
                 <option value="yearly">Yearly</option>
@@ -317,8 +322,8 @@ export function SubscriptionPlanForm({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="plan-description" className="text-body-5">
+          <div className="admin-field-group">
+            <Label htmlFor="plan-description" className="admin-field-label">
               Description
             </Label>
             <Textarea
@@ -330,6 +335,7 @@ export function SubscriptionPlanForm({
               disabled={isSubmitting}
               placeholder="Optional plan description"
               rows={3}
+              className="admin-field-textarea"
             />
           </div>
 
@@ -345,22 +351,28 @@ export function SubscriptionPlanForm({
                 disabled={isSubmitting}
                 className="h-4 w-4 rounded border-border text-primary focus-visible:ring-2 focus-visible:ring-ring"
               />
-              <Label htmlFor="plan-active" className="text-body-5">
+              <Label htmlFor="plan-active" className="admin-field-label">
                 Plan is active
               </Label>
             </div>
           ) : null}
         </DialogContent>
-        <DialogFooter>
+        <DialogFooter className="admin-form-dialog__footer border-0">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
+            className="admin-outline-btn"
           >
             Cancel
           </Button>
-          <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
+          <Button
+            type="submit"
+            isLoading={isSubmitting}
+            disabled={isSubmitting}
+            className="admin-primary-btn"
+          >
             Save
           </Button>
         </DialogFooter>

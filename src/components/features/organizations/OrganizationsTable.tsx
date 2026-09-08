@@ -57,7 +57,7 @@ export function OrganizationsTable({
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-border">
+      <div className="admin-manage-table">
         <div className="space-y-3 p-4">
           {Array.from({ length: 5 }).map((_, index) => (
             <Skeleton key={`org-skeleton-${index}`} className="h-12 w-full" />
@@ -68,7 +68,7 @@ export function OrganizationsTable({
   }
 
   return (
-    <div className="rounded-lg border border-border">
+    <div className="admin-manage-table overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -109,7 +109,8 @@ export function OrganizationsTable({
                     variant="outline"
                     size="sm"
                     onClick={() => onEdit(organization)}
-                    aria-label={`Edit ${organization.name}`}
+                    aria-label={'Edit ' + organization.name}
+                    className="admin-outline-btn"
                   >
                     Edit
                   </Button>
@@ -118,7 +119,8 @@ export function OrganizationsTable({
                     variant="destructive"
                     size="sm"
                     onClick={() => onRemove(organization)}
-                    aria-label={`Remove ${organization.name}`}
+                    aria-label={'Remove ' + organization.name}
+                    className="admin-danger-btn"
                   >
                     Remove
                   </Button>

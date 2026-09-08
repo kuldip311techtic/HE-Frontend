@@ -215,3 +215,40 @@ export function parseLoginApiError(
 export function isUnauthorizedError(error: unknown): boolean {
   return isAxiosError(error) && error.response?.status === 401;
 }
+
+const SUPPORT_MUTATION_UNAVAILABLE =
+  'Action unavailable — backend endpoint not deployed.';
+
+/** User-safe error for support respond/close when ticket routes may 404. */
+export function getSupportMutationErrorMessage(
+  error: unknown,
+  action: 'respond' | 'close',
+): string {
+  if (isAxiosError(error) && error.response?.status === 404) {
+    return SUPPORT_MUTATION_UNAVAILABLE;
+  }
+
+  const fallbacks = {
+    respond: 'Unable to submit response. Please try again.',
+    close: 'Unable to close support request. Please try again.',
+  };
+
+  return getApiErrorMessage(error, fallbacks[action]);
+}
+
+/** Parsed support mutation error with 404-specific copy. */
+export function parseSupportMutationError(
+  error: unknown,
+  action: 'respond' | 'close',
+): ParsedApiError {
+  if (isAxiosError(error) && error.response?.status === 404) {
+    return { message: SUPPORT_MUTATION_UNAVAILABLE, fieldErrors: {} };
+  }
+
+  const fallbacks = {
+    respond: 'Unable to submit response. Please try again.',
+    close: 'Unable to close support request. Please try again.',
+  };
+
+  return parseApiError(error, fallbacks[action]);
+}
