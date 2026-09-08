@@ -5,7 +5,7 @@ import {
   getValidationAccessToken,
   isLunaValidationMode,
 } from '@/lib/validation/config';
-import { getServerValidationAuth } from '@/lib/validation/server-auth';
+import { waitForServerValidationAuthDuringHydration } from '@/lib/validation/server-auth';
 
 let probesStarted = false;
 
@@ -16,7 +16,7 @@ async function resolveProbeAuthToken(): Promise<string | null> {
     return envToken;
   }
 
-  const serverAuth = await getServerValidationAuth();
+  const serverAuth = await waitForServerValidationAuthDuringHydration();
   if (serverAuth) {
     setAuthStorage(serverAuth.access_token, serverAuth.user);
     return serverAuth.access_token;
@@ -27,7 +27,7 @@ async function resolveProbeAuthToken(): Promise<string | null> {
 
 /**
  * Fire super-admin contract GETs for Luna validation when auth is available.
- * Skips entirely outside validation mode or without a bearer token to keep smoke captures console-clean.
+ * Skips entirely outside validation mode to keep smoke captures console-clean.
  */
 export async function runValidationContractProbes(): Promise<void> {
   if (probesStarted || !import.meta.env.DEV || !isLunaValidationMode()) {
@@ -37,11 +37,9 @@ export async function runValidationContractProbes(): Promise<void> {
   probesStarted = true;
 
   const token = await resolveProbeAuthToken();
-  if (!token) {
-    return;
+  if (token) {
+    void fetchDashboardAnalytics().catch(() => {
+      // Probe errors are non-fatal; authenticated screens surface user-visible failures.
+    });
   }
-
-  void fetchDashboardAnalytics().catch(() => {
-    // Probe errors are non-fatal; authenticated screens surface user-visible failures.
-  });
 }

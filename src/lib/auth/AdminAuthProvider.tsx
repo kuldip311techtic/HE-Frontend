@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   clearAuthStorage,
   getAuthToken,
@@ -21,7 +22,10 @@ import {
   isLunaValidationMode,
   isPublicAdminRoute,
 } from '@/lib/validation/config';
-import { getServerValidationAuth } from '@/lib/validation/server-auth';
+import {
+  waitForServerValidationAuthDuringHydration,
+  watchServerValidationAuth,
+} from '@/lib/validation/server-auth';
 import type { AuthUser } from '@/types/auth';
 
 interface AdminAuthContextValue {
@@ -45,7 +49,7 @@ interface ValidationSessionResult {
 
 let validationSessionPromise: Promise<ValidationSessionResult> | null = null;
 
-async function resolveValidationSession(): Promise<ValidationSessionResult> {
+async function resolveValidationSessionForHydration(): Promise<ValidationSessionResult> {
   const envToken = getValidationAccessToken();
   if (envToken) {
     const validationUser = createValidationSuperAdminUser();
@@ -53,14 +57,13 @@ async function resolveValidationSession(): Promise<ValidationSessionResult> {
     return { user: validationUser, bypass: false };
   }
 
-  const serverAuth = await getServerValidationAuth();
+  const serverAuth = await waitForServerValidationAuthDuringHydration();
   if (serverAuth) {
     setAuthStorage(serverAuth.access_token, serverAuth.user);
     return { user: serverAuth.user, bypass: false };
   }
 
   const credentials = getValidationLoginCredentials();
-  // In dev, the Vite validation plugin already POSTs the same credentials server-side.
   if (credentials && !(import.meta.env.DEV && isLunaValidationMode())) {
     try {
       const { login: loginApi } = await import('@/lib/api/auth');
@@ -68,21 +71,22 @@ async function resolveValidationSession(): Promise<ValidationSessionResult> {
       setAuthStorage(response.access_token, response.user);
       return { user: response.user, bypass: false };
     } catch {
-      // Invalid credentials — fall through to bypass.
+      // Invalid credentials — fall through to bypass for shell rendering + contract GETs.
     }
   }
 
   return { user: createValidationSuperAdminUser(), bypass: true };
 }
 
-function getValidationSession(): Promise<ValidationSessionResult> {
+function getValidationSessionForHydration(): Promise<ValidationSessionResult> {
   if (!validationSessionPromise) {
-    validationSessionPromise = resolveValidationSession();
+    validationSessionPromise = resolveValidationSessionForHydration();
   }
   return validationSessionPromise;
 }
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isHydrating, setIsHydrating] = useState(true);
   const [isValidationBypass, setIsValidationBypass] = useState(false);
@@ -119,7 +123,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (isLunaValidationMode()) {
-        const { user: validationUser, bypass } = await getValidationSession();
+        const { user: validationUser, bypass } = await getValidationSessionForHydration();
         if (!cancelled) {
           setUser(validationUser);
           setIsValidationBypass(bypass);
@@ -138,11 +142,27 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!import.meta.env.DEV || !isLunaValidationMode() || !isValidationBypass || getAuthToken()) {
+      return;
+    }
+
+    const stopWatching = watchServerValidationAuth((serverAuth) => {
+      setAuthStorage(serverAuth.access_token, serverAuth.user);
+      setUser(serverAuth.user);
+      setIsValidationBypass(false);
+      void queryClient.invalidateQueries();
+    });
+
+    return stopWatching;
+  }, [isValidationBypass, queryClient]);
+
   const loginWithCredentials = useCallback(async (email: string, password: string) => {
     const { login: loginApi } = await import('@/lib/api/auth');
     const response = await loginApi({ email, password });
     setAuthStorage(response.access_token, response.user);
     setUser(response.user);
+    setIsValidationBypass(false);
   }, []);
 
   const logout = useCallback(() => {
@@ -153,7 +173,11 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = Boolean(user && getAuthToken());
   const isAdmin = isAdminRole(user);
-  const canFetchAdminData = !isHydrating && isAuthenticated && isAdmin;
+  const canFetchAdminData =
+    !isHydrating &&
+    isAdmin &&
+    (isAuthenticated ||
+      (isValidationBypass && isLunaValidationMode() && import.meta.env.DEV));
 
   const value = useMemo<AdminAuthContextValue>(
     () => ({
