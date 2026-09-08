@@ -16,7 +16,7 @@
 }
 
 .admin-users-page .admin-manage-page__glow {
-  inset: -32px -24px 0;
+  inset: -32px 0 0;
   background:
     radial-gradient(
       ellipse 58% 48% at 82% 38%,

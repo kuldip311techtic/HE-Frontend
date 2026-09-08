@@ -14,11 +14,12 @@
   display: flex;
   flex-direction: column;
   font-family: Outfit, sans-serif;
+  overflow-x: clip;
 }
 
 .admin-dashboard-page__glow {
   position: absolute;
-  inset: -32px -24px 0;
+  inset: -32px 0 0;
   pointer-events: none;
   z-index: 0;
   background:

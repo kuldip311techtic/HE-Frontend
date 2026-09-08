@@ -3,7 +3,6 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { AdminHeader } from '@/components/layout/AdminHeader';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
-import { cn } from '@/lib/utils/cn';
 
 export function AdminLayout() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -84,18 +83,15 @@ export function AdminLayout() {
         />
       ) : null}
 
-      <div
-        ref={drawerRef}
-        id="admin-mobile-nav"
-        className={cn(
-          'fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 lg:hidden',
-          isMobileNavOpen ? 'translate-x-0' : '-translate-x-full',
-        )}
-        aria-hidden={!isMobileNavOpen}
-        {...(!isMobileNavOpen ? { inert: '' } : {})}
-      >
-        <AdminSidebar onNavigate={closeMobileNav} />
-      </div>
+      {isMobileNavOpen ? (
+        <div
+          ref={drawerRef}
+          id="admin-mobile-nav"
+          className="fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 translate-x-0 lg:hidden"
+        >
+          <AdminSidebar onNavigate={closeMobileNav} />
+        </div>
+      ) : null}
 
       <div className="flex min-h-screen flex-1 flex-col lg:pl-64">
         <AdminHeader
