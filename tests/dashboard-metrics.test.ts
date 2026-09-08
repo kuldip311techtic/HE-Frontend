@@ -18,8 +18,9 @@ const sampleMetrics: DashboardAnalyticsResponse = {
 };
 
 describe('formatDashboardMetricValue', () => {
-  it('formats revenue with two decimal places', () => {
-    expect(formatDashboardMetricValue('revenue_overview', 12500.5)).toMatch(/12,500\.50|12\.500,50/);
+  it('formats revenue as currency using the platform default', () => {
+    const formatted = formatDashboardMetricValue('revenue_overview', 12500.5);
+    expect(formatted).toMatch(/\$12,500\.50|12\.500,50\s*\$/);
   });
 
   it('formats count metrics with locale grouping', () => {

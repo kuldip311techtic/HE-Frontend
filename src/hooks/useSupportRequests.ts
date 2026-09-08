@@ -12,7 +12,6 @@ export function useSupportRequests(params: SupportRequestListParams) {
       page: params.page,
       page_size: params.page_size,
       search: params.search ?? null,
-      status: params.status ?? null,
     }),
     queryFn: () => fetchSupportRequests(params),
     enabled: canFetchAdminData,

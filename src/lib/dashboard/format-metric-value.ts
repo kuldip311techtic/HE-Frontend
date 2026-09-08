@@ -1,5 +1,8 @@
 import type { DashboardAnalyticsResponse } from '@/types/api';
 
+/** Dashboard revenue_overview is numeric-only; platform default currency for display. */
+const PLATFORM_REVENUE_CURRENCY = 'USD';
+
 type DashboardMetricKey = keyof Pick<
   DashboardAnalyticsResponse,
   | 'total_organizations'
@@ -12,10 +15,19 @@ type DashboardMetricKey = keyof Pick<
 
 export function formatDashboardMetricValue(key: DashboardMetricKey, value: number): string {
   if (key === 'revenue_overview') {
-    return value.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: PLATFORM_REVENUE_CURRENCY,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value);
+    } catch {
+      return value.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
   }
 
   return value.toLocaleString();

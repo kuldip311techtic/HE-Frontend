@@ -17,6 +17,7 @@ interface UsersTableProps {
   users: UserItem[];
   isLoading?: boolean;
   currentUserId?: string | null;
+  pageSortOnly?: boolean;
   onEdit: (user: UserItem) => void;
   onRemove: (user: UserItem) => void;
 }
@@ -42,13 +43,16 @@ export function UsersTable({
   users,
   isLoading = false,
   currentUserId = null,
+  pageSortOnly = false,
   onEdit,
   onRemove,
 }: UsersTableProps) {
-  const { sortKey, sortDirection, sortedRows, handleSort } = useTableSort<
+  const { sortKey, sortDirection, sortedRows, handleSort, sortEnabled } = useTableSort<
     UserItem,
     UserSortKey
-  >(users, compareUsers);
+  >(users, compareUsers, { enabled: !pageSortOnly });
+
+  const sortDisabled = !sortEnabled;
 
   if (isLoading) {
     return (
@@ -64,6 +68,11 @@ export function UsersTable({
 
   return (
     <div className="admin-manage-table overflow-x-auto">
+      {sortDisabled ? (
+        <p className="border-b border-[var(--figma-hex-border)] px-4 py-2 font-outfit text-body-sm text-muted-foreground">
+          Column sorting is unavailable while results are paginated.
+        </p>
+      ) : null}
       <Table>
         <TableHeader>
           <TableRow>
@@ -73,6 +82,7 @@ export function UsersTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
+              disabled={sortDisabled}
             />
             <SortableTableHead
               label="Email"
@@ -80,6 +90,7 @@ export function UsersTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
+              disabled={sortDisabled}
             />
             <SortableTableHead
               label="Role"
@@ -87,6 +98,7 @@ export function UsersTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
+              disabled={sortDisabled}
             />
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>

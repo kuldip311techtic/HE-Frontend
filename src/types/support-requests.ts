@@ -35,7 +35,6 @@ export interface SupportRequestListParams {
   page?: number;
   page_size?: number;
   search?: string | null;
-  status?: SupportRequestStatus | null;
 }
 
 export interface SupportRequestRespondRequest {

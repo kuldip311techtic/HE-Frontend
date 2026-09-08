@@ -27,7 +27,6 @@ export async function fetchSupportRequests(
       page: params.page ?? 1,
       page_size: params.page_size ?? 10,
       ...(params.search?.trim() ? { search: params.search.trim() } : {}),
-      ...(params.status?.trim() ? { status: params.status.trim() } : {}),
     },
   });
   return normalizePaginatedListResponse<SupportRequestItem>(

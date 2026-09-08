@@ -19,13 +19,17 @@ export function RemoveUserDialog({
   errorMessage = null,
 }: RemoveUserDialogProps) {
   const name = user ? displayUserName(user) : 'this user';
+  const description =
+    'This will permanently remove "' +
+    name +
+    '" and revoke their platform access. This action cannot be undone.';
 
   return (
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
       title="Remove user?"
-      description={`This will permanently remove "${name}" and revoke their platform access. This action cannot be undone.`}
+      description={description}
       confirmLabel={isLoading ? 'Removing…' : 'Remove'}
       cancelLabel="Cancel"
       onConfirm={onConfirm}

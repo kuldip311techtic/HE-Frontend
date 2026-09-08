@@ -32,9 +32,9 @@ function formatTimestamp(value: string | null): string {
 
 function DetailRow({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-      <dt className="font-lato text-body-sm text-muted-foreground">{label}</dt>
-      <dd className="font-outfit text-body-sm text-foreground sm:text-right">{value}</dd>
+    <div className="admin-field-group">
+      <dt className="admin-field-label">{label}</dt>
+      <dd className="font-outfit text-body-sm text-foreground">{value}</dd>
     </div>
   );
 }
@@ -51,14 +51,14 @@ export function SubscriptionPlanViewDialog({
   const roleLabel = plan.role === 'org_admin' ? 'Organization' : 'Coach';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogHeader>
-        <DialogTitle>{plan.name}</DialogTitle>
-        <DialogDescription>
+    <Dialog open={open} onOpenChange={onOpenChange} className="admin-form-dialog">
+      <DialogHeader className="admin-form-dialog__header border-0 px-6 py-5">
+        <DialogTitle className="admin-form-dialog__title">{plan.name}</DialogTitle>
+        <DialogDescription className="admin-form-dialog__description">
           Subscription plan details for {roleLabel.toLowerCase()} offerings.
         </DialogDescription>
       </DialogHeader>
-      <DialogContent className="space-y-4">
+      <DialogContent className="admin-form-dialog__content border-0 py-5">
         <dl className="space-y-3">
           <DetailRow label="Name" value={plan.name} />
           <DetailRow label="Price" value={formatPlanPrice(plan.price_amount, plan.currency)} />
@@ -68,7 +68,6 @@ export function SubscriptionPlanViewDialog({
             value={<PlanStatusBadge plan={plan} />}
           />
           <DetailRow label="Role" value={roleLabel} />
-          <DetailRow label="Currency" value={plan.currency.toUpperCase()} />
           <DetailRow
             label="Description"
             value={plan.description?.trim() ? plan.description : '—'}
@@ -77,7 +76,7 @@ export function SubscriptionPlanViewDialog({
             <DetailRow
               label="Features"
               value={
-                <ul className="list-inside list-disc text-left sm:text-right">
+                <ul className="list-inside list-disc">
                   {plan.features.map((feature) => (
                     <li key={feature}>{feature}</li>
                   ))}
@@ -92,8 +91,13 @@ export function SubscriptionPlanViewDialog({
           ) : null}
         </dl>
       </DialogContent>
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+      <DialogFooter className="admin-form-dialog__footer border-0">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => onOpenChange(false)}
+          className="admin-outline-btn"
+        >
           Close
         </Button>
       </DialogFooter>

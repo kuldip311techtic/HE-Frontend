@@ -138,6 +138,7 @@ export function AdminUsersPage() {
   const users = data?.items ?? [];
   const pagination = data?.pagination;
   const isFormSubmitting = create.isPending || update.isPending;
+  const pageSortOnly = pagination ? pagination.total > users.length : false;
 
   return (
     <div className="admin-manage-page">
@@ -222,6 +223,7 @@ export function AdminUsersPage() {
             <UsersTable
               users={users}
               currentUserId={user?.id}
+              pageSortOnly={pageSortOnly}
               onEdit={handleEditUser}
               onRemove={handleRemoveUser}
             />

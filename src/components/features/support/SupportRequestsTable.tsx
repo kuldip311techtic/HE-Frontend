@@ -24,6 +24,7 @@ interface SupportRequestsTableProps {
   requests: SupportRequestItem[];
   isLoading?: boolean;
   selectedId?: string | null;
+  pageSortOnly?: boolean;
   onSelect: (request: SupportRequestItem) => void;
 }
 
@@ -64,12 +65,15 @@ export function SupportRequestsTable({
   requests,
   isLoading = false,
   selectedId = null,
+  pageSortOnly = false,
   onSelect,
 }: SupportRequestsTableProps) {
-  const { sortKey, sortDirection, sortedRows, handleSort } = useTableSort<
+  const { sortKey, sortDirection, sortedRows, handleSort, sortEnabled } = useTableSort<
     SupportRequestItem,
     SupportRequestSortKey
-  >(requests, compareRequests);
+  >(requests, compareRequests, { enabled: !pageSortOnly });
+
+  const sortDisabled = !sortEnabled;
 
   if (isLoading) {
     return (
@@ -85,6 +89,11 @@ export function SupportRequestsTable({
 
   return (
     <div className="admin-manage-table overflow-x-auto">
+      {sortDisabled ? (
+        <p className="border-b border-[var(--figma-hex-border)] px-4 py-2 font-outfit text-body-sm text-muted-foreground">
+          Column sorting is unavailable while results are paginated.
+        </p>
+      ) : null}
       <Table>
         <TableHeader>
           <TableRow>
@@ -94,6 +103,7 @@ export function SupportRequestsTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
+              disabled={sortDisabled}
             />
             <SortableTableHead
               label="Request date"
@@ -101,6 +111,7 @@ export function SupportRequestsTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
+              disabled={sortDisabled}
             />
             <SortableTableHead
               label="Status"
@@ -108,6 +119,7 @@ export function SupportRequestsTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
+              disabled={sortDisabled}
             />
             <TableHead className="hidden md:table-cell">Inquiry</TableHead>
             <TableHead className="text-right">Actions</TableHead>
