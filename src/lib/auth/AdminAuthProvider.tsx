@@ -53,7 +53,10 @@ async function resolveValidationSession(): Promise<ValidationSessionResult> {
     return { user: validationUser, bypass: false };
   }
 
-  const serverAuth = await waitForServerValidationAuth(3, 200);
+  const serverAuth = await waitForServerValidationAuth(
+    isLunaValidationMode() ? 60 : 3,
+    500,
+  );
   if (serverAuth) {
     setAuthStorage(serverAuth.access_token, serverAuth.user);
     return { user: serverAuth.user, bypass: false };

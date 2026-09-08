@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { LunaValidationBootstrap } from '@/components/features/validation/LunaValidationBootstrap';
 import { AdminAuthProvider } from '@/lib/auth/AdminAuthProvider';
+import { isLunaContractProbesEnabled } from '@/lib/validation/config';
 import { AppRoutes } from '@/routes/AppRoutes';
 
 const queryClient = new QueryClient({
@@ -21,7 +22,7 @@ export function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AdminAuthProvider>
-            <LunaValidationBootstrap />
+            {isLunaContractProbesEnabled() ? <LunaValidationBootstrap /> : null}
             <AppRoutes />
             <Toaster
               position="top-right"
