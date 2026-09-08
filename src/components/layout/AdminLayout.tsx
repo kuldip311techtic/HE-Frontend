@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils/cn';
 
 export function AdminLayout() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const { logout } = useAdminAuth();
+  const { logout, isHydrating } = useAdminAuth();
   const navigate = useNavigate();
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -70,7 +70,7 @@ export function AdminLayout() {
   }, [isMobileNavOpen, closeMobileNav]);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background" data-admin-ready={!isHydrating || undefined}>
       <div className="hidden lg:block">
         <AdminSidebar className="fixed inset-y-0 left-0 z-30" />
       </div>

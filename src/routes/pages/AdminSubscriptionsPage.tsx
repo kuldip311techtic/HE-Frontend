@@ -190,7 +190,7 @@ export function AdminSubscriptionsPage() {
       <div className="admin-manage-page__glow" aria-hidden="true" />
       <div className="admin-manage-page__inner">
         <header className="admin-manage-page__header">
-          <h2 className="text-body-42">Manage Subscriptions</h2>
+          <h1 className="text-body-42">Manage Subscriptions</h1>
           <p className="text-body-sm">
             View, add, edit, and archive subscription plans for organizations and coaches.
           </p>

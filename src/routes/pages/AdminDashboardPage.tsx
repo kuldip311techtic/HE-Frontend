@@ -50,7 +50,7 @@ export function AdminDashboardPage() {
       <div className="admin-dashboard-page__inner">
         <div className="admin-dashboard-page__header">
           <div>
-            <h2>Dashboard</h2>
+            <h1>Dashboard</h1>
             <p>Platform overview and key metrics for Hoops Engine.</p>
           </div>
           <Button

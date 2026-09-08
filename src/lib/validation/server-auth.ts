@@ -33,6 +33,7 @@ async function fetchServerValidationAuthOnce(): Promise<ServerValidationAuthResp
 export async function waitForServerValidationAuth(
   maxAttempts = 10,
   intervalMs = 500,
+  fastFailOnEmpty = false,
 ): Promise<ServerValidationAuthResponse | null> {
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const payload = await fetchServerValidationAuthOnce();
@@ -40,9 +41,15 @@ export async function waitForServerValidationAuth(
       return payload;
     }
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, intervalMs);
-    });
+    if (fastFailOnEmpty) {
+      return null;
+    }
+
+    if (attempt < maxAttempts - 1) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, intervalMs);
+      });
+    }
   }
 
   return null;
