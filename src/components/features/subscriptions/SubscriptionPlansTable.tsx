@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge';
+import { Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SortableTableHead } from '@/components/ui/sortable-table-head';
@@ -12,42 +12,22 @@ import {
 } from '@/components/ui/table';
 import { useTableSort } from '@/hooks/useTableSort';
 import type { SubscriptionPlanItem } from '@/types/subscriptions';
+import {
+  PlanStatusBadge,
+  formatDuration,
+  formatPlanPrice,
+  planStatusLabel,
+} from './subscription-plan-display';
 
 interface SubscriptionPlansTableProps {
   plans: SubscriptionPlanItem[];
   isLoading?: boolean;
+  onView: (plan: SubscriptionPlanItem) => void;
   onEdit: (plan: SubscriptionPlanItem) => void;
   onArchive: (plan: SubscriptionPlanItem) => void;
 }
 
 type PlanSortKey = 'name' | 'price' | 'duration' | 'status';
-
-function formatPrice(amount: string, currency: string): string {
-  const numeric = Number.parseFloat(amount);
-  if (Number.isNaN(numeric)) {
-    return `${currency} ${amount}`;
-  }
-  try {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency.toUpperCase(),
-    }).format(numeric);
-  } catch {
-    return `${currency} ${amount}`;
-  }
-}
-
-function formatDuration(frequency: string): string {
-  if (frequency === 'monthly') return 'Monthly';
-  if (frequency === 'yearly') return 'Yearly';
-  return frequency;
-}
-
-function planStatusLabel(plan: SubscriptionPlanItem): string {
-  if (plan.status === 'archived') return 'Archived';
-  if (plan.is_active) return 'Active';
-  return 'Inactive';
-}
 
 function comparePlans(a: SubscriptionPlanItem, b: SubscriptionPlanItem, sortKey: PlanSortKey): number {
   switch (sortKey) {
@@ -70,19 +50,10 @@ function comparePlans(a: SubscriptionPlanItem, b: SubscriptionPlanItem, sortKey:
   }
 }
 
-function PlanStatusBadge({ plan }: { plan: SubscriptionPlanItem }) {
-  if (plan.status === 'archived') {
-    return <Badge variant="outline">Archived</Badge>;
-  }
-  if (plan.is_active) {
-    return <Badge variant="default">Active</Badge>;
-  }
-  return <Badge variant="secondary">Inactive</Badge>;
-}
-
 export function SubscriptionPlansTable({
   plans,
   isLoading = false,
+  onView,
   onEdit,
   onArchive,
 }: SubscriptionPlansTableProps) {
@@ -93,7 +64,7 @@ export function SubscriptionPlansTable({
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-border">
+      <div className="admin-manage-table">
         <div className="space-y-3 p-4">
           {Array.from({ length: 5 }).map((_, index) => (
             <Skeleton key={`plan-skeleton-${index}`} className="h-12 w-full" />
@@ -104,7 +75,7 @@ export function SubscriptionPlansTable({
   }
 
   return (
-    <div className="rounded-lg border border-border">
+    <div className="admin-manage-table overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -140,40 +111,57 @@ export function SubscriptionPlansTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedRows.map((plan) => (
-            <TableRow key={plan.id}>
-              <TableCell className="font-medium">{plan.name}</TableCell>
-              <TableCell>{formatPrice(plan.price_amount, plan.currency)}</TableCell>
-              <TableCell>{formatDuration(plan.billing_frequency)}</TableCell>
-              <TableCell>
-                <PlanStatusBadge plan={plan} />
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex flex-wrap justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEdit(plan)}
-                    aria-label={`Edit ${plan.name}`}
-                  >
-                    Edit
-                  </Button>
-                  {plan.status !== 'archived' ? (
+          {sortedRows.map((plan) => {
+            const isArchived = plan.status === 'archived';
+
+            return (
+              <TableRow key={plan.id}>
+                <TableCell className="font-medium">{plan.name}</TableCell>
+                <TableCell>{formatPlanPrice(plan.price_amount, plan.currency)}</TableCell>
+                <TableCell>{formatDuration(plan.billing_frequency)}</TableCell>
+                <TableCell>
+                  <PlanStatusBadge plan={plan} />
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex flex-wrap justify-end gap-2">
                     <Button
                       type="button"
-                      variant="destructive"
+                      variant="outline"
                       size="sm"
-                      onClick={() => onArchive(plan)}
-                      aria-label={`Archive ${plan.name}`}
+                      onClick={() => onView(plan)}
+                      aria-label={`View ${plan.name}`}
+                      title={`View ${plan.name}`}
                     >
-                      Remove
+                      <Eye className="h-4 w-4" aria-hidden="true" />
+                      <span className="sr-only">View</span>
                     </Button>
-                  ) : null}
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                    {!isArchived ? (
+                      <>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onEdit(plan)}
+                          aria-label={`Edit ${plan.name}`}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => onArchive(plan)}
+                          aria-label={`Remove ${plan.name}`}
+                        >
+                          Remove
+                        </Button>
+                      </>
+                    ) : null}
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

@@ -4,12 +4,12 @@ import { queryKeys } from '@/lib/api/query-keys';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 
 export function useCurrencies() {
-  const { isAuthenticated, isAdmin, isHydrating } = useAdminAuth();
+  const { canFetchAdminData } = useAdminAuth();
 
   return useQuery({
     queryKey: queryKeys.superAdmin.subscriptionPlanCurrencies,
     queryFn: fetchCurrencies,
-    enabled: !isHydrating && isAuthenticated && isAdmin,
+    enabled: canFetchAdminData,
     staleTime: 300_000,
   });
 }

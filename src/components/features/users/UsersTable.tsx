@@ -17,9 +17,9 @@ interface UsersTableProps {
   users: UserItem[];
   isLoading?: boolean;
   currentUserId?: string | null;
+  pageSortOnly?: boolean;
   onEdit: (user: UserItem) => void;
   onRemove: (user: UserItem) => void;
-  pageSortOnly?: boolean;
 }
 
 type UserSortKey = 'name' | 'email' | 'role';
@@ -43,9 +43,9 @@ export function UsersTable({
   users,
   isLoading = false,
   currentUserId = null,
+  pageSortOnly = false,
   onEdit,
   onRemove,
-  pageSortOnly = false,
 }: UsersTableProps) {
   const { sortKey, sortDirection, sortedRows, handleSort, sortEnabled } = useTableSort<
     UserItem,

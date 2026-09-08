@@ -1,3 +1,5 @@
+import { Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SortableTableHead } from '@/components/ui/sortable-table-head';
@@ -22,8 +24,8 @@ interface SupportRequestsTableProps {
   requests: SupportRequestItem[];
   isLoading?: boolean;
   selectedId?: string | null;
-  onSelect: (request: SupportRequestItem) => void;
   pageSortOnly?: boolean;
+  onSelect: (request: SupportRequestItem) => void;
 }
 
 type SupportRequestSortKey = 'user' | 'date' | 'status';
@@ -63,8 +65,8 @@ export function SupportRequestsTable({
   requests,
   isLoading = false,
   selectedId = null,
-  onSelect,
   pageSortOnly = false,
+  onSelect,
 }: SupportRequestsTableProps) {
   const { sortKey, sortDirection, sortedRows, handleSort, sortEnabled } = useTableSort<
     SupportRequestItem,
@@ -120,6 +122,7 @@ export function SupportRequestsTable({
               disabled={sortDisabled}
             />
             <TableHead className="hidden md:table-cell">Inquiry</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -134,17 +137,7 @@ export function SupportRequestsTable({
                 aria-selected={isSelected}
                 className={cn(isSelected && 'bg-muted/60')}
               >
-                <TableCell>
-                  <button
-                    type="button"
-                    onClick={() => onSelect(request)}
-                    className="font-medium text-left text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    aria-label={`View support request from ${userLabel}`}
-                    aria-current={isSelected ? 'true' : undefined}
-                  >
-                    {userLabel}
-                  </button>
-                </TableCell>
+                <TableCell className="font-medium">{userLabel}</TableCell>
                 <TableCell>{formatDate(request.created_at)}</TableCell>
                 <TableCell>
                   <SupportRequestStatusBadge status={request.status} />
@@ -153,6 +146,21 @@ export function SupportRequestsTable({
                   )}
                 </TableCell>
                 <TableCell className="hidden max-w-xs truncate md:table-cell">{preview}</TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSelect(request)}
+                    aria-label={`View support request from ${userLabel}`}
+                    aria-pressed={isSelected}
+                    title="View request"
+                    className="admin-outline-btn"
+                  >
+                    <Eye className="h-4 w-4" aria-hidden="true" />
+                    <span className="sr-only">View</span>
+                  </Button>
+                </TableCell>
               </TableRow>
             );
           })}

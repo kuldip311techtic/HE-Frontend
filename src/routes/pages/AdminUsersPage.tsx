@@ -138,14 +138,14 @@ export function AdminUsersPage() {
   const users = data?.items ?? [];
   const pagination = data?.pagination;
   const isFormSubmitting = create.isPending || update.isPending;
-  const pageSortOnly = Boolean(pagination && pagination.total > users.length);
+  const pageSortOnly = pagination ? pagination.total > users.length : false;
 
   return (
     <div className="admin-manage-page">
       <div className="admin-manage-page__glow" aria-hidden="true" />
       <div className="admin-manage-page__inner">
         <header className="admin-manage-page__header">
-          <h2 className="text-body-42 text-foreground">Manage Users</h2>
+          <h1 className="text-body-42 text-foreground">Manage Users</h1>
           <p className="font-outfit text-body-sm text-muted-foreground">
             View, add, edit, and remove coach and player accounts on the platform.
           </p>
@@ -223,9 +223,9 @@ export function AdminUsersPage() {
             <UsersTable
               users={users}
               currentUserId={user?.id}
+              pageSortOnly={pageSortOnly}
               onEdit={handleEditUser}
               onRemove={handleRemoveUser}
-              pageSortOnly={pageSortOnly}
             />
             {pagination ? (
               <TablePagination

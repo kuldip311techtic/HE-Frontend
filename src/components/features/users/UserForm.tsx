@@ -362,7 +362,13 @@ export function UserForm({
             disabled={isSubmitting}
             className="admin-primary-btn"
           >
-            {mode === 'create' ? 'Add user' : 'Save changes'}
+            {isSubmitting
+              ? mode === 'create'
+                ? 'Adding…'
+                : 'Saving…'
+              : mode === 'create'
+                ? 'Add user'
+                : 'Save changes'}
           </Button>
         </DialogFooter>
       </form>

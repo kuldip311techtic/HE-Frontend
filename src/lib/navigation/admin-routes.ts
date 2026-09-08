@@ -51,13 +51,13 @@ export const MODULE_NAV_CARDS: ModuleNavCardDefinition[] = [
   {
     title: 'Coaches',
     description: 'View and manage platform coaches.',
-    targetPath: '/admin/users',
+    targetPath: '/admin/users?role=Coach',
     icon: Users,
   },
   {
     title: 'Players',
     description: 'View player accounts and activity.',
-    targetPath: '/admin/users',
+    targetPath: '/admin/users?role=Player',
     icon: Activity,
   },
   {
@@ -68,8 +68,12 @@ export const MODULE_NAV_CARDS: ModuleNavCardDefinition[] = [
   },
 ];
 
+export function getAdminRoutePathname(targetPath: string): string {
+  return targetPath.split('?')[0] ?? targetPath;
+}
+
 export function isAdminRouteImplemented(targetPath: string): boolean {
-  return IMPLEMENTED_ADMIN_ROUTES.has(targetPath);
+  return IMPLEMENTED_ADMIN_ROUTES.has(getAdminRoutePathname(targetPath));
 }
 
 export function getModuleNavHref(targetPath: string): string | null {
@@ -158,7 +162,7 @@ export function normalizeAdminRoute(link: string): string | null {
 
 export function getQuickAccessStatus(targetPath: string | null): QuickAccessStatus {
   if (!targetPath) return 'coming_soon';
-  return IMPLEMENTED_ADMIN_ROUTES.has(targetPath) ? 'available' : 'coming_soon';
+  return IMPLEMENTED_ADMIN_ROUTES.has(getAdminRoutePathname(targetPath)) ? 'available' : 'coming_soon';
 }
 
 export function resolveQuickAccessIcon(module: string): LucideIcon {

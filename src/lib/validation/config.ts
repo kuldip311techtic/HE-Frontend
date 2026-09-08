@@ -1,16 +1,9 @@
 import type { AuthUser } from '@/types/auth';
 
-const OPENAPI_LOGIN_EXAMPLE = {
+export const OPENAPI_LOGIN_EXAMPLE = {
   email: 'admin.hoopsengine@yopmail.com',
   password: 'Admin@123',
 } as const;
-
-/** OpenAPI example session_token for GET /api/v1/player/role-selection */
-export const VALIDATION_ROLE_SELECTION_SESSION_TOKEN =
-  '11111111-2222-3333-4444-555555555555';
-
-/** Example session id for GET /sessions/{session_id} contract probe */
-export const VALIDATION_SESSION_ID = '11111111-2222-3333-4444-555555555555';
 
 const PUBLIC_ADMIN_ROUTES = new Set(['/admin/login', '/admin/unauthorized']);
 
@@ -21,12 +14,9 @@ export function isPublicAdminRoute(pathname = window.location.pathname): boolean
   return PUBLIC_ADMIN_ROUTES.has(normalized);
 }
 
+/** True during Vite dev — enables Luna validation auth + contract probes. */
 export function isLunaValidationMode(): boolean {
-  return Boolean(
-    import.meta.env.VITE_LUNA_VALIDATION_EMAIL?.trim() ||
-      import.meta.env.VITE_LUNA_VALIDATION_PASSWORD ||
-      import.meta.env.VITE_LUNA_VALIDATION_ACCESS_TOKEN?.trim(),
-  );
+  return import.meta.env.DEV;
 }
 
 export function getValidationAccessToken(): string | null {
@@ -39,6 +29,13 @@ export function getValidationLoginCredentials(): { email: string; password: stri
 
   if (email && password) {
     return { email, password };
+  }
+
+  if (import.meta.env.DEV) {
+    return {
+      email: OPENAPI_LOGIN_EXAMPLE.email,
+      password: OPENAPI_LOGIN_EXAMPLE.password,
+    };
   }
 
   return null;

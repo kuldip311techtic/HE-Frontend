@@ -70,7 +70,7 @@ export function AdminLayout() {
   }, [isMobileNavOpen, closeMobileNav]);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen overflow-x-clip bg-background">
       <div className="hidden lg:block">
         <AdminSidebar className="fixed inset-y-0 left-0 z-30" />
       </div>
@@ -88,8 +88,8 @@ export function AdminLayout() {
         ref={drawerRef}
         id="admin-mobile-nav"
         className={cn(
-          'fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 lg:hidden',
-          isMobileNavOpen ? 'translate-x-0' : '-translate-x-full',
+          'fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 lg:hidden',
+          isMobileNavOpen ? 'translate-x-0' : '-translate-x-full [clip-path:inset(0_100%_0_0)]',
         )}
         aria-hidden={!isMobileNavOpen}
         {...(!isMobileNavOpen ? { inert: '' } : {})}

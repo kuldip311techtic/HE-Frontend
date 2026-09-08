@@ -18,18 +18,25 @@ export function RemoveOrganizationDialog({
   isLoading = false,
   errorMessage = null,
 }: RemoveOrganizationDialogProps) {
+  const organizationName = organization?.name ?? 'this organization';
+  const description =
+    'This will permanently remove "' +
+    organizationName +
+    '" and its associated data. This action cannot be undone.';
+
   return (
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
       title="Remove organization?"
-      description={`This will permanently remove "${organization?.name ?? 'this organization'}" and its associated data. This action cannot be undone.`}
-      confirmLabel="Remove"
+      description={description}
+      confirmLabel={isLoading ? 'Removing…' : 'Remove'}
       cancelLabel="Cancel"
       onConfirm={onConfirm}
       isLoading={isLoading}
       variant="destructive"
       errorMessage={errorMessage}
+      appearance="admin-form"
     />
   );
 }

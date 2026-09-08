@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { CloseSupportRequestDialog } from '@/components/features/support/CloseSupportRequestDialog';
 import { SupportRequestDetailPanel } from '@/components/features/support/SupportRequestDetailPanel';
 import { SupportRequestsTable } from '@/components/features/support/SupportRequestsTable';
@@ -17,13 +18,6 @@ import {
   type SupportRequestItem,
 } from '@/types/support-requests';
 
-const STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
-  { value: '', label: 'All statuses' },
-  { value: 'open', label: 'Open' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'closed', label: 'Closed' },
-];
-
 export function AdminSupportPage() {
   const { isHydrating } = useAdminAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,7 +25,6 @@ export function AdminSupportPage() {
   const page = Number.parseInt(searchParams.get('page') ?? '1', 10) || 1;
   const pageSize = Number.parseInt(searchParams.get('page_size') ?? '10', 10) || 10;
   const search = searchParams.get('search') ?? '';
-  const status = searchParams.get('status') ?? '';
 
   const [searchInput, setSearchInput] = useState(search);
   const [selectedRequest, setSelectedRequest] = useState<SupportRequestItem | null>(null);
@@ -43,9 +36,8 @@ export function AdminSupportPage() {
       page,
       page_size: pageSize,
       search: search || null,
-      status: status || null,
     }),
-    [page, pageSize, search, status],
+    [page, pageSize, search],
   );
 
   const { data, isLoading, isError, error, refetch, isFetching } = useSupportRequests(listParams);
@@ -70,7 +62,7 @@ export function AdminSupportPage() {
 
   const requests = useMemo(() => data?.items ?? [], [data?.items]);
   const pagination = data?.pagination;
-  const pageSortOnly = Boolean(pagination && pagination.total > requests.length);
+  const pageSortOnly = pagination ? pagination.total > requests.length : false;
 
   useEffect(() => {
     setSearchInput(search);
@@ -91,7 +83,7 @@ export function AdminSupportPage() {
 
   useEffect(() => {
     setSelectedRequest(null);
-  }, [page, pageSize, search, status]);
+  }, [page, pageSize, search]);
 
   useEffect(() => {
     if (!selectedRequest?.id) return;
@@ -125,7 +117,9 @@ export function AdminSupportPage() {
       setSelectedRequest(result);
       setCloseOpen(false);
     } catch (err) {
-      setCloseError(getApiErrorMessage(err, 'Unable to close support request. Please try again.'));
+      const message = getApiErrorMessage(err, 'Unable to close support request. Please try again.');
+      setCloseError(message);
+      toast.error(message);
     }
   };
 
@@ -138,7 +132,7 @@ export function AdminSupportPage() {
       <div className="admin-manage-page__glow" aria-hidden="true" />
       <div className="admin-manage-page__inner">
         <header className="admin-manage-page__header">
-          <h2 className="text-body-42 text-foreground">Support Requests</h2>
+          <h1 className="text-body-42 text-foreground">Support Requests</h1>
           <p className="font-outfit text-body-sm text-muted-foreground">
             Review user inquiries, submit responses, and close resolved support requests.
           </p>
@@ -153,18 +147,6 @@ export function AdminSupportPage() {
               aria-label="Search support requests"
               className="admin-field-input w-full sm:max-w-md"
             />
-            <select
-              value={status}
-              onChange={(event) => updateParams({ status: event.target.value || null, page: '1' })}
-              aria-label="Filter by status"
-              className="admin-field-select sm:w-auto"
-            >
-              {STATUS_FILTER_OPTIONS.map((option) => (
-                <option key={option.value || 'all'} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
           </div>
         </div>
 
@@ -212,8 +194,8 @@ export function AdminSupportPage() {
               <SupportRequestsTable
                 requests={requests}
                 selectedId={selectedRequest?.id ?? null}
-                onSelect={handleSelectRequest}
                 pageSortOnly={pageSortOnly}
+                onSelect={handleSelectRequest}
               />
               <SupportRequestDetailPanel
                 request={selectedRequest}

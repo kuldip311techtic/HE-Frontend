@@ -8,6 +8,9 @@ export function parseUserRole(value: string | undefined | null): UserRole {
   if (value === 'Coach' || value === 'Player') {
     return value;
   }
+  const normalized = value?.trim().toLowerCase();
+  if (normalized === 'coach') return 'Coach';
+  if (normalized === 'player') return 'Player';
   return 'Coach';
 }
 

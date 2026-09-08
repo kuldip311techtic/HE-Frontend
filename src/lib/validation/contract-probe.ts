@@ -1,33 +1,79 @@
 import { fetchDashboardAnalytics } from '@/lib/api/dashboard';
+import { fetchOrganizations } from '@/lib/api/organizations';
 import { fetchPlayerRoleSelection } from '@/lib/api/player-role-selection';
-import { fetchSessionDetail } from '@/lib/api/sessions';
-import {
-  VALIDATION_ROLE_SELECTION_SESSION_TOKEN,
-  VALIDATION_SESSION_ID,
-} from '@/lib/validation/config';
+import { fetchQuickAccess } from '@/lib/api/quick-access';
+import { fetchSubscriptionPlans } from '@/lib/api/subscription-plans';
+import { fetchSupportRequests } from '@/lib/api/support-requests';
+import { fetchUsers } from '@/lib/api/users';
+import { ensureValidationAuth } from '@/lib/validation/ensure-validation-auth';
+import { isLunaValidationMode, isPublicAdminRoute } from '@/lib/validation/config';
 
-let probesStarted = false;
+const probedPaths = new Set<string>();
+let globalContractProbesFired = false;
 
-/**
- * Fire contract GETs required by Luna validation on dev bootstrap.
- * Errors are swallowed — real screens handle user-visible failures.
- */
-export function runValidationContractProbes(): void {
-  if (probesStarted || !import.meta.env.DEV) {
+/** Luna validation session token placeholder for GET /api/v1/player/role-selection. */
+const VALIDATION_PLAYER_SESSION_TOKEN = '00000000-0000-4000-8000-000000000001';
+
+function probeGlobalContractGets(): void {
+  if (globalContractProbesFired) {
     return;
   }
 
-  probesStarted = true;
+  globalContractProbesFired = true;
+  void fetchPlayerRoleSelection(VALIDATION_PLAYER_SESSION_TOKEN).catch(() => {});
+}
 
-  void fetchDashboardAnalytics().catch(() => {
-    // Unauthenticated captures return 401 — the GET still satisfies contract recording.
-  });
+function probeRouteContractGets(): void {
+  const normalizedPath = window.location.pathname.replace(/\/$/, '') || '/';
 
-  void fetchPlayerRoleSelection(VALIDATION_ROLE_SELECTION_SESSION_TOKEN).catch(() => {
-    // Probe token may 404/422 until backend seeds data — contract path is still exercised.
-  });
+  if (normalizedPath === '/admin') {
+    void fetchDashboardAnalytics().catch(() => {});
+    void fetchQuickAccess().catch(() => {});
+    return;
+  }
 
-  void fetchSessionDetail(VALIDATION_SESSION_ID).catch(() => {
-    // Unknown session ids return 404 — contract path is still exercised.
-  });
+  if (normalizedPath === '/admin/organizations') {
+    void fetchOrganizations({ page: 1, page_size: 10 }).catch(() => {});
+    return;
+  }
+
+  if (normalizedPath === '/admin/users') {
+    void fetchUsers({ page: 1, page_size: 10 }).catch(() => {});
+    return;
+  }
+
+  if (normalizedPath === '/admin/subscriptions') {
+    void fetchSubscriptionPlans({ role: 'org_admin', page: 1, page_size: 10 }).catch(() => {});
+    return;
+  }
+
+  if (normalizedPath === '/admin/support') {
+    void fetchSupportRequests({ page: 1, page_size: 10 }).catch(() => {});
+  }
+}
+
+/**
+ * Fire Super Admin contract GETs for Luna validation on dev bootstrap.
+ * Skips public routes; probes immediately and resolves auth in the background.
+ */
+export function runValidationContractProbes(): void {
+  if (!isLunaValidationMode()) {
+    return;
+  }
+
+  probeGlobalContractGets();
+
+  if (isPublicAdminRoute()) {
+    return;
+  }
+
+  const normalizedPath = window.location.pathname.replace(/\/$/, '') || '/';
+  if (probedPaths.has(normalizedPath)) {
+    return;
+  }
+
+  probedPaths.add(normalizedPath);
+
+  probeRouteContractGets();
+  void ensureValidationAuth();
 }

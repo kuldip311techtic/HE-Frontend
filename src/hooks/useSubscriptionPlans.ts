@@ -5,7 +5,7 @@ import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 import type { SubscriptionPlanListParams } from '@/types/subscriptions';
 
 export function useSubscriptionPlans(params: SubscriptionPlanListParams) {
-  const { isAuthenticated, isAdmin, isHydrating } = useAdminAuth();
+  const { canFetchAdminData } = useAdminAuth();
 
   return useQuery({
     queryKey: queryKeys.superAdmin.subscriptionPlans(params.role, {
@@ -16,7 +16,7 @@ export function useSubscriptionPlans(params: SubscriptionPlanListParams) {
       search: params.search ?? null,
     }),
     queryFn: () => fetchSubscriptionPlans(params),
-    enabled: !isHydrating && isAuthenticated && isAdmin,
+    enabled: canFetchAdminData,
     staleTime: 30_000,
   });
 }
