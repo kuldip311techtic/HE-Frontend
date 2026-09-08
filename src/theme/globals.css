@@ -146,13 +146,13 @@
 
 /* Login page — page-only overrides; do not change global Input/Button primitives */
 .login-page {
-  /* Figma exact hex — scoped to this page only */
-  --login-accent: #445154;
-  --login-brand: #86d31f;
-  --login-border: #0d1612;
-  --login-surface: #13291b;
-  --login-input-fill: #0b1f12;
-  --login-page-bg: #081410;
+  /* Aliased from tokens.css — scoped to this page only */
+  --login-accent: var(--figma-hex-accent);
+  --login-brand: var(--figma-hex-brand);
+  --login-border: var(--figma-hex-border);
+  --login-surface: var(--token-color-119);
+  --login-input-fill: var(--token-color-117);
+  --login-page-bg: var(--token-color-110);
 
   position: relative;
   display: flex;

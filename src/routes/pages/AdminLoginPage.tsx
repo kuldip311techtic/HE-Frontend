@@ -1,8 +1,7 @@
 import { FormEvent, useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingState } from '@/components/ui/loading-state';
@@ -97,12 +96,7 @@ export function AdminLoginPage() {
   const isSubmitDisabled = isSubmitting || !email.trim() || !password;
 
   return (
-    <div
-      className="login-page"
-      data-figma-accent="#445154"
-      data-figma-brand="#86d31f"
-      data-figma-border="#0d1612"
-    >
+    <div className="login-page">
       <div className="login-bg-glow" aria-hidden="true" />
       <main className="login-card" aria-labelledby="login-title">
         <div className="login-card-header">
@@ -185,16 +179,16 @@ export function AdminLoginPage() {
               </p>
             ) : null}
 
-            <Button
+            <button
               type="submit"
-              variant="ghost"
               className="login-submit-btn"
-              isLoading={isSubmitting}
               disabled={isSubmitDisabled}
+              aria-busy={isSubmitting}
               aria-describedby={errorMessage ? 'login-form-error' : undefined}
             >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
               {isSubmitting ? 'Signing in…' : 'Sign in'}
-            </Button>
+            </button>
           </form>
         </div>
       </main>
