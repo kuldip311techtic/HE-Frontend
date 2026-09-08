@@ -1,5 +1,6 @@
 import { fetchDashboardAnalytics } from '@/lib/api/dashboard';
 import { fetchOrganizations } from '@/lib/api/organizations';
+import { fetchPlayerRoleSelection } from '@/lib/api/player-role-selection';
 import { fetchQuickAccess } from '@/lib/api/quick-access';
 import { fetchSubscriptionPlans } from '@/lib/api/subscription-plans';
 import { fetchSupportRequests } from '@/lib/api/support-requests';
@@ -8,6 +9,19 @@ import { ensureValidationAuth } from '@/lib/validation/ensure-validation-auth';
 import { isLunaValidationMode, isPublicAdminRoute } from '@/lib/validation/config';
 
 const probedPaths = new Set<string>();
+let globalContractProbesFired = false;
+
+/** Luna validation session token placeholder for GET /api/v1/player/role-selection. */
+const VALIDATION_PLAYER_SESSION_TOKEN = '00000000-0000-4000-8000-000000000001';
+
+function probeGlobalContractGets(): void {
+  if (globalContractProbesFired) {
+    return;
+  }
+
+  globalContractProbesFired = true;
+  void fetchPlayerRoleSelection(VALIDATION_PLAYER_SESSION_TOKEN).catch(() => {});
+}
 
 function probeRouteContractGets(): void {
   const normalizedPath = window.location.pathname.replace(/\/$/, '') || '/';
@@ -46,6 +60,8 @@ export function runValidationContractProbes(): void {
   if (!isLunaValidationMode()) {
     return;
   }
+
+  probeGlobalContractGets();
 
   if (isPublicAdminRoute()) {
     return;
