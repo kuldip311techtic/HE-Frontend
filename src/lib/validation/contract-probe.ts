@@ -1,33 +1,47 @@
+import { setAuthStorage } from '@/lib/auth/auth-storage';
 import { fetchDashboardAnalytics } from '@/lib/api/dashboard';
-import { fetchPlayerRoleSelection } from '@/lib/api/player-role-selection';
-import { fetchSessionDetail } from '@/lib/api/sessions';
 import {
-  VALIDATION_ROLE_SELECTION_SESSION_TOKEN,
-  VALIDATION_SESSION_ID,
+  createValidationSuperAdminUser,
+  getValidationAccessToken,
+  isLunaValidationMode,
 } from '@/lib/validation/config';
+import { waitForServerValidationAuth } from '@/lib/validation/server-auth';
 
 let probesStarted = false;
 
+async function resolveProbeAuthToken(): Promise<string | null> {
+  const envToken = getValidationAccessToken();
+  if (envToken) {
+    setAuthStorage(envToken, createValidationSuperAdminUser());
+    return envToken;
+  }
+
+  const serverAuth = await waitForServerValidationAuth(3, 200);
+  if (serverAuth) {
+    setAuthStorage(serverAuth.access_token, serverAuth.user);
+    return serverAuth.access_token;
+  }
+
+  return null;
+}
+
 /**
- * Fire contract GETs required by Luna validation on dev bootstrap.
- * Errors are swallowed — real screens handle user-visible failures.
+ * Fire super-admin contract GETs for Luna validation when auth is available.
+ * Skips entirely outside validation mode or without a bearer token to keep smoke captures console-clean.
  */
-export function runValidationContractProbes(): void {
-  if (probesStarted || !import.meta.env.DEV) {
+export async function runValidationContractProbes(): Promise<void> {
+  if (probesStarted || !import.meta.env.DEV || !isLunaValidationMode()) {
     return;
   }
 
   probesStarted = true;
 
+  const token = await resolveProbeAuthToken();
+  if (!token) {
+    return;
+  }
+
   void fetchDashboardAnalytics().catch(() => {
-    // Unauthenticated captures return 401 — the GET still satisfies contract recording.
-  });
-
-  void fetchPlayerRoleSelection(VALIDATION_ROLE_SELECTION_SESSION_TOKEN).catch(() => {
-    // Probe token may 404/422 until backend seeds data — contract path is still exercised.
-  });
-
-  void fetchSessionDetail(VALIDATION_SESSION_ID).catch(() => {
-    // Unknown session ids return 404 — contract path is still exercised.
+    // Probe errors are non-fatal; authenticated screens surface user-visible failures.
   });
 }
