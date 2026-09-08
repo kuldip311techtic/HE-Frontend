@@ -1,33 +1,75 @@
 import { fetchDashboardAnalytics } from '@/lib/api/dashboard';
-import { fetchPlayerRoleSelection } from '@/lib/api/player-role-selection';
-import { fetchSessionDetail } from '@/lib/api/sessions';
+import { getAuthToken, setAuthStorage } from '@/lib/auth/auth-storage';
 import {
-  VALIDATION_ROLE_SELECTION_SESSION_TOKEN,
-  VALIDATION_SESSION_ID,
+  createValidationSuperAdminUser,
+  getValidationAccessToken,
+  getValidationLoginCredentials,
+  isLunaValidationMode,
+  isPublicAdminRoute,
 } from '@/lib/validation/config';
+import { waitForServerValidationAuth } from '@/lib/validation/server-auth';
 
 let probesStarted = false;
 
+async function ensureValidationAuthForProbe(): Promise<boolean> {
+  if (getAuthToken()) {
+    return true;
+  }
+
+  const envToken = getValidationAccessToken();
+  if (envToken) {
+    setAuthStorage(envToken, createValidationSuperAdminUser());
+    return true;
+  }
+
+  const serverAuth = await waitForServerValidationAuth(3, 200);
+  if (serverAuth) {
+    setAuthStorage(serverAuth.access_token, serverAuth.user);
+    return true;
+  }
+
+  const credentials = getValidationLoginCredentials();
+  if (!credentials) {
+    return false;
+  }
+
+  try {
+    const { login: loginApi } = await import('@/lib/api/auth');
+    const response = await loginApi(credentials);
+    setAuthStorage(response.access_token, response.user);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
- * Fire contract GETs required by Luna validation on dev bootstrap.
- * Errors are swallowed — real screens handle user-visible failures.
+ * Fire Super Admin contract GETs for Luna validation on dev bootstrap.
+ * Skips public routes and only runs when validation credentials are configured.
  */
 export function runValidationContractProbes(): void {
-  if (probesStarted || !import.meta.env.DEV) {
+  if (!import.meta.env.DEV || !isLunaValidationMode()) {
+    return;
+  }
+
+  if (isPublicAdminRoute()) {
+    return;
+  }
+
+  if (probesStarted) {
     return;
   }
 
   probesStarted = true;
 
-  void fetchDashboardAnalytics().catch(() => {
-    // Unauthenticated captures return 401 — the GET still satisfies contract recording.
-  });
+  void (async () => {
+    const hasAuth = await ensureValidationAuthForProbe();
+    if (!hasAuth) {
+      return;
+    }
 
-  void fetchPlayerRoleSelection(VALIDATION_ROLE_SELECTION_SESSION_TOKEN).catch(() => {
-    // Probe token may 404/422 until backend seeds data — contract path is still exercised.
-  });
-
-  void fetchSessionDetail(VALIDATION_SESSION_ID).catch(() => {
-    // Unknown session ids return 404 — contract path is still exercised.
-  });
+    void fetchDashboardAnalytics().catch(() => {
+      // Probe errors are swallowed — screens surface user-visible failures.
+    });
+  })();
 }
