@@ -4,6 +4,12 @@ import { getAuthToken, clearAuthStorage } from '@/lib/auth/auth-storage';
 
 const PUBLIC_AUTH_PATHS = ['/v1/auth/login', '/v1/auth/forgot-password', '/v1/auth/reset-password'];
 
+let sessionExpiredHandler: (() => void) | null = null;
+
+export function setSessionExpiredHandler(handler: (() => void) | null): void {
+  sessionExpiredHandler = handler;
+}
+
 function isPublicAuthRequest(url: string | undefined): boolean {
   if (!url) return false;
   return PUBLIC_AUTH_PATHS.some((path) => url.includes(path));
@@ -28,6 +34,7 @@ export function setupApiInterceptors(): void {
         const isLoginRequest = isPublicAuthRequest(error.config?.url);
         if (hadAuthHeader && !isLoginRequest) {
           clearAuthStorage();
+          sessionExpiredHandler?.();
         }
       }
       return Promise.reject(error);

@@ -145,8 +145,26 @@ export function getApiErrorMessage(error: unknown, fallback = 'Something went wr
   return fallback;
 }
 
+function parseConflictError(data: unknown): ParsedApiError {
+  const duplicateEmailMessage = 'An account with this email already exists.';
+  const parsed = parseErrorBody(data);
+  const message = parsed?.message ?? duplicateEmailMessage;
+  const fieldErrors = { ...parsed?.fieldErrors };
+
+  if (!fieldErrors.email) {
+    fieldErrors.email =
+      message.toLowerCase().includes('email') ? message : duplicateEmailMessage;
+  }
+
+  return { message, fieldErrors };
+}
+
 export function parseApiError(error: unknown, fallback = 'Something went wrong. Please try again.'): ParsedApiError {
   if (isAxiosError(error) && error.response) {
+    if (error.response.status === 409) {
+      return parseConflictError(error.response.data);
+    }
+
     const parsed = parseErrorBody(error.response.data);
     if (parsed) {
       return parsed;
@@ -154,10 +172,6 @@ export function parseApiError(error: unknown, fallback = 'Something went wrong. 
 
     if (error.response.status === 401) {
       return { message: 'Your session may have expired. Please sign in again.', fieldErrors: {} };
-    }
-
-    if (!error.response) {
-      return { message: 'Unable to connect. Please check your connection.', fieldErrors: {} };
     }
 
     if (error.response.status >= 500) {

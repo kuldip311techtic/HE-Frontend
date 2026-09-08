@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { CloseSupportRequestDialog } from '@/components/features/support/CloseSupportRequestDialog';
 import { SupportRequestDetailPanel } from '@/components/features/support/SupportRequestDetailPanel';
 import { SupportRequestsTable } from '@/components/features/support/SupportRequestsTable';
@@ -70,7 +71,6 @@ export function AdminSupportPage() {
 
   const requests = useMemo(() => data?.items ?? [], [data?.items]);
   const pagination = data?.pagination;
-  const pageSortOnly = Boolean(pagination && pagination.total > requests.length);
 
   useEffect(() => {
     setSearchInput(search);
@@ -125,7 +125,9 @@ export function AdminSupportPage() {
       setSelectedRequest(result);
       setCloseOpen(false);
     } catch (err) {
-      setCloseError(getApiErrorMessage(err, 'Unable to close support request. Please try again.'));
+      const message = getApiErrorMessage(err, 'Unable to close support request. Please try again.');
+      setCloseError(message);
+      toast.error(message);
     }
   };
 
@@ -213,7 +215,6 @@ export function AdminSupportPage() {
                 requests={requests}
                 selectedId={selectedRequest?.id ?? null}
                 onSelect={handleSelectRequest}
-                pageSortOnly={pageSortOnly}
               />
               <SupportRequestDetailPanel
                 request={selectedRequest}

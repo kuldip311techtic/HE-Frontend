@@ -1,3 +1,5 @@
+import { Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SortableTableHead } from '@/components/ui/sortable-table-head';
@@ -23,7 +25,6 @@ interface SupportRequestsTableProps {
   isLoading?: boolean;
   selectedId?: string | null;
   onSelect: (request: SupportRequestItem) => void;
-  pageSortOnly?: boolean;
 }
 
 type SupportRequestSortKey = 'user' | 'date' | 'status';
@@ -64,14 +65,11 @@ export function SupportRequestsTable({
   isLoading = false,
   selectedId = null,
   onSelect,
-  pageSortOnly = false,
 }: SupportRequestsTableProps) {
-  const { sortKey, sortDirection, sortedRows, handleSort, sortEnabled } = useTableSort<
+  const { sortKey, sortDirection, sortedRows, handleSort } = useTableSort<
     SupportRequestItem,
     SupportRequestSortKey
-  >(requests, compareRequests, { enabled: !pageSortOnly });
-
-  const sortDisabled = !sortEnabled;
+  >(requests, compareRequests);
 
   if (isLoading) {
     return (
@@ -87,11 +85,6 @@ export function SupportRequestsTable({
 
   return (
     <div className="admin-manage-table overflow-x-auto">
-      {sortDisabled ? (
-        <p className="border-b border-[var(--figma-hex-border)] px-4 py-2 font-outfit text-body-sm text-muted-foreground">
-          Column sorting is unavailable while results are paginated.
-        </p>
-      ) : null}
       <Table>
         <TableHeader>
           <TableRow>
@@ -101,7 +94,6 @@ export function SupportRequestsTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
-              disabled={sortDisabled}
             />
             <SortableTableHead
               label="Request date"
@@ -109,7 +101,6 @@ export function SupportRequestsTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
-              disabled={sortDisabled}
             />
             <SortableTableHead
               label="Status"
@@ -117,9 +108,9 @@ export function SupportRequestsTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
-              disabled={sortDisabled}
             />
             <TableHead className="hidden md:table-cell">Inquiry</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -134,17 +125,7 @@ export function SupportRequestsTable({
                 aria-selected={isSelected}
                 className={cn(isSelected && 'bg-muted/60')}
               >
-                <TableCell>
-                  <button
-                    type="button"
-                    onClick={() => onSelect(request)}
-                    className="font-medium text-left text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    aria-label={`View support request from ${userLabel}`}
-                    aria-current={isSelected ? 'true' : undefined}
-                  >
-                    {userLabel}
-                  </button>
-                </TableCell>
+                <TableCell className="font-medium">{userLabel}</TableCell>
                 <TableCell>{formatDate(request.created_at)}</TableCell>
                 <TableCell>
                   <SupportRequestStatusBadge status={request.status} />
@@ -153,6 +134,21 @@ export function SupportRequestsTable({
                   )}
                 </TableCell>
                 <TableCell className="hidden max-w-xs truncate md:table-cell">{preview}</TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSelect(request)}
+                    aria-label={`View support request from ${userLabel}`}
+                    aria-pressed={isSelected}
+                    title="View request"
+                    className="admin-outline-btn"
+                  >
+                    <Eye className="h-4 w-4" aria-hidden="true" />
+                    <span className="sr-only">View</span>
+                  </Button>
+                </TableCell>
               </TableRow>
             );
           })}

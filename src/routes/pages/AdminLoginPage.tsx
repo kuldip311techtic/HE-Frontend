@@ -21,7 +21,12 @@ export function AdminLoginPage() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
   if (isHydrating) {
-    return <LoadingState message="Loading…" fullPage />;
+    return (
+      <div className="login-page">
+        <div className="login-bg-glow" aria-hidden="true" />
+        <LoadingState message="Loading…" className="login-loading-state" />
+      </div>
+    );
   }
 
   if (isAuthenticated && isAdminRole(user)) {

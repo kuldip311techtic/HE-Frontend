@@ -46,7 +46,7 @@ export function useSubscriptionPlanMutations(role: SubscriptionPlanRole) {
     mutationFn: (planId: string) => archiveSubscriptionPlan(planId, role),
     onSuccess: async (response) => {
       await invalidateList();
-      toast.success(response.message || 'Subscription plan archived successfully.');
+      toast.success(response.message || 'Subscription plan removed successfully.');
     },
   });
 

@@ -23,6 +23,11 @@ function toApiRoleFilter(role: string): string {
   return role.trim().toLowerCase().replace(/\s+/g, '_');
 }
 
+function toApiRoleValue(role: UserCreateRequest['role'] | UserUpdateRequest['role']): string | undefined {
+  if (role === undefined || role === null) return undefined;
+  return toApiRoleFilter(String(role));
+}
+
 /** GET /api/v1/super-admin/users */
 export async function fetchUsers(params: UserListParams): Promise<UserListResponse> {
   const { data } = await apiClient.request<unknown>({
@@ -48,7 +53,10 @@ export async function createUser(payload: UserCreateRequest): Promise<UserMutati
   const { data } = await apiClient.request<UserMutationResponse>({
     method: createRoute.method,
     url: contractPathToClientPath(createRoute.path),
-    data: payload,
+    data: {
+      ...payload,
+      role: toApiRoleValue(payload.role) ?? payload.role,
+    },
   });
   return data;
 }
@@ -64,7 +72,12 @@ export async function updateUser(
   const { data } = await apiClient.request<UserMutationResponse>({
     method: 'PUT',
     url: contractPathToClientPath(contractPath),
-    data: payload,
+    data: {
+      ...payload,
+      ...(payload.role !== undefined
+        ? { role: toApiRoleValue(payload.role) ?? payload.role }
+        : {}),
+    },
   });
   return data;
 }

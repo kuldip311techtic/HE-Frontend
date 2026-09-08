@@ -361,7 +361,7 @@ export function SubscriptionPlanForm({
             Cancel
           </Button>
           <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
-            Save
+            {isSubmitting ? 'Saving…' : 'Save'}
           </Button>
         </DialogFooter>
       </form>

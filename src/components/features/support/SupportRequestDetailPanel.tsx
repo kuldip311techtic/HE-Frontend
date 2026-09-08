@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { SupportRequestStatusBadge } from '@/components/features/support/SupportRequestStatusBadge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -100,6 +101,7 @@ export function SupportRequestDetailPanel({
     } catch (error) {
       const parsed = parseApiError(error, 'Unable to submit response. Please try again.');
       setFormError(parsed.message);
+      toast.error(parsed.message);
       if (parsed.fieldErrors.response) {
         setFieldError(parsed.fieldErrors.response);
       }
@@ -227,13 +229,12 @@ export function SupportRequestDetailPanel({
                 disabled={isBusy}
                 className="admin-primary-btn"
               >
-                Submit response
+                {isResponding ? 'Submitting…' : 'Submit response'}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                isLoading={isClosing}
                 disabled={isBusy}
                 className="admin-outline-btn"
               >

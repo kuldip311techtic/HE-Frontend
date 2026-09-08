@@ -11,10 +11,10 @@ import {
 export function ModuleNavCards() {
   return (
     <section aria-labelledby="platform-modules-heading">
-      <h3 id="platform-modules-heading" className="mb-4 font-outfit text-body-25 text-foreground">
+      <h3 id="platform-modules-heading" className="dashboard-section-title">
         Platform modules
       </h3>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="dashboard-module-grid">
         {MODULE_NAV_CARDS.map(({ title, description, targetPath, icon: Icon }) => {
           const href = getModuleNavHref(targetPath);
           const isAvailable = isAdminRouteImplemented(targetPath);
@@ -22,30 +22,29 @@ export function ModuleNavCards() {
           return (
             <Card
               key={title}
-              className={
-                isAvailable
-                  ? 'transition-colors hover:bg-muted/50 focus-within:ring-2 focus-within:ring-ring'
-                  : 'opacity-80'
-              }
+              className={`dashboard-module-card${isAvailable ? '' : ' opacity-80'}`}
             >
               <CardHeader>
                 <div className="mb-2 flex items-start justify-between gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <div className="dashboard-module-card__icon-wrap">
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <Badge variant={isAvailable ? 'outline' : 'secondary'}>
                     {isAvailable ? 'Available' : 'Coming soon'}
                   </Badge>
                 </div>
-                <CardTitle className="text-body-25">{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
+                <CardTitle className="dashboard-module-card__title">{title}</CardTitle>
+                <CardDescription className="dashboard-module-card__description">
+                  {description}
+                </CardDescription>
               </CardHeader>
               {href ? (
                 <CardContent>
-                  <Button asChild variant="outline" size="sm">
+                  <Button asChild variant="outline" size="sm" className="admin-outline-btn">
                     <NavLink
                       to={href}
                       className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      aria-label={`Open ${title} module`}
                     >
                       Open module
                     </NavLink>

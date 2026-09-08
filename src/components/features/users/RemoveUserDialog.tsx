@@ -26,7 +26,7 @@ export function RemoveUserDialog({
       onOpenChange={onOpenChange}
       title="Remove user?"
       description={`This will permanently remove "${name}" and revoke their platform access. This action cannot be undone.`}
-      confirmLabel="Remove"
+      confirmLabel={isLoading ? 'Removing…' : 'Remove'}
       cancelLabel="Cancel"
       onConfirm={onConfirm}
       isLoading={isLoading}

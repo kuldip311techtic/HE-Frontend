@@ -21,16 +21,16 @@ export function ArchivePlanDialog({
   const isActive = plan?.is_active === true;
 
   const description = isActive
-    ? `This will archive "${plan?.name ?? 'this plan'}". This plan is currently active and may be assigned to organizations. Archiving will prevent new subscriptions but existing assignments may remain. This action cannot be undone.`
-    : `This will archive "${plan?.name ?? 'this plan'}" and remove it from active subscription offerings. This action cannot be undone.`;
+    ? `This will remove "${plan?.name ?? 'this plan'}" from active offerings. This plan is currently active and may be assigned to organizations. Removing it will prevent new subscriptions but existing assignments may remain. This action cannot be undone.`
+    : `This will remove "${plan?.name ?? 'this plan'}" from active subscription offerings. This action cannot be undone.`;
 
   return (
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Archive subscription plan?"
+      title="Remove subscription plan?"
       description={description}
-      confirmLabel="Archive"
+      confirmLabel="Remove"
       cancelLabel="Cancel"
       onConfirm={onConfirm}
       isLoading={isLoading}

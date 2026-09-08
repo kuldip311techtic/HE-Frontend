@@ -5,12 +5,12 @@ import { queryKeys } from '@/lib/api/query-keys';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
 
 export function useQuickAccess() {
-  const { isAuthenticated, isAdmin, isHydrating } = useAdminAuth();
+  const { canFetchAdminData } = useAdminAuth();
 
   return useQuery({
     queryKey: queryKeys.superAdmin.quickAccess,
     queryFn: fetchQuickAccess,
-    enabled: !isHydrating && isAuthenticated && isAdmin,
+    enabled: canFetchAdminData,
     staleTime: 60_000,
     retry: (failureCount, error) => {
       if (isAxiosError(error) && error.response?.status === 404) {

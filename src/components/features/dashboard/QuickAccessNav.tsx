@@ -67,7 +67,7 @@ export function QuickAccessNav() {
       </div>
 
       {isError ? (
-        <p className="quick-access-section__status-message" role="status">
+        <p className="quick-access-section__status-message" role="status" aria-live="polite">
           {getApiErrorMessage(
             error,
             'Unable to load quick access links. Showing default navigation.',
@@ -98,10 +98,17 @@ export function QuickAccessNav() {
 
       {isSuccess && data !== null && !data.length ? (
         <EmptyState
+          className="quick-access-empty-state"
           title="No quick access links configured"
           description="Quick access modules will appear here once they are available from the server."
           action={
-            <Button variant="outline" onClick={() => refetch()} isLoading={isFetching} disabled={isFetching}>
+            <Button
+              variant="outline"
+              className="quick-access-refresh-btn"
+              onClick={() => refetch()}
+              isLoading={isFetching}
+              disabled={isFetching}
+            >
               {isFetching ? 'Refreshing…' : 'Refresh'}
             </Button>
           }
