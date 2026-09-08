@@ -1,5 +1,7 @@
-import { useMemo, useState, type ReactNode } from 'react';
-import { Columns3, Eye } from 'lucide-react';
+import { type ReactNode } from 'react';
+import { Eye } from 'lucide-react';
+import { DataTableColumnVisibility } from '@/components/shared/DataTableColumnVisibility';
+import { DataTablePageSortNote } from '@/components/shared/DataTablePageSortNote';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -13,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useTableSort } from '@/hooks/useTableSort';
+import { useColumnVisibility, type DataTableColumnDef } from '@/hooks/useColumnVisibility';
 import { cn } from '@/lib/utils/cn';
 import type { SubscriptionPlanItem } from '@/types/subscriptions';
 
@@ -54,13 +57,7 @@ type PlanColumnId =
 
 type PlanSortKey = PlanColumnId;
 
-interface ColumnDef {
-  id: PlanColumnId;
-  label: string;
-  defaultVisible: boolean;
-  alwaysVisible?: boolean;
-  sortable?: boolean;
-}
+type ColumnDef = DataTableColumnDef<PlanColumnId>;
 
 const COLUMN_DEFS: ColumnDef[] = [
   { id: 'id', label: 'Id', defaultVisible: false, sortable: false },
@@ -93,10 +90,6 @@ const COLUMN_DEFS: ColumnDef[] = [
   { id: 'created_at', label: 'Created At', defaultVisible: false },
   { id: 'updated_at', label: 'Updated At', defaultVisible: false },
 ];
-
-const DEFAULT_VISIBLE = new Set(
-  COLUMN_DEFS.filter((col) => col.defaultVisible).map((col) => col.id),
-);
 
 function formatPrice(amount: string, currency: string): string {
   const numeric = Number.parseFloat(amount);
@@ -285,35 +278,13 @@ export function SubscriptionPlansTable({
   onArchive,
   onToggleActive,
 }: SubscriptionPlansTableProps) {
-  const [visibleColumns, setVisibleColumns] = useState<Set<PlanColumnId>>(
-    () => new Set(DEFAULT_VISIBLE),
-  );
-  const [columnsOpen, setColumnsOpen] = useState(false);
+  const { visibleColumns, visibleColumnDefs, toggleColumn } =
+    useColumnVisibility<PlanColumnId>(COLUMN_DEFS);
 
   const { sortKey, sortDirection, sortedRows, handleSort } = useTableSort<
     SubscriptionPlanItem,
     PlanSortKey
   >(plans, comparePlans);
-
-  const visibleColumnDefs = useMemo(
-    () => COLUMN_DEFS.filter((col) => visibleColumns.has(col.id)),
-    [visibleColumns],
-  );
-
-  const toggleColumn = (columnId: PlanColumnId) => {
-    const def = COLUMN_DEFS.find((col) => col.id === columnId);
-    if (def?.alwaysVisible) return;
-
-    setVisibleColumns((prev) => {
-      const next = new Set(prev);
-      if (next.has(columnId)) {
-        next.delete(columnId);
-      } else {
-        next.add(columnId);
-      }
-      return next;
-    });
-  };
 
   if (isLoading) {
     return (
@@ -329,62 +300,15 @@ export function SubscriptionPlansTable({
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
-        <div className="relative">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setColumnsOpen((prev) => !prev)}
-            aria-expanded={columnsOpen}
-            aria-haspopup="true"
-            aria-label="Toggle column visibility"
-            className="admin-outline-btn"
-          >
-            <Columns3 className="h-4 w-4" aria-hidden="true" />
-            Columns
-          </Button>
-          {columnsOpen ? (
-            <>
-              <button
-                type="button"
-                className="fixed inset-0 z-40 cursor-default"
-                aria-label="Close column menu"
-                onClick={() => setColumnsOpen(false)}
-              />
-              <div
-                className="admin-subscriptions-columns-menu absolute right-0 z-50 mt-2 max-h-72 w-64 overflow-y-auto shadow-lg"
-                role="group"
-                aria-label="Column visibility"
-              >
-                {COLUMN_DEFS.map((col) => (
-                  <label
-                    key={col.id}
-                    className={cn(
-                      'flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 font-outfit text-body-sm hover:bg-muted/50',
-                      col.alwaysVisible && 'cursor-not-allowed opacity-60',
-                    )}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={visibleColumns.has(col.id)}
-                      disabled={col.alwaysVisible}
-                      onChange={() => toggleColumn(col.id)}
-                      className="h-4 w-4 rounded border-border"
-                    />
-                    {col.label}
-                  </label>
-                ))}
-              </div>
-            </>
-          ) : null}
-        </div>
-      </div>
+      <DataTableColumnVisibility
+        columns={COLUMN_DEFS}
+        visibleColumns={visibleColumns}
+        onToggleColumn={toggleColumn}
+        menuClassName="admin-subscriptions-columns-menu"
+      />
 
       <div className="admin-manage-table overflow-x-auto">
-        <p className="admin-subscriptions-sort-note">
-          Sorting applies to the current page only.
-        </p>
+        <DataTablePageSortNote className="admin-subscriptions-sort-note" />
         <Table>
           <TableHeader>
             <TableRow>
@@ -433,7 +357,7 @@ export function SubscriptionPlansTable({
                           }
                           onClick={() => onToggleActive(plan)}
                           className={cn(
-                            'admin-subscriptions-toggle relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#86d31f]',
+                            'admin-subscriptions-toggle relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                             plan.is_active ? 'bg-primary' : 'bg-muted',
                           )}
                         >

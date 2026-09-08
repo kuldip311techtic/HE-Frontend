@@ -81,7 +81,6 @@ export function SubscriptionPlanViewDialog({
             value={plan.billing_frequency === 'monthly' ? 'Monthly' : 'Yearly'}
           />
           <DetailRow label="Price" value={formatPrice(plan.price_amount, plan.currency)} />
-          <DetailRow label="Currency" value={plan.currency} />
           <DetailRow label="Stripe product id" value={plan.stripe_product_id || '—'} />
           <DetailRow label="Stripe price id" value={plan.stripe_price_id || '—'} />
           <DetailRow label="Teams limit" value={formatLimitType(plan.teams_limit_type, plan.teams_count)} />

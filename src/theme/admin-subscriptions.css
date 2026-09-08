@@ -212,14 +212,16 @@
   color: #445154;
 }
 
-.admin-subscriptions-page .admin-subscriptions-columns-menu {
+.admin-subscriptions-page .admin-subscriptions-columns-menu,
+.admin-subscriptions-page .data-table-columns-menu.admin-subscriptions-columns-menu {
   border: 1px solid #0d1612;
   border-radius: 10px;
   background-color: #13291b;
   padding: 12px;
 }
 
-.admin-subscriptions-page .admin-subscriptions-columns-menu label {
+.admin-subscriptions-page .admin-subscriptions-columns-menu label,
+.admin-subscriptions-page .data-table-columns-menu.admin-subscriptions-columns-menu label {
   font-family: Outfit, sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -227,7 +229,8 @@
   color: #445154;
 }
 
-.admin-subscriptions-page .admin-subscriptions-columns-menu label:hover {
+.admin-subscriptions-page .admin-subscriptions-columns-menu label:hover,
+.admin-subscriptions-page .data-table-columns-menu.admin-subscriptions-columns-menu label:hover {
   background-color: color-mix(in srgb, #86d31f 8%, transparent);
 }
 

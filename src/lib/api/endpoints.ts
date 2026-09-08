@@ -55,19 +55,14 @@ export const CONTRACT_ROUTES = {
   },
   superAdminOrganizations: {
     method: 'GET' as const,
-    /** Ticket alias: GET /api/super-admin/organizations (JAW-9610) */
-    path: '/api/v1/super-admin/organizations',
+    /** Locked contract: GET /api/super-admin/organizations (JAW-9610) */
+    path: '/api/super-admin/organizations',
     listUnwrapKey: 'items' as string | null,
   },
   superAdminOrganizationsCreate: {
     method: 'POST' as const,
-    /** Ticket alias: POST /api/super-admin/organizations */
-    path: '/api/v1/super-admin/organizations',
-    listUnwrapKey: null as string | null,
-  },
-  superAdminOrganizationDetail: {
-    method: 'GET' as const,
-    path: '/api/v1/super-admin/organizations/{organization_id}',
+    /** Locked contract: POST /api/super-admin/organizations (JAW-9610) */
+    path: '/api/super-admin/organizations',
     listUnwrapKey: null as string | null,
   },
   superAdminOrganizationUpdate: {

@@ -158,6 +158,28 @@
   background-color: #13291b;
 }
 
+.admin-support-page .admin-support-columns-menu,
+.admin-support-page .data-table-columns-menu.admin-support-columns-menu {
+  border: 1px solid #0d1612;
+  border-radius: 10px;
+  background-color: #13291b;
+  padding: 12px;
+}
+
+.admin-support-page .admin-support-columns-menu label,
+.admin-support-page .data-table-columns-menu.admin-support-columns-menu label {
+  font-family: Outfit, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.64px;
+  color: #445154;
+}
+
+.admin-support-page .admin-support-columns-menu label:hover,
+.admin-support-page .data-table-columns-menu.admin-support-columns-menu label:hover {
+  background-color: color-mix(in srgb, #86d31f 8%, transparent);
+}
+
 .admin-support-page .admin-manage-panel {
   border: 1px solid #0d1612;
   border-radius: 10px;

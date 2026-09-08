@@ -22,7 +22,7 @@ export function ModuleNavCards() {
             <Card
               key={title}
               className={cn(
-                'admin-dashboard-module-card',
+                'admin-dashboard-module-card focus-within:ring-2 focus-within:ring-ring',
                 !isAvailable && 'admin-dashboard-module-card--disabled',
               )}
             >
@@ -42,14 +42,14 @@ export function ModuleNavCards() {
                     {isAvailable ? 'Available' : 'Coming soon'}
                   </span>
                 </div>
-                <h3>{title}</h3>
+                <h4>{title}</h4>
                 <p>{description}</p>
               </div>
               {href ? (
                 <div className="admin-dashboard-module-card__content">
                   <NavLink
                     to={href}
-                    className="admin-dashboard-module-card__open focus-visible:outline-none"
+                    className="admin-dashboard-module-card__open focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     Open module
                   </NavLink>

@@ -193,6 +193,28 @@
   background-color: #13291b;
 }
 
+.admin-users-page .admin-users-columns-menu,
+.admin-users-page .data-table-columns-menu.admin-users-columns-menu {
+  border: 1px solid #0d1612;
+  border-radius: 10px;
+  background-color: #13291b;
+  padding: 12px;
+}
+
+.admin-users-page .admin-users-columns-menu label,
+.admin-users-page .data-table-columns-menu.admin-users-columns-menu label {
+  font-family: Outfit, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.64px;
+  color: #445154;
+}
+
+.admin-users-page .admin-users-columns-menu label:hover,
+.admin-users-page .data-table-columns-menu.admin-users-columns-menu label:hover {
+  background-color: color-mix(in srgb, #86d31f 8%, transparent);
+}
+
 /* Portaled dialogs */
 dialog.admin-users-dialog {
   width: calc(100% - 2rem) !important;

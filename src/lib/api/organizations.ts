@@ -18,7 +18,7 @@ const createRoute = CONTRACT_ROUTES.superAdminOrganizationsCreate;
 const updateRoute = CONTRACT_ROUTES.superAdminOrganizationUpdate;
 const deleteRoute = CONTRACT_ROUTES.superAdminOrganizationDelete;
 
-/** GET /api/v1/super-admin/organizations */
+/** GET /api/super-admin/organizations */
 export async function fetchOrganizations(
   params: OrganizationListParams,
 ): Promise<OrganizationListResponse> {
@@ -34,7 +34,7 @@ export async function fetchOrganizations(
   return data;
 }
 
-/** POST /api/v1/super-admin/organizations */
+/** POST /api/super-admin/organizations */
 export async function createOrganization(
   payload: OrganizationCreateRequest,
 ): Promise<OrganizationMutationResponse> {

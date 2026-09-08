@@ -24,7 +24,7 @@ export const queryKeys = {
       [
         'super-admin',
         'organizations',
-        '/api/v1/super-admin/organizations',
+        '/api/super-admin/organizations',
         params,
       ] as const,
     users: (params: Record<string, string | number | null | undefined>) =>

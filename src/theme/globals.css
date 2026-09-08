@@ -691,6 +691,16 @@
   background-color: var(--token-color-119);
 }
 
+.admin-manage-page .admin-manage-table__sort-note {
+  border-bottom: 1px solid var(--figma-hex-border);
+  padding: 8px 16px;
+  font-family: Outfit, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.64px;
+  color: var(--figma-hex-accent);
+}
+
 .admin-manage-page .admin-manage-panel {
   border: 1px solid var(--figma-hex-border);
   border-radius: 10px;
