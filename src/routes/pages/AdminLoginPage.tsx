@@ -100,17 +100,17 @@ export function AdminLoginPage() {
       <div className="login-bg-glow" aria-hidden="true" />
       <main className="login-card" aria-labelledby="login-title">
         <div className="login-card-header">
-          <h1 id="login-title" className="login-card-title">
+          <h1 id="login-title" className="login-card-title text-body-25">
             Admin Sign In
           </h1>
-          <p className="login-card-description">
+          <p className="login-card-description text-body-sm">
             Sign in with your Super Admin credentials to access the admin panel.
           </p>
         </div>
         <div className="login-card-content">
           <form onSubmit={handleSubmit} className="login-form" noValidate aria-label="Super Admin sign in">
             <div className="login-field-group">
-              <Label htmlFor="email" className="login-field-label">
+              <Label htmlFor="email" className="login-field-label font-lato text-body-5 text-[#445154]">
                 Email
               </Label>
               <Input
@@ -123,7 +123,7 @@ export function AdminLoginPage() {
                 disabled={isSubmitting}
                 aria-invalid={Boolean(fieldErrors.email)}
                 aria-describedby={fieldErrors.email ? 'email-error' : undefined}
-                className="login-field-input"
+                className="login-field-input border-[#0d1612] bg-[#0b1f12] text-white shadow-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                 placeholder="admin@example.com"
               />
               {fieldErrors.email ? (
@@ -134,7 +134,7 @@ export function AdminLoginPage() {
             </div>
 
             <div className="login-field-group">
-              <Label htmlFor="password" className="login-field-label">
+              <Label htmlFor="password" className="login-field-label font-lato text-body-5 text-[#445154]">
                 Password
               </Label>
               <div className="login-field-input-wrap">
@@ -148,7 +148,7 @@ export function AdminLoginPage() {
                   disabled={isSubmitting}
                   aria-invalid={Boolean(fieldErrors.password)}
                   aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-                  className="login-field-input login-field-input--password"
+                  className="login-field-input login-field-input--password border-[#0d1612] bg-[#0b1f12] text-white shadow-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                   placeholder="Enter your password"
                 />
                 <button

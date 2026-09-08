@@ -5,10 +5,18 @@ export type UserRole = 'Coach' | 'Player';
 const USER_ROLES: UserRole[] = ['Coach', 'Player'];
 
 export function parseUserRole(value: string | undefined | null): UserRole {
-  if (value === 'Coach' || value === 'Player') {
-    return value;
+  const normalized = value?.trim().toLowerCase();
+  if (normalized === 'coach' || value === 'Coach') {
+    return 'Coach';
+  }
+  if (normalized === 'player' || value === 'Player') {
+    return 'Player';
   }
   return 'Coach';
+}
+
+export function formatUserRoleLabel(role: string): string {
+  return parseUserRole(role);
 }
 
 export function isUserRole(value: string): value is UserRole {

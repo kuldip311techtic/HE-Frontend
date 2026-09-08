@@ -2,7 +2,12 @@ import type { InternalAxiosRequestConfig } from 'axios';
 import { apiClient } from './client';
 import { getAuthToken, clearAuthStorage } from '@/lib/auth/auth-storage';
 
-const PUBLIC_AUTH_PATHS = ['/v1/auth/login', '/v1/auth/forgot-password', '/v1/auth/reset-password'];
+const PUBLIC_AUTH_PATHS = [
+  '/super-admin/login',
+  '/v1/auth/login',
+  '/v1/auth/forgot-password',
+  '/v1/auth/reset-password',
+];
 
 function isPublicAuthRequest(url: string | undefined): boolean {
   if (!url) return false;

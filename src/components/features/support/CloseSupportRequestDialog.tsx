@@ -22,14 +22,18 @@ export function CloseSupportRequestDialog({
   errorMessage = null,
 }: CloseSupportRequestDialogProps) {
   const userLabel = request ? displaySupportRequestUser(request) : 'this user';
+  const description =
+    'This will mark the support request from "' +
+    userLabel +
+    '" as closed. The user will no longer receive further responses on this inquiry.';
 
   return (
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
       title="Close support request?"
-      description={`This will mark the support request from "${userLabel}" as closed. The user will no longer receive further responses on this inquiry.`}
-      confirmLabel="Close request"
+      description={description}
+      confirmLabel={isLoading ? 'Closing…' : 'Close request'}
       cancelLabel="Cancel"
       onConfirm={onConfirm}
       isLoading={isLoading}

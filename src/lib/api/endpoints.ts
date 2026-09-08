@@ -8,8 +8,8 @@
 export const CONTRACT_ROUTES = {
   authLogin: {
     method: 'POST' as const,
-    /** Ticket alias: POST /api/super-admin/login (JAW-9607) — live route is /api/v1/auth/login */
-    path: '/api/v1/auth/login',
+    /** JAW-9607: POST /api/super-admin/login */
+    path: '/api/super-admin/login',
     listUnwrapKey: null as string | null,
   },
   superAdminDashboard: {
@@ -26,26 +26,26 @@ export const CONTRACT_ROUTES = {
   },
   superAdminSubscriptionPlans: {
     method: 'GET' as const,
-    /** Ticket alias: GET /api/super-admin/subscriptions — live route is /api/v1/super-admin/subscription-plans (JAW-9612) */
-    path: '/api/v1/super-admin/subscription-plans',
+    /** JAW-9612: GET /api/super-admin/subscriptions */
+    path: '/api/super-admin/subscriptions',
     listUnwrapKey: 'items' as string | null,
   },
   superAdminSubscriptionPlansCreate: {
     method: 'POST' as const,
-    /** Ticket alias: POST /api/super-admin/subscriptions — live route is /api/v1/super-admin/subscription-plans */
-    path: '/api/v1/super-admin/subscription-plans',
+    /** JAW-9612: POST /api/super-admin/subscriptions */
+    path: '/api/super-admin/subscriptions',
     listUnwrapKey: null as string | null,
   },
   superAdminSubscriptionUpdate: {
     method: 'PUT' as const,
-    /** Ticket alias: PUT /api/super-admin/subscriptions/{id} — live route is /api/v1/super-admin/subscription-plans/{plan_id} */
-    path: '/api/v1/super-admin/subscription-plans/{plan_id}',
+    /** JAW-9612: PUT /api/super-admin/subscriptions/{id} */
+    path: '/api/super-admin/subscriptions/{id}',
     listUnwrapKey: null as string | null,
   },
   superAdminSubscriptionDelete: {
     method: 'DELETE' as const,
-    /** Ticket alias: DELETE /api/super-admin/subscriptions/{id} — live route is /api/v1/super-admin/subscription-plans/{plan_id} */
-    path: '/api/v1/super-admin/subscription-plans/{plan_id}',
+    /** JAW-9612: DELETE /api/super-admin/subscriptions/{id} */
+    path: '/api/super-admin/subscriptions/{id}',
     listUnwrapKey: null as string | null,
   },
   superAdminSubscriptionPlansCurrencies: {
@@ -105,8 +105,8 @@ export const CONTRACT_ROUTES = {
     path: '/api/super-admin/support-requests',
     listUnwrapKey: null as string | null,
   },
-  superAdminSupportRequestDetail: {
-    method: 'GET' as const,
+  superAdminSupportRequestClose: {
+    method: 'PUT' as const,
     /** Ticket-only close route — live API has no admin close endpoint */
     path: '/api/super-admin/support-requests/{id}',
     listUnwrapKey: null as string | null,

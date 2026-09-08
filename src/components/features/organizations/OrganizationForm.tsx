@@ -138,21 +138,23 @@ export function OrganizationForm({
       : 'Update organization contact details and address.';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} className="admin-form-dialog">
       <form onSubmit={handleSubmit}>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+        <DialogHeader className="admin-form-dialog__header border-0 px-6 py-5">
+          <DialogTitle className="admin-form-dialog__title">{title}</DialogTitle>
+          <DialogDescription className="admin-form-dialog__description">
+            {description}
+          </DialogDescription>
         </DialogHeader>
-        <DialogContent className="space-y-4">
+        <DialogContent className="admin-form-dialog__content border-0 py-5">
           {formError ? (
             <p className="font-outfit text-body-sm text-destructive" role="alert">
               {formError}
             </p>
           ) : null}
 
-          <div className="space-y-2">
-            <Label htmlFor="org-name" className="text-body-5">
+          <div className="admin-field-group">
+            <Label htmlFor="org-name" className="admin-field-label">
               Organization name
             </Label>
             <Input
@@ -163,6 +165,7 @@ export function OrganizationForm({
               aria-describedby={fieldErrors.name ? 'org-name-error' : undefined}
               disabled={isSubmitting}
               placeholder="Organization name"
+              className="admin-field-input"
             />
             {fieldErrors.name ? (
               <p id="org-name-error" className="font-outfit text-body-sm text-destructive" role="alert">
@@ -171,8 +174,8 @@ export function OrganizationForm({
             ) : null}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="org-email" className="text-body-5">
+          <div className="admin-field-group">
+            <Label htmlFor="org-email" className="admin-field-label">
               Contact email
             </Label>
             <Input
@@ -186,6 +189,7 @@ export function OrganizationForm({
               aria-describedby={fieldErrors.contact_email ? 'org-email-error' : undefined}
               disabled={isSubmitting}
               placeholder="contact@example.com"
+              className="admin-field-input"
             />
             {fieldErrors.contact_email ? (
               <p id="org-email-error" className="font-outfit text-body-sm text-destructive" role="alert">
@@ -194,8 +198,8 @@ export function OrganizationForm({
             ) : null}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="org-phone" className="text-body-5">
+          <div className="admin-field-group">
+            <Label htmlFor="org-phone" className="admin-field-label">
               Phone number
             </Label>
             <Input
@@ -209,6 +213,7 @@ export function OrganizationForm({
               aria-describedby={fieldErrors.phone_number ? 'org-phone-error' : undefined}
               disabled={isSubmitting}
               placeholder="1234567890"
+              className="admin-field-input"
             />
             {fieldErrors.phone_number ? (
               <p id="org-phone-error" className="font-outfit text-body-sm text-destructive" role="alert">
@@ -217,8 +222,8 @@ export function OrganizationForm({
             ) : null}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="org-address" className="text-body-5">
+          <div className="admin-field-group">
+            <Label htmlFor="org-address" className="admin-field-label">
               Address
             </Label>
             <Textarea
@@ -230,6 +235,7 @@ export function OrganizationForm({
               disabled={isSubmitting}
               placeholder="123 Main St"
               rows={3}
+              className="admin-field-textarea"
             />
             {fieldErrors.address ? (
               <p id="org-address-error" className="font-outfit text-body-sm text-destructive" role="alert">
@@ -238,17 +244,29 @@ export function OrganizationForm({
             ) : null}
           </div>
         </DialogContent>
-        <DialogFooter>
+        <DialogFooter className="admin-form-dialog__footer border-0">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
+            className="admin-outline-btn"
           >
             Cancel
           </Button>
-          <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
-            Save
+          <Button
+            type="submit"
+            isLoading={isSubmitting}
+            disabled={isSubmitting}
+            className="admin-primary-btn border-[#0d1612] bg-[#86d31f] text-[#0d1612]"
+          >
+            {isSubmitting
+              ? mode === 'create'
+                ? 'Adding…'
+                : 'Saving…'
+              : mode === 'create'
+                ? 'Add organization'
+                : 'Save changes'}
           </Button>
         </DialogFooter>
       </form>

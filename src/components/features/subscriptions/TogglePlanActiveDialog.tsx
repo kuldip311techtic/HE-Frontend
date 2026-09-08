@@ -1,40 +1,41 @@
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import type { SubscriptionPlanItem } from '@/types/subscriptions';
 
-interface ArchivePlanDialogProps {
+interface TogglePlanActiveDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   plan: SubscriptionPlanItem | null;
+  nextActive: boolean;
   onConfirm: () => void;
   isLoading?: boolean;
   errorMessage?: string | null;
 }
 
-export function ArchivePlanDialog({
+export function TogglePlanActiveDialog({
   open,
   onOpenChange,
   plan,
+  nextActive,
   onConfirm,
   isLoading = false,
   errorMessage = null,
-}: ArchivePlanDialogProps) {
-  const isActive = plan?.is_active === true;
+}: TogglePlanActiveDialogProps) {
+  const planName = plan?.name ?? 'this plan';
 
-  const description = isActive
-    ? `This will archive "${plan?.name ?? 'this plan'}". This plan is currently active and may be assigned to organizations. Archiving will prevent new subscriptions but existing assignments may remain. This action cannot be undone.`
-    : `This will archive "${plan?.name ?? 'this plan'}" and remove it from active subscription offerings. This action cannot be undone.`;
+  const description = nextActive
+    ? `This will activate "${planName}" and make it available for new subscriptions.`
+    : `This will deactivate "${planName}". Existing subscriptions may remain, but new assignments could be prevented.`;
 
   return (
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Archive subscription plan?"
+      title={nextActive ? 'Activate subscription plan?' : 'Deactivate subscription plan?'}
       description={description}
-      confirmLabel="Archive"
+      confirmLabel={nextActive ? 'Activate' : 'Deactivate'}
       cancelLabel="Cancel"
       onConfirm={onConfirm}
       isLoading={isLoading}
-      variant="destructive"
       appearance="admin-form"
       errorMessage={errorMessage}
     />

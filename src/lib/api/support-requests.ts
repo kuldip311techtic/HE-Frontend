@@ -69,16 +69,14 @@ export async function respondToSupportRequest(
   return data;
 }
 
-/** Ticket-only: live API has no admin close endpoint */
+/** Ticket-only: PUT /api/super-admin/support-requests/{id} — live API has no admin close endpoint */
 export async function closeSupportRequest(
   requestId: string,
 ): Promise<SupportRequestMutationResponse> {
-  const contractPath = contractPathWithParams(
-    CONTRACT_ROUTES.superAdminSupportRequestDetail.path,
-    { id: requestId },
-  );
+  const closeRoute = CONTRACT_ROUTES.superAdminSupportRequestClose;
+  const contractPath = contractPathWithParams(closeRoute.path, { id: requestId });
   const { data } = await apiClient.request<SupportRequestMutationResponse>({
-    method: 'PUT',
+    method: closeRoute.method,
     url: contractPathToClientPath(contractPath),
   });
   return data;

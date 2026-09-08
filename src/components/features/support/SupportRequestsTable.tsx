@@ -23,7 +23,6 @@ interface SupportRequestsTableProps {
   isLoading?: boolean;
   selectedId?: string | null;
   onSelect: (request: SupportRequestItem) => void;
-  pageSortOnly?: boolean;
 }
 
 type SupportRequestSortKey = 'user' | 'date' | 'status';
@@ -64,21 +63,18 @@ export function SupportRequestsTable({
   isLoading = false,
   selectedId = null,
   onSelect,
-  pageSortOnly = false,
 }: SupportRequestsTableProps) {
-  const { sortKey, sortDirection, sortedRows, handleSort, sortEnabled } = useTableSort<
+  const { sortKey, sortDirection, sortedRows, handleSort } = useTableSort<
     SupportRequestItem,
     SupportRequestSortKey
-  >(requests, compareRequests, { enabled: !pageSortOnly });
-
-  const sortDisabled = !sortEnabled;
+  >(requests, compareRequests);
 
   if (isLoading) {
     return (
       <div className="admin-manage-table">
         <div className="space-y-3 p-4">
           {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={`support-skeleton-${index}`} className="h-12 w-full" />
+            <Skeleton key={`support-skeleton-${index}`} className="h-12 w-full bg-[#13291b]" />
           ))}
         </div>
       </div>
@@ -87,11 +83,6 @@ export function SupportRequestsTable({
 
   return (
     <div className="admin-manage-table overflow-x-auto">
-      {sortDisabled ? (
-        <p className="border-b border-[var(--figma-hex-border)] px-4 py-2 font-outfit text-body-sm text-muted-foreground">
-          Column sorting is unavailable while results are paginated.
-        </p>
-      ) : null}
       <Table>
         <TableHeader>
           <TableRow>
@@ -101,7 +92,6 @@ export function SupportRequestsTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
-              disabled={sortDisabled}
             />
             <SortableTableHead
               label="Request date"
@@ -109,7 +99,6 @@ export function SupportRequestsTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
-              disabled={sortDisabled}
             />
             <SortableTableHead
               label="Status"
@@ -117,7 +106,6 @@ export function SupportRequestsTable({
               activeSortKey={sortKey}
               direction={sortDirection}
               onSort={handleSort}
-              disabled={sortDisabled}
             />
             <TableHead className="hidden md:table-cell">Inquiry</TableHead>
           </TableRow>

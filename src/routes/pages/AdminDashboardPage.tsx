@@ -28,6 +28,18 @@ const metricConfig = [
   { key: 'revenue_overview' as const, label: 'Revenue Overview', icon: TrendingUp },
 ];
 
+function formatMetricValue(key: (typeof metricConfig)[number]['key'], value: number): string {
+  if (key === 'revenue_overview') {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
+
+  return value.toLocaleString();
+}
+
 export function AdminDashboardPage() {
   const { user, isHydrating } = useAdminAuth();
   const { data, isLoading, isError, error, refetch, isFetching } = useDashboardAnalytics();
@@ -36,6 +48,12 @@ export function AdminDashboardPage() {
     const result = await refetch();
     if (result.isSuccess) {
       toast.success('Dashboard refreshed.');
+      return;
+    }
+    if (result.isError) {
+      toast.error(
+        getApiErrorMessage(result.error, 'Unable to refresh dashboard data. Please try again.'),
+      );
     }
   };
 
@@ -44,11 +62,11 @@ export function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="admin-dashboard-page space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-body-42 text-foreground">Dashboard</h2>
-          <p className="mt-1 font-outfit text-body-sm text-muted-foreground">
+          <h2 className="font-outfit text-body-42 text-white">Dashboard</h2>
+          <p className="mt-1 font-outfit text-body-sm text-[#9ca3af]">
             Platform overview and key metrics for Hoops Engine.
           </p>
         </div>
@@ -59,17 +77,19 @@ export function AdminDashboardPage() {
           isLoading={isFetching}
           disabled={isFetching}
           aria-label="Refresh dashboard metrics"
-          className="shrink-0"
+          className="admin-outline-btn shrink-0"
         >
           <RefreshCw className="h-4 w-4" aria-hidden="true" />
           {isFetching ? 'Refreshing…' : 'Refresh'}
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Welcome back{user ? `, ${getUserDisplayName(user)}` : ''}</CardTitle>
-          <CardDescription>
+      <Card className="admin-dashboard-welcome-card">
+        <CardHeader className="gap-[10px] p-5">
+          <CardTitle className="font-outfit text-body-25 text-white">
+            Welcome back{user ? `, ${getUserDisplayName(user)}` : ''}
+          </CardTitle>
+          <CardDescription className="font-lato text-body-5 text-[#445154]">
             {data?.description ??
               'Your Super Admin dashboard is ready. Use the navigation to manage platform resources.'}
           </CardDescription>
@@ -77,12 +97,16 @@ export function AdminDashboardPage() {
       </Card>
 
       {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div
+          className="admin-dashboard-metrics-grid"
+          aria-busy="true"
+          aria-label="Loading dashboard metrics"
+        >
           {Array.from({ length: 6 }).map((_, index) => (
-            <Card key={index}>
-              <CardHeader className="space-y-3">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-8 w-16" />
+            <Card key={index} className="admin-dashboard-metric-card">
+              <CardHeader className="space-y-3 p-5">
+                <Skeleton className="h-4 w-24 bg-[#13291b]" />
+                <Skeleton className="h-8 w-16 bg-[#13291b]" />
               </CardHeader>
             </Card>
           ))}
@@ -94,7 +118,12 @@ export function AdminDashboardPage() {
           title="Unable to load dashboard metrics"
           description={getApiErrorMessage(error, 'Unable to load dashboard data. Please try again.')}
           action={
-            <Button onClick={handleRefresh} isLoading={isFetching} disabled={isFetching}>
+            <Button
+              onClick={handleRefresh}
+              isLoading={isFetching}
+              disabled={isFetching}
+              className="admin-primary-btn border-[#0d1612] bg-[#86d31f] text-[#0d1612]"
+            >
               {isFetching ? 'Retrying…' : 'Retry'}
             </Button>
           }
@@ -102,27 +131,20 @@ export function AdminDashboardPage() {
       ) : null}
 
       {!isLoading && !isError && data ? (
-        <div
-          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
-          aria-label="Dashboard metrics"
-        >
+        <div className="admin-dashboard-metrics-grid" aria-label="Dashboard metrics">
           {metricConfig.map(({ key, label, icon: Icon }) => (
-            <Card key={key}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="font-outfit text-body-sm font-medium text-muted-foreground">
+            <Card key={key} className="admin-dashboard-metric-card">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-5 pb-2">
+                <CardTitle className="font-lato text-body-5 font-medium text-[#445154]">
                   {label}
                 </CardTitle>
-                <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+                <div className="admin-dashboard-metric-card__icon">
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <p className="font-outfit text-2xl font-bold text-foreground">
-                  {key === 'revenue_overview'
-                    ? new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                        maximumFractionDigits: 0,
-                      }).format(data[key])
-                    : data[key].toLocaleString()}
+              <CardContent className="p-5 pt-0">
+                <p className="font-outfit text-2xl font-bold text-white">
+                  {formatMetricValue(key, data[key])}
                 </p>
               </CardContent>
             </Card>
@@ -135,7 +157,12 @@ export function AdminDashboardPage() {
           title="Dashboard ready"
           description="Metrics will appear here once analytics data is available."
           action={
-            <Button onClick={handleRefresh} isLoading={isFetching} disabled={isFetching}>
+            <Button
+              onClick={handleRefresh}
+              isLoading={isFetching}
+              disabled={isFetching}
+              className="admin-primary-btn border-[#0d1612] bg-[#86d31f] text-[#0d1612]"
+            >
               {isFetching ? 'Refreshing…' : 'Refresh'}
             </Button>
           }

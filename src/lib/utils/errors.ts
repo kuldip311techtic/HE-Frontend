@@ -149,15 +149,22 @@ export function parseApiError(error: unknown, fallback = 'Something went wrong. 
   if (isAxiosError(error) && error.response) {
     const parsed = parseErrorBody(error.response.data);
     if (parsed) {
+      if (error.response.status === 409 && !parsed.fieldErrors.email) {
+        return {
+          message: parsed.message,
+          fieldErrors: { ...parsed.fieldErrors, email: parsed.message },
+        };
+      }
       return parsed;
+    }
+
+    if (error.response.status === 409) {
+      const duplicateMessage = 'A user with this email already exists.';
+      return { message: duplicateMessage, fieldErrors: { email: duplicateMessage } };
     }
 
     if (error.response.status === 401) {
       return { message: 'Your session may have expired. Please sign in again.', fieldErrors: {} };
-    }
-
-    if (!error.response) {
-      return { message: 'Unable to connect. Please check your connection.', fieldErrors: {} };
     }
 
     if (error.response.status >= 500) {

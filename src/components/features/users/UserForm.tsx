@@ -360,9 +360,15 @@ export function UserForm({
             type="submit"
             isLoading={isSubmitting}
             disabled={isSubmitting}
-            className="admin-primary-btn"
+            className="admin-primary-btn border-[#0d1612] bg-[#86d31f] text-[#0d1612]"
           >
-            {mode === 'create' ? 'Add user' : 'Save changes'}
+            {isSubmitting
+              ? mode === 'create'
+                ? 'Adding…'
+                : 'Saving…'
+              : mode === 'create'
+                ? 'Add user'
+                : 'Save changes'}
           </Button>
         </DialogFooter>
       </form>

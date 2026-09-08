@@ -37,6 +37,7 @@ export interface ModuleNavCardDefinition {
   title: string;
   description: string;
   targetPath: string;
+  searchParams?: Record<string, string>;
   icon: LucideIcon;
 }
 
@@ -52,12 +53,14 @@ export const MODULE_NAV_CARDS: ModuleNavCardDefinition[] = [
     title: 'Coaches',
     description: 'View and manage platform coaches.',
     targetPath: '/admin/users',
+    searchParams: { role: 'Coach' },
     icon: Users,
   },
   {
     title: 'Players',
     description: 'View player accounts and activity.',
     targetPath: '/admin/users',
+    searchParams: { role: 'Player' },
     icon: Activity,
   },
   {
@@ -72,8 +75,20 @@ export function isAdminRouteImplemented(targetPath: string): boolean {
   return IMPLEMENTED_ADMIN_ROUTES.has(targetPath);
 }
 
-export function getModuleNavHref(targetPath: string): string | null {
-  return isAdminRouteImplemented(targetPath) ? targetPath : null;
+export function getModuleNavHref(
+  targetPath: string,
+  searchParams?: Record<string, string>,
+): string | null {
+  if (!isAdminRouteImplemented(targetPath)) {
+    return null;
+  }
+
+  if (!searchParams || Object.keys(searchParams).length === 0) {
+    return targetPath;
+  }
+
+  const params = new URLSearchParams(searchParams);
+  return `${targetPath}?${params.toString()}`;
 }
 
 export type QuickAccessStatus = 'available' | 'coming_soon';

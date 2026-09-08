@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { OrganizationForm } from '@/components/features/organizations/OrganizationForm';
@@ -12,6 +12,7 @@ import { TablePagination } from '@/components/ui/pagination';
 import { useOrganizationMutations } from '@/hooks/useOrganizationMutations';
 import { useOrganizations } from '@/hooks/useOrganizations';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
+import { DEFAULT_SEARCH_DEBOUNCE_MS } from '@/lib/constants/search';
 import { getApiErrorMessage } from '@/lib/utils/errors';
 import type {
   OrganizationCreateRequest,
@@ -63,10 +64,22 @@ export function AdminOrganizationsPage() {
     [setSearchParams],
   );
 
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    updateParams({ search: searchInput.trim() || null, page: '1' });
-  };
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  useEffect(() => {
+    const trimmed = searchInput.trim();
+    if (trimmed === search) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      updateParams({ search: trimmed || null, page: '1' });
+    }, DEFAULT_SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [searchInput, search, updateParams]);
 
   const handleAddOrganization = () => {
     setFormMode('create');
@@ -119,88 +132,97 @@ export function AdminOrganizationsPage() {
   const isFormSubmitting = create.isPending || update.isPending;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h2 className="text-body-42 text-foreground">Manage Organizations</h2>
-          <p className="mt-1 font-outfit text-body-sm text-muted-foreground">
+    <div className="admin-manage-page">
+      <div className="admin-manage-page__glow" aria-hidden="true" />
+      <div className="admin-manage-page__inner">
+        <header className="admin-manage-page__header">
+          <h2 className="font-outfit text-body-42 text-white">Manage Organizations</h2>
+          <p className="font-outfit text-body-sm text-[#9ca3af]">
             View, add, edit, and remove organization accounts on the platform.
           </p>
-        </div>
-        <Button type="button" onClick={handleAddOrganization} className="shrink-0">
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          Add organization
-        </Button>
-      </div>
+        </header>
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <form onSubmit={handleSearchSubmit} className="flex w-full max-w-md gap-2">
-          <Input
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-            placeholder="Search organizations…"
-            aria-label="Search organizations"
-          />
-          <Button type="submit" variant="outline">
-            Search
-          </Button>
-        </form>
-      </div>
-
-      {isError ? (
-        <EmptyState
-          title="Unable to load organizations"
-          description={getApiErrorMessage(
-            error,
-            'Unable to load organizations. Please try again.',
-          )}
-          action={
-            <Button onClick={() => refetch()} isLoading={isFetching} disabled={isFetching}>
-              {isFetching ? 'Retrying…' : 'Retry'}
-            </Button>
-          }
-        />
-      ) : null}
-
-      {!isError && isLoading ? (
-        <OrganizationsTable
-          organizations={[]}
-          isLoading
-          onEdit={() => {}}
-          onRemove={() => {}}
-        />
-      ) : null}
-
-      {!isError && !isLoading && organizations.length === 0 ? (
-        <EmptyState
-          title="No organizations yet"
-          description="Create your first organization to get started."
-          action={
-            <Button type="button" onClick={handleAddOrganization}>
-              Add organization
-            </Button>
-          }
-        />
-      ) : null}
-
-      {!isError && !isLoading && organizations.length > 0 ? (
-        <div className="space-y-4">
-          <OrganizationsTable
-            organizations={organizations}
-            onEdit={handleEditOrganization}
-            onRemove={handleRemoveOrganization}
-          />
-          {pagination ? (
-            <TablePagination
-              pagination={pagination}
-              onPageChange={(nextPage) => updateParams({ page: String(nextPage) })}
-              onPageSizeChange={(nextSize) =>
-                updateParams({ page_size: String(nextSize), page: '1' })
-              }
+        <div className="admin-manage-page__toolbar">
+          <div className="admin-manage-page__toolbar-filters">
+            <Input
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder="Search organizations…"
+              aria-label="Search organizations"
+              className="admin-field-input w-full sm:max-w-md"
             />
-          ) : null}
+          </div>
+          <Button
+            type="button"
+            onClick={handleAddOrganization}
+            className="admin-primary-btn shrink-0 border-[#0d1612] bg-[#86d31f] text-[#0d1612]"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add organization
+          </Button>
         </div>
-      ) : null}
+
+        {isError ? (
+          <EmptyState
+            title="Unable to load organizations"
+            description={getApiErrorMessage(
+              error,
+              'Unable to load organizations. Please try again.',
+            )}
+            action={
+              <Button
+                onClick={() => refetch()}
+                isLoading={isFetching}
+                disabled={isFetching}
+                className="admin-primary-btn"
+              >
+                {isFetching ? 'Retrying…' : 'Retry'}
+              </Button>
+            }
+          />
+        ) : null}
+
+        {!isError && isLoading ? (
+          <OrganizationsTable
+            organizations={[]}
+            isLoading
+            onEdit={() => {}}
+            onRemove={() => {}}
+          />
+        ) : null}
+
+        {!isError && !isLoading && organizations.length === 0 ? (
+          <EmptyState
+            title="No organizations found"
+            description="Create your first organization to get started."
+            action={
+              <Button type="button" onClick={handleAddOrganization} className="admin-primary-btn">
+                Add organization
+              </Button>
+            }
+          />
+        ) : null}
+
+        {!isError && !isLoading && organizations.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            <OrganizationsTable
+              organizations={organizations}
+              onEdit={handleEditOrganization}
+              onRemove={handleRemoveOrganization}
+            />
+            {pagination ? (
+              <TablePagination
+                pagination={pagination}
+                appearance="admin"
+                onPageChange={(nextPage) => updateParams({ page: String(nextPage) })}
+                onPageSizeChange={(nextSize) =>
+                  updateParams({ page_size: String(nextSize), page: '1' })
+                }
+              />
+            ) : null}
+          </div>
+        ) : null}
+      </div>
 
       <OrganizationForm
         open={formOpen}
