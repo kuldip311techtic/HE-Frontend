@@ -1,5 +1,9 @@
 import type { AuthUser } from '@/types/auth';
-import { LUNA_VALIDATION_AUTH_JSON_PATH } from '@/lib/validation/config';
+import {
+  LUNA_VALIDATION_AUTH_JSON_PATH,
+  VALIDATION_AUTH_MAX_ATTEMPTS,
+  VALIDATION_AUTH_POLL_INTERVAL_MS,
+} from '@/lib/validation/config';
 
 interface ServerValidationAuthResponse {
   access_token: string;
@@ -31,8 +35,8 @@ async function fetchServerValidationAuthOnce(): Promise<ServerValidationAuthResp
 
 /** Poll the Vite dev-server auth endpoint until Luna validation login succeeds or times out. */
 export async function waitForServerValidationAuth(
-  maxAttempts = 10,
-  intervalMs = 500,
+  maxAttempts = VALIDATION_AUTH_MAX_ATTEMPTS,
+  intervalMs = VALIDATION_AUTH_POLL_INTERVAL_MS,
 ): Promise<ServerValidationAuthResponse | null> {
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const payload = await fetchServerValidationAuthOnce();

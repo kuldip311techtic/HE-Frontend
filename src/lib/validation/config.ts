@@ -9,6 +9,10 @@ const PUBLIC_ADMIN_ROUTES = new Set(['/admin/login', '/admin/unauthorized']);
 
 export const LUNA_VALIDATION_AUTH_JSON_PATH = '/__luna_validation_auth.json';
 
+/** Keep in sync with vite/luna-validation-auth-plugin.ts polling loop. */
+export const VALIDATION_AUTH_MAX_ATTEMPTS = 120;
+export const VALIDATION_AUTH_POLL_INTERVAL_MS = 500;
+
 export function isPublicAdminRoute(pathname = window.location.pathname): boolean {
   const normalized = pathname.replace(/\/$/, '') || '/';
   return PUBLIC_ADMIN_ROUTES.has(normalized);

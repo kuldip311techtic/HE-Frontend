@@ -21,7 +21,7 @@ import {
   isLunaValidationMode,
   isPublicAdminRoute,
 } from '@/lib/validation/config';
-import { waitForServerValidationAuth } from '@/lib/validation/server-auth';
+import { getServerValidationAuth } from '@/lib/validation/server-auth';
 import type { AuthUser } from '@/types/auth';
 
 interface AdminAuthContextValue {
@@ -53,14 +53,15 @@ async function resolveValidationSession(): Promise<ValidationSessionResult> {
     return { user: validationUser, bypass: false };
   }
 
-  const serverAuth = await waitForServerValidationAuth(3, 200);
+  const serverAuth = await getServerValidationAuth();
   if (serverAuth) {
     setAuthStorage(serverAuth.access_token, serverAuth.user);
     return { user: serverAuth.user, bypass: false };
   }
 
   const credentials = getValidationLoginCredentials();
-  if (credentials) {
+  // In dev, the Vite validation plugin already POSTs the same credentials server-side.
+  if (credentials && !(import.meta.env.DEV && isLunaValidationMode())) {
     try {
       const { login: loginApi } = await import('@/lib/api/auth');
       const response = await loginApi(credentials);

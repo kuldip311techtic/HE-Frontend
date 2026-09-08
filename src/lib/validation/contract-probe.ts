@@ -5,7 +5,7 @@ import {
   getValidationAccessToken,
   isLunaValidationMode,
 } from '@/lib/validation/config';
-import { waitForServerValidationAuth } from '@/lib/validation/server-auth';
+import { getServerValidationAuth } from '@/lib/validation/server-auth';
 
 let probesStarted = false;
 
@@ -16,7 +16,7 @@ async function resolveProbeAuthToken(): Promise<string | null> {
     return envToken;
   }
 
-  const serverAuth = await waitForServerValidationAuth(3, 200);
+  const serverAuth = await getServerValidationAuth();
   if (serverAuth) {
     setAuthStorage(serverAuth.access_token, serverAuth.user);
     return serverAuth.access_token;
