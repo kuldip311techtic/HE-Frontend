@@ -1,6 +1,6 @@
 # Hoops Engine — Admin
 
-Super Admin panel for the Hoops Engine platform. Built with Vite, React, TypeScript, Tailwind CSS, and shadcn/ui-style components.
+Super Admin panel for the Hoops Engine platform. Built with Vite, React, TypeScript, Tailwind CSS, and shadcn/ui-style components at the **repository root** (no `backend/`, `frontend/`, or `mobile/` wrapper folder).
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ npm install
 npm run dev
 ```
 
-The app runs at [http://localhost:5173](http://localhost:5173).
+The app runs at [http://localhost:5173](http://localhost:5173). In dev, `VITE_API_BASE_URL=/api` routes API calls through the Vite proxy to `http://localhost:3300`.
 
 ## Scripts
 
@@ -33,36 +33,58 @@ The app runs at [http://localhost:5173](http://localhost:5173).
 | `npm run lint` | Run ESLint |
 | `npm run format` | Format source with Prettier |
 | `npm run test` | Run Vitest unit tests |
+| `npm run test:watch` | Run Vitest in watch mode |
 
 ## Environment
 
 | Variable | Description |
 |----------|-------------|
-| `VITE_API_BASE_URL` | Backend API base URL including `/api` segment (default: `http://localhost:3300/api`) |
+| `VITE_API_BASE_URL` | Backend API base URL including `/api` segment. Use `/api` in dev (Vite proxy) or an absolute URL such as `http://localhost:3300/api` for production builds. |
 
 ## Routes
 
 | Path | Description |
 |------|-------------|
+| `/` | Redirects to `/admin` |
 | `/admin/login` | Public sign-in page |
 | `/admin/unauthorized` | Access denied for non-admin users |
 | `/admin` | Protected dashboard (Super Admin only) |
 
 ## Auth
 
-- Login: `POST /v1/auth/login` with email and password
-- Bearer token stored in `localStorage` and attached to API requests
-- Route guard allows users with `is_super_admin: true` or admin roles
+- Login: `POST /api/v1/auth/login` (ticket alias: `POST /api/super-admin/login`) with email and password
+- Bearer token stored in `localStorage` (`hoops_admin_token`, `hoops_admin_user`) and attached to API requests via axios interceptor
+- `AdminRouteGuard` allows users with `is_super_admin: true` or `admin` / `super_admin` roles; others redirect to `/admin/unauthorized`
 
 ## Project structure
 
 ```
+package.json
+vite.config.ts
+tsconfig.json
+index.html
+.env.example
+public/
 src/
-  components/   # UI primitives, layout, features
-  hooks/        # React Query hooks
-  lib/          # API client, auth, utilities
-  routes/       # Route config and pages
-  theme/        # Design tokens and global CSS
-  types/        # TypeScript interfaces
-tests/          # Vitest tests
+  main.tsx
+  App.tsx
+  routes/
+    AppRoutes.tsx
+    pages/
+  components/
+    ui/
+    layout/
+    features/
+    shared/
+  hooks/
+  lib/
+    api/
+    auth/
+    navigation/
+    utils/
+    validation/
+  theme/
+  types/
+  assets/
+tests/
 ```
