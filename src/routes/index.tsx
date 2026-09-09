@@ -9,6 +9,8 @@ import { OrganizationsPage } from '@/pages/admin/OrganizationsPage';
 import { UsersPage } from '@/pages/admin/UsersPage';
 import { SubscriptionsPage } from '@/pages/admin/SubscriptionsPage';
 import { SupportRequestsPage } from '@/pages/admin/SupportRequestsPage';
+import { TeamDetailPage } from '@/pages/admin/TeamDetailPage';
+import { SessionDetailPage } from '@/pages/admin/SessionDetailPage';
 import { UnauthorizedPage } from '@/pages/admin/UnauthorizedPage';
 
 export function AppRoutes() {
@@ -25,6 +27,9 @@ export function AppRoutes() {
           <Route path="/admin/subscriptions" element={<SubscriptionsPage />} />
           <Route path="/admin/support" element={<SupportRequestsPage />} />
           <Route path="/admin/analytics" element={<AnalyticsPage />} />
+          <Route path="/admin/teams/:teamId" element={<TeamDetailPage />} />
+          <Route path="/admin/sessions/:sessionId" element={<SessionDetailPage />} />
+          <Route path="/sessions/:sessionId" element={<SessionDetailPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -17,9 +17,10 @@ export function registerApiInterceptors(client: AxiosInstance): void {
         const requestUrl = String(error.config?.url ?? '');
         const isLoginCall = requestUrl.includes('/login');
         if (!isLoginCall) {
+          const hadToken = Boolean(getToken());
           clearAuthStorage();
           window.dispatchEvent(new CustomEvent('auth:logout'));
-          if (!window.location.pathname.startsWith('/admin/login')) {
+          if (hadToken && !window.location.pathname.startsWith('/admin/login')) {
             window.location.assign('/admin/login');
           }
         }

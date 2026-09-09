@@ -13,4 +13,7 @@ export const queryKeys = {
   subscriptionCurrencies: ['super-admin', 'subscription-plans', 'currencies'] as const,
   supportRequests: (params: SupportRequestListParams) =>
     ['super-admin', 'support-requests', params] as const,
+  playerRoleSelection: ['player', 'role-selection'] as const,
+  organizationAdminTeam: (teamId: string) => ['organization-admin', 'teams', teamId] as const,
+  session: (sessionId: string) => ['sessions', sessionId] as const,
 };

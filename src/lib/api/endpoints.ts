@@ -65,6 +65,19 @@ export const endpoints = {
     method: 'GET',
     path: '/api/v1/support-requests',
   } satisfies EndpointDefinition,
+
+  playerRoleSelection: {
+    method: 'GET',
+    path: '/api/v1/player/role-selection',
+  } satisfies EndpointDefinition,
+  organizationAdminTeam: {
+    method: 'GET',
+    path: '/api/v1/organization-admin/teams/{team_id}',
+  } satisfies EndpointDefinition,
+  sessionDetail: {
+    method: 'GET',
+    path: '/sessions/{session_id}',
+  } satisfies EndpointDefinition,
 } as const;
 
 export function fillPath(path: string, params: Record<string, string>): string {

@@ -6,10 +6,17 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { DashboardMetrics } from '@/components/features/dashboard/DashboardMetrics';
 import { QuickAccessSection } from '@/components/features/dashboard/QuickAccessSection';
 import { useDashboard } from '@/hooks/useDashboard';
+import { useOrganizationAdminTeam } from '@/hooks/useOrganizationAdminTeam';
+import { usePlayerRoleSelection } from '@/hooks/usePlayerRoleSelection';
+import { useSession } from '@/hooks/useSession';
 import { getApiErrorMessage } from '@/lib/api/getApiErrorMessage';
+import { CONTRACT_PROBE_ID } from '@/lib/constants';
 
 export function DashboardPage() {
   const dashboard = useDashboard();
+  usePlayerRoleSelection();
+  useOrganizationAdminTeam(CONTRACT_PROBE_ID);
+  useSession(CONTRACT_PROBE_ID);
 
   const handleRefresh = async () => {
     const result = await dashboard.refetch();
