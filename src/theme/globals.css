@@ -8,6 +8,22 @@
 @layer base {
   * {
     @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: var(--token-border) var(--token-color-117);
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--token-border);
+    border-radius: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--token-color-117);
   }
 
   body {

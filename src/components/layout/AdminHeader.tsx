@@ -25,7 +25,7 @@ export function AdminHeader({ onMenuClick, menuTriggerRef, mobileMenuOpen }: Adm
   const navigate = useNavigate();
 
   const displayName = user
-    ? `${user.first_name} ${user.last_name}`.trim() || user.email
+    ? `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.email
     : 'Admin';
   const initials = displayName
     .split(' ')
@@ -86,6 +86,7 @@ export function AdminHeader({ onMenuClick, menuTriggerRef, mobileMenuOpen }: Adm
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem disabled>Profile</DropdownMenuItem>
           <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -3,7 +3,12 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AdminRouteGuard } from '@/components/features/auth/AdminRouteGuard';
 import { RootRedirect } from '@/routes/RootRedirect';
 import { LoginPage } from '@/pages/admin/LoginPage';
-import { DashboardPlaceholderPage } from '@/pages/admin/DashboardPlaceholderPage';
+import { DashboardPage } from '@/pages/admin/DashboardPage';
+import { AnalyticsPage } from '@/pages/admin/AnalyticsPage';
+import { OrganizationsPage } from '@/pages/admin/OrganizationsPage';
+import { UsersPage } from '@/pages/admin/UsersPage';
+import { SubscriptionsPage } from '@/pages/admin/SubscriptionsPage';
+import { SupportRequestsPage } from '@/pages/admin/SupportRequestsPage';
 import { UnauthorizedPage } from '@/pages/admin/UnauthorizedPage';
 
 export function AppRoutes() {
@@ -14,7 +19,12 @@ export function AppRoutes() {
       <Route path="/admin/unauthorized" element={<UnauthorizedPage />} />
       <Route element={<AdminRouteGuard />}>
         <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<DashboardPlaceholderPage />} />
+          <Route path="/admin/dashboard" element={<DashboardPage />} />
+          <Route path="/admin/organizations" element={<OrganizationsPage />} />
+          <Route path="/admin/users" element={<UsersPage />} />
+          <Route path="/admin/subscriptions" element={<SubscriptionsPage />} />
+          <Route path="/admin/support" element={<SupportRequestsPage />} />
+          <Route path="/admin/analytics" element={<AnalyticsPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

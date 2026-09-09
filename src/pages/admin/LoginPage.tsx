@@ -28,6 +28,13 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+/** Figma GLOBAL DESIGN TOKENS — login page only (do not restyle shared Input/Button). */
+const LOGIN_FIGMA_TOKENS: React.CSSProperties = {
+  ['--login-accent' as string]: '#445154',
+  ['--login-brand' as string]: '#86d31f',
+  ['--login-border' as string]: '#0d1612',
+};
+
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,6 +45,9 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
+  const emailValue = form.watch('email');
+  const passwordValue = form.watch('password');
+  const canSubmit = emailValue.trim().length > 0 && passwordValue.length > 0 && !loginMutation.isPending;
 
   React.useEffect(() => {
     if (isAuthenticated && isAdmin) {
@@ -70,7 +80,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="login-page">
+    <div className="login-page" style={LOGIN_FIGMA_TOKENS}>
       <div className="login-bg-glow" aria-hidden />
       <div className="login-card">
         <div className="login-card-header">
@@ -95,6 +105,7 @@ export function LoginPage() {
                         autoComplete="email"
                         placeholder="admin@example.com"
                         className="login-field-input"
+                        disabled={loginMutation.isPending}
                       />
                     </FormControl>
                     <FormMessage className="login-field-error" />
@@ -113,6 +124,7 @@ export function LoginPage() {
                         autoComplete="current-password"
                         placeholder="Enter your password"
                         className="login-field-input login-field-input--password"
+                        disabled={loginMutation.isPending}
                       />
                     </FormControl>
                     <FormMessage className="login-field-error" />
@@ -128,7 +140,7 @@ export function LoginPage() {
               <button
                 type="submit"
                 className="login-submit-btn"
-                disabled={loginMutation.isPending}
+                disabled={!canSubmit}
                 aria-busy={loginMutation.isPending}
               >
                 {loginMutation.isPending ? (
