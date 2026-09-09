@@ -35,6 +35,7 @@ export function ArchivePlanDialog({
       onConfirm={onConfirm}
       isLoading={isLoading}
       variant="destructive"
+      appearance="admin-form"
       errorMessage={errorMessage}
     />
   );

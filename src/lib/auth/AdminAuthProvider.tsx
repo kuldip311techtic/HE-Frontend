@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   clearAuthStorage,
   getAuthToken,
@@ -17,11 +18,10 @@ import { isAdminRole } from '@/lib/auth/roles';
 import {
   createValidationSuperAdminUser,
   getValidationAccessToken,
-  getValidationLoginCredentials,
   isLunaValidationMode,
   isPublicAdminRoute,
 } from '@/lib/validation/config';
-import { waitForServerValidationAuth } from '@/lib/validation/server-auth';
+import { watchServerValidationAuth } from '@/lib/validation/server-auth';
 import type { AuthUser } from '@/types/auth';
 
 interface AdminAuthContextValue {
@@ -38,110 +38,101 @@ interface AdminAuthContextValue {
 
 const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
 
-interface ValidationSessionResult {
+interface InitialAuthState {
   user: AuthUser | null;
-  bypass: boolean;
+  isHydrating: boolean;
+  isValidationBypass: boolean;
 }
 
-let validationSessionPromise: Promise<ValidationSessionResult> | null = null;
-
-async function resolveValidationSession(): Promise<ValidationSessionResult> {
-  const envToken = getValidationAccessToken();
-  if (envToken) {
-    const validationUser = createValidationSuperAdminUser();
-    setAuthStorage(envToken, validationUser);
-    return { user: validationUser, bypass: false };
+/**
+ * Resolve auth synchronously on first paint so protected routes mount immediately
+ * during Luna validation capture (no blocking wait on auth-json polling).
+ */
+function readInitialAuthState(): InitialAuthState {
+  if (typeof window === 'undefined') {
+    return { user: null, isHydrating: true, isValidationBypass: false };
   }
 
-  const serverAuth = await waitForServerValidationAuth(3, 200);
-  if (serverAuth) {
-    setAuthStorage(serverAuth.access_token, serverAuth.user);
-    return { user: serverAuth.user, bypass: false };
+  const onPublicRoute = isPublicAdminRoute();
+  const token = getAuthToken();
+  const storedUser = getStoredUser();
+
+  if (onPublicRoute) {
+    return {
+      user: token && storedUser ? storedUser : null,
+      isHydrating: false,
+      isValidationBypass: false,
+    };
   }
 
-  const credentials = getValidationLoginCredentials();
-  if (credentials) {
-    try {
-      const { login: loginApi } = await import('@/lib/api/auth');
-      const response = await loginApi(credentials);
-      setAuthStorage(response.access_token, response.user);
-      return { user: response.user, bypass: false };
-    } catch {
-      // Invalid credentials — fall through to bypass.
+  if (token && storedUser) {
+    return {
+      user: storedUser,
+      isHydrating: false,
+      isValidationBypass: false,
+    };
+  }
+
+  if (isLunaValidationMode()) {
+    const envToken = getValidationAccessToken();
+    if (envToken) {
+      const validationUser = createValidationSuperAdminUser();
+      setAuthStorage(envToken, validationUser);
+      return {
+        user: validationUser,
+        isHydrating: false,
+        isValidationBypass: false,
+      };
     }
+
+    return {
+      user: createValidationSuperAdminUser(),
+      isHydrating: false,
+      isValidationBypass: true,
+    };
   }
 
-  return { user: createValidationSuperAdminUser(), bypass: true };
+  return {
+    user: null,
+    isHydrating: false,
+    isValidationBypass: false,
+  };
 }
 
-function getValidationSession(): Promise<ValidationSessionResult> {
-  if (!validationSessionPromise) {
-    validationSessionPromise = resolveValidationSession();
-  }
-  return validationSessionPromise;
-}
+const initialAuthState = readInitialAuthState();
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isHydrating, setIsHydrating] = useState(true);
-  const [isValidationBypass, setIsValidationBypass] = useState(false);
+  const queryClient = useQueryClient();
+  const [user, setUser] = useState<AuthUser | null>(initialAuthState.user);
+  const [isHydrating] = useState(initialAuthState.isHydrating);
+  const [isValidationBypass, setIsValidationBypass] = useState(
+    initialAuthState.isValidationBypass,
+  );
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function hydrateSession() {
-      const token = getAuthToken();
-      const storedUser = getStoredUser();
-      const onPublicRoute = isPublicAdminRoute();
-
-      if (onPublicRoute) {
-        if (token && storedUser) {
-          if (!cancelled) {
-            setUser(storedUser);
-          }
-        } else if (!cancelled) {
-          setUser(null);
-        }
-
-        if (!cancelled) {
-          setIsHydrating(false);
-        }
-        return;
-      }
-
-      if (token && storedUser) {
-        if (!cancelled) {
-          setUser(storedUser);
-          setIsHydrating(false);
-        }
-        return;
-      }
-
-      if (isLunaValidationMode()) {
-        const { user: validationUser, bypass } = await getValidationSession();
-        if (!cancelled) {
-          setUser(validationUser);
-          setIsValidationBypass(bypass);
-        }
-      }
-
-      if (!cancelled) {
-        setIsHydrating(false);
-      }
+    if (!isLunaValidationMode() || isPublicAdminRoute() || getAuthToken()) {
+      return;
     }
 
-    void hydrateSession();
+    const stopWatching = watchServerValidationAuth(
+      (serverAuth) => {
+        setAuthStorage(serverAuth.access_token, serverAuth.user);
+        setUser(serverAuth.user);
+        setIsValidationBypass(false);
+        void queryClient.invalidateQueries();
+      },
+      { startAttempt: 0 },
+    );
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    return stopWatching;
+  }, [queryClient]);
 
   const loginWithCredentials = useCallback(async (email: string, password: string) => {
     const { login: loginApi } = await import('@/lib/api/auth');
     const response = await loginApi({ email, password });
     setAuthStorage(response.access_token, response.user);
     setUser(response.user);
+    setIsValidationBypass(false);
   }, []);
 
   const logout = useCallback(() => {
@@ -153,7 +144,9 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = Boolean(user && getAuthToken());
   const isAdmin = isAdminRole(user);
   const canFetchAdminData =
-    !isHydrating && ((isAuthenticated && isAdmin) || (isValidationBypass && isAdmin));
+    !isHydrating &&
+    isAdmin &&
+    (isAuthenticated || (isValidationBypass && isLunaValidationMode()));
 
   const value = useMemo<AdminAuthContextValue>(
     () => ({

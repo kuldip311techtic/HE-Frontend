@@ -7,6 +7,12 @@ describe('contractPathToClientPath', () => {
       '/v1/super-admin/dashboard',
     );
     expect(contractPathToClientPath('/api/v1/auth/login')).toBe('/v1/auth/login');
+    expect(contractPathToClientPath('/api/v1/super-admin/subscription-plans')).toBe(
+      '/v1/super-admin/subscription-plans',
+    );
+    expect(contractPathToClientPath('/api/super-admin/support-requests')).toBe(
+      '/super-admin/support-requests',
+    );
   });
 
   it('returns path unchanged when it does not start with /api/', () => {

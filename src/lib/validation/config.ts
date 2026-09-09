@@ -5,16 +5,15 @@ const OPENAPI_LOGIN_EXAMPLE = {
   password: 'Admin@123',
 } as const;
 
-/** OpenAPI example session_token for GET /api/v1/player/role-selection */
-export const VALIDATION_ROLE_SELECTION_SESSION_TOKEN =
-  '11111111-2222-3333-4444-555555555555';
-
-/** Example session id for GET /sessions/{session_id} contract probe */
-export const VALIDATION_SESSION_ID = '11111111-2222-3333-4444-555555555555';
-
 const PUBLIC_ADMIN_ROUTES = new Set(['/admin/login', '/admin/unauthorized']);
 
 export const LUNA_VALIDATION_AUTH_JSON_PATH = '/__luna_validation_auth.json';
+
+/** Keep in sync with vite/luna-validation-auth-plugin.ts polling loop. */
+export const VALIDATION_AUTH_MAX_ATTEMPTS = 120;
+export const VALIDATION_AUTH_POLL_INTERVAL_MS = 500;
+/** Initial hydration waits briefly so routes render; background polling continues up to MAX_ATTEMPTS. */
+export const VALIDATION_AUTH_HYDRATION_MAX_ATTEMPTS = 10;
 
 export function isPublicAdminRoute(pathname = window.location.pathname): boolean {
   const normalized = pathname.replace(/\/$/, '') || '/';

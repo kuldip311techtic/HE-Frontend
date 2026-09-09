@@ -1,4 +1,8 @@
 import type { Plugin, ViteDevServer } from 'vite';
+import {
+  VALIDATION_AUTH_MAX_ATTEMPTS,
+  VALIDATION_AUTH_POLL_INTERVAL_MS,
+} from '../src/lib/validation/config';
 
 const AUTH_JSON_PATH = '/__luna_validation_auth.json';
 
@@ -23,6 +27,8 @@ interface ValidationAuthConfig {
   accessToken: string;
   apiBaseUrl: string;
 }
+
+let loginFailureLogged = false;
 
 function readValidationConfig(env: Record<string, string>): ValidationAuthConfig {
   return {
@@ -72,6 +78,18 @@ async function loginForValidation(config: ValidationAuthConfig): Promise<Validat
     });
 
     if (!response.ok) {
+      if (!loginFailureLogged) {
+        loginFailureLogged = true;
+        if (response.status === 401) {
+          console.warn(
+            `[luna-validation-auth] Login rejected (401) for ${config.email} — check VITE_LUNA_VALIDATION_EMAIL/PASSWORD or set VITE_LUNA_VALIDATION_ACCESS_TOKEN`,
+          );
+        } else {
+          console.warn(
+            `[luna-validation-auth] Login failed with HTTP ${response.status} for ${config.email}`,
+          );
+        }
+      }
       return null;
     }
 
@@ -100,7 +118,6 @@ function startAuthPolling(
   }
 
   let attempts = 0;
-  const maxAttempts = 120;
 
   const poll = async (): Promise<void> => {
     attempts += 1;
@@ -110,10 +127,14 @@ function startAuthPolling(
       return;
     }
 
-    if (attempts < maxAttempts) {
+    if (attempts < VALIDATION_AUTH_MAX_ATTEMPTS) {
       setTimeout(() => {
         void poll();
-      }, 500);
+      }, VALIDATION_AUTH_POLL_INTERVAL_MS);
+    } else {
+      console.warn(
+        `[luna-validation-auth] Exhausted ${VALIDATION_AUTH_MAX_ATTEMPTS} login attempts — protected routes will mount without a JWT`,
+      );
     }
   };
 
@@ -131,8 +152,18 @@ export function lunaValidationAuthPlugin(env: Record<string, string>): Plugin {
         return;
       }
 
-      server.middlewares.use((req, res, next) => {
+      server.middlewares.use(async (req, res, next) => {
         if (req.url?.split('?')[0] === AUTH_JSON_PATH) {
+          if (!authPayload) {
+            const payload = await loginForValidation(config);
+            if (payload) {
+              authPayload = payload;
+              server.config.logger.info(
+                `[luna-validation-auth] Super admin session ready for ${payload.user.email}`,
+              );
+            }
+          }
+
           res.setHeader('Content-Type', 'application/json');
           res.setHeader('Cache-Control', 'no-store');
           res.end(JSON.stringify(authPayload));
@@ -143,7 +174,9 @@ export function lunaValidationAuthPlugin(env: Record<string, string>): Plugin {
 
       startAuthPolling(config, (payload) => {
         authPayload = payload;
-        server.config.logger.info('[luna-validation-auth] Super admin session ready');
+        server.config.logger.info(
+          `[luna-validation-auth] Super admin session ready for ${payload.user.email}`,
+        );
       });
     },
   };

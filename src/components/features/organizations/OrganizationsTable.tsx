@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SortableTableHead } from '@/components/ui/sortable-table-head';
 import {
@@ -9,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { RowActionsMenu } from '@/components/shared/RowActionsMenu';
 import { useTableSort } from '@/hooks/useTableSort';
 import type { OrganizationItem } from '@/types/organizations';
 
@@ -57,10 +57,10 @@ export function OrganizationsTable({
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-border">
+      <div className="admin-manage-table">
         <div className="space-y-3 p-4">
           {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={`org-skeleton-${index}`} className="h-12 w-full" />
+            <Skeleton key={`org-skeleton-${index}`} className="h-12 w-full bg-[#13291b]" />
           ))}
         </div>
       </div>
@@ -68,7 +68,7 @@ export function OrganizationsTable({
   }
 
   return (
-    <div className="rounded-lg border border-border">
+    <div className="admin-manage-table overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -99,30 +99,27 @@ export function OrganizationsTable({
         <TableBody>
           {sortedRows.map((organization) => (
             <TableRow key={organization.id}>
-              <TableCell className="font-medium">{organization.name}</TableCell>
+              <TableCell className="font-medium text-white">{organization.name}</TableCell>
               <TableCell>{organization.contact_email || organization.email}</TableCell>
               <TableCell>{displayPhone(organization)}</TableCell>
               <TableCell className="text-right">
-                <div className="flex flex-wrap justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEdit(organization)}
-                    aria-label={`Edit ${organization.name}`}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => onRemove(organization)}
-                    aria-label={`Remove ${organization.name}`}
-                  >
-                    Remove
-                  </Button>
-                </div>
+                <RowActionsMenu
+                  appearance="admin"
+                  ariaLabel={'Actions for ' + organization.name}
+                  actions={[
+                    {
+                      id: 'edit',
+                      label: 'Edit',
+                      onSelect: () => onEdit(organization),
+                    },
+                    {
+                      id: 'remove',
+                      label: 'Remove',
+                      onSelect: () => onRemove(organization),
+                      destructive: true,
+                    },
+                  ]}
+                />
               </TableCell>
             </TableRow>
           ))}

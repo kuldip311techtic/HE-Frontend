@@ -20,7 +20,7 @@ const listRoute = CONTRACT_ROUTES.superAdminSubscriptionPlans;
 const createRoute = CONTRACT_ROUTES.superAdminSubscriptionPlansCreate;
 const currenciesRoute = CONTRACT_ROUTES.superAdminSubscriptionPlansCurrencies;
 
-/** GET /api/v1/super-admin/subscription-plans */
+/** GET /api/v1/super-admin/subscription-plans (JAW-9612) */
 export async function fetchSubscriptionPlans(
   params: SubscriptionPlanListParams,
 ): Promise<SubscriptionPlanListResponse> {
@@ -39,7 +39,7 @@ export async function fetchSubscriptionPlans(
   return data;
 }
 
-/** POST /api/v1/super-admin/subscription-plans */
+/** POST /api/super-admin/subscriptions (JAW-9612) */
 export async function createSubscriptionPlan(
   payload: SubscriptionPlanCreateRequest,
 ): Promise<SubscriptionPlanItem> {
@@ -51,14 +51,14 @@ export async function createSubscriptionPlan(
   return data;
 }
 
-/** PUT /api/v1/super-admin/subscription-plans/{plan_id} */
+/** PUT /api/super-admin/subscriptions/{id} (JAW-9612) */
 export async function updateSubscriptionPlan(
   planId: string,
   role: SubscriptionPlanRole,
   payload: SubscriptionPlanUpdateRequest,
 ): Promise<SubscriptionPlanItem> {
   const updateRoute = CONTRACT_ROUTES.superAdminSubscriptionUpdate;
-  const contractPath = contractPathWithParams(updateRoute.path, { plan_id: planId });
+  const contractPath = contractPathWithParams(updateRoute.path, { id: planId });
   const { data } = await apiClient.request<SubscriptionPlanItem>({
     method: updateRoute.method,
     url: contractPathToClientPath(contractPath),
@@ -68,13 +68,13 @@ export async function updateSubscriptionPlan(
   return data;
 }
 
-/** DELETE /api/v1/super-admin/subscription-plans/{plan_id} */
+/** DELETE /api/super-admin/subscriptions/{id} (JAW-9612) */
 export async function archiveSubscriptionPlan(
   planId: string,
   role: SubscriptionPlanRole,
 ): Promise<SubscriptionPlanDeleteResponse> {
   const deleteRoute = CONTRACT_ROUTES.superAdminSubscriptionDelete;
-  const contractPath = contractPathWithParams(deleteRoute.path, { plan_id: planId });
+  const contractPath = contractPathWithParams(deleteRoute.path, { id: planId });
   const { data } = await apiClient.request<SubscriptionPlanDeleteResponse>({
     method: deleteRoute.method,
     url: contractPathToClientPath(contractPath),

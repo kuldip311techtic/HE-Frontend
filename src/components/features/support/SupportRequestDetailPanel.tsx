@@ -227,7 +227,7 @@ export function SupportRequestDetailPanel({
                 disabled={isBusy}
                 className="admin-primary-btn"
               >
-                Submit response
+                {isResponding ? 'Submitting…' : 'Submit response'}
               </Button>
               <Button
                 type="button"
@@ -237,7 +237,7 @@ export function SupportRequestDetailPanel({
                 disabled={isBusy}
                 className="admin-outline-btn"
               >
-                Close request
+                {isClosing ? 'Closing…' : 'Close request'}
               </Button>
             </div>
           </form>

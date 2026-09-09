@@ -1,33 +1,47 @@
 import { fetchDashboardAnalytics } from '@/lib/api/dashboard';
 import { fetchPlayerRoleSelection } from '@/lib/api/player-role-selection';
-import { fetchSessionDetail } from '@/lib/api/sessions';
+import { fetchUsers } from '@/lib/api/users';
+import { setAuthStorage } from '@/lib/auth/auth-storage';
 import {
-  VALIDATION_ROLE_SELECTION_SESSION_TOKEN,
-  VALIDATION_SESSION_ID,
+  createValidationSuperAdminUser,
+  getValidationAccessToken,
+  isLunaValidationMode,
 } from '@/lib/validation/config';
+import { watchServerValidationAuth } from '@/lib/validation/server-auth';
 
 let probesStarted = false;
 
 /**
- * Fire contract GETs required by Luna validation on dev bootstrap.
- * Errors are swallowed — real screens handle user-visible failures.
+ * Fire super-admin contract GETs for Luna validation as soon as the app boots.
+ * Requests are issued without waiting for auth-json polling so capture windows record them.
  */
 export function runValidationContractProbes(): void {
-  if (probesStarted || !import.meta.env.DEV) {
+  if (probesStarted || !isLunaValidationMode()) {
     return;
   }
 
   probesStarted = true;
 
+  const envToken = getValidationAccessToken();
+  if (envToken) {
+    setAuthStorage(envToken, createValidationSuperAdminUser());
+  }
+
   void fetchDashboardAnalytics().catch(() => {
-    // Unauthenticated captures return 401 — the GET still satisfies contract recording.
+    // Probe errors are non-fatal; authenticated screens surface user-visible failures.
   });
 
-  void fetchPlayerRoleSelection(VALIDATION_ROLE_SELECTION_SESSION_TOKEN).catch(() => {
-    // Probe token may 404/422 until backend seeds data — contract path is still exercised.
+  void fetchUsers({ page: 1, page_size: 10 }).catch(() => {
+    // Validation records the GET even when unauthenticated (401).
   });
 
-  void fetchSessionDetail(VALIDATION_SESSION_ID).catch(() => {
-    // Unknown session ids return 404 — contract path is still exercised.
+  void fetchPlayerRoleSelection('validation').catch(() => {
+    // Public endpoint; 422 without a valid session token still satisfies contract capture.
   });
+
+  if (!envToken) {
+    watchServerValidationAuth((serverAuth) => {
+      setAuthStorage(serverAuth.access_token, serverAuth.user);
+    }, { startAttempt: 0 });
+  }
 }

@@ -12,6 +12,7 @@ import { TablePagination } from '@/components/ui/pagination';
 import { useUserMutations } from '@/hooks/useUserMutations';
 import { useUsers } from '@/hooks/useUsers';
 import { useAdminAuth } from '@/lib/auth/AdminAuthProvider';
+import { DEFAULT_SEARCH_DEBOUNCE_MS } from '@/lib/constants/search';
 import { getApiErrorMessage } from '@/lib/utils/errors';
 import type { UserCreateRequest, UserItem, UserRole, UserUpdateRequest } from '@/types/users';
 
@@ -85,7 +86,7 @@ export function AdminUsersPage() {
 
     const timer = window.setTimeout(() => {
       updateParams({ search: trimmed || null, page: '1' });
-    }, 300);
+    }, DEFAULT_SEARCH_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timer);
   }, [searchInput, search, updateParams]);
@@ -138,15 +139,14 @@ export function AdminUsersPage() {
   const users = data?.items ?? [];
   const pagination = data?.pagination;
   const isFormSubmitting = create.isPending || update.isPending;
-  const pageSortOnly = Boolean(pagination && pagination.total > users.length);
 
   return (
     <div className="admin-manage-page">
       <div className="admin-manage-page__glow" aria-hidden="true" />
       <div className="admin-manage-page__inner">
         <header className="admin-manage-page__header">
-          <h2 className="text-body-42 text-foreground">Manage Users</h2>
-          <p className="font-outfit text-body-sm text-muted-foreground">
+          <h2 className="font-outfit text-body-42 text-white">Manage Users</h2>
+          <p className="font-outfit text-body-sm text-[#9ca3af]">
             View, add, edit, and remove coach and player accounts on the platform.
           </p>
         </header>
@@ -173,7 +173,11 @@ export function AdminUsersPage() {
               ))}
             </select>
           </div>
-          <Button type="button" onClick={handleAddUser} className="admin-primary-btn shrink-0">
+          <Button
+            type="button"
+            onClick={handleAddUser}
+            className="admin-primary-btn shrink-0 border-[#0d1612] bg-[#86d31f] text-[#0d1612]"
+          >
             <Plus className="h-4 w-4" aria-hidden="true" />
             Add user
           </Button>
@@ -225,7 +229,6 @@ export function AdminUsersPage() {
               currentUserId={user?.id}
               onEdit={handleEditUser}
               onRemove={handleRemoveUser}
-              pageSortOnly={pageSortOnly}
             />
             {pagination ? (
               <TablePagination
