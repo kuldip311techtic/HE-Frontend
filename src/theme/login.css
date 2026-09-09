@@ -85,7 +85,7 @@
   font-weight: 500;
   line-height: 17.64px;
   letter-spacing: 0;
-  color: #445154;
+  color: var(--login-muted);
 }
 
 .login-page .login-form {
