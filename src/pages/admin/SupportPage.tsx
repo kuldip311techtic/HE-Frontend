@@ -8,6 +8,7 @@ import { useSupportRequestsList } from '@/hooks/useSupportRequests';
 import type { SupportRequest } from '@/types/support';
 
 export function SupportPage() {
+  const returnFocusRef = React.useRef<HTMLElement | null>(null);
   const { data, isLoading, isError, error, refetch, isSuccess } = useSupportRequestsList();
   const [viewTarget, setViewTarget] = React.useState<SupportRequest | null>(null);
 
@@ -29,6 +30,7 @@ export function SupportPage() {
             errorMessage={isError ? getApiErrorMessage(error) : undefined}
             onRetry={() => void refetch()}
             onView={setViewTarget}
+            returnFocusRef={returnFocusRef}
           />
         </CardContent>
       </Card>
@@ -36,6 +38,7 @@ export function SupportPage() {
         open={Boolean(viewTarget)}
         onOpenChange={(open) => !open && setViewTarget(null)}
         request={viewTarget}
+        returnFocusRef={returnFocusRef}
       />
     </div>
   );

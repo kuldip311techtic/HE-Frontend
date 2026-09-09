@@ -1,3 +1,4 @@
+import type { RefObject } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +19,7 @@ interface ConfirmDeleteDialogProps {
   confirmLabel?: string;
   isLoading?: boolean;
   onConfirm: () => void;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }
 
 export function ConfirmDeleteDialog({
@@ -29,10 +31,11 @@ export function ConfirmDeleteDialog({
   confirmLabel = 'Delete',
   isLoading = false,
   onConfirm,
+  returnFocusRef,
 }: ConfirmDeleteDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+    <Dialog open={open} onOpenChange={onOpenChange} returnFocusRef={returnFocusRef}>
+      <DialogContent className="max-w-md" initialFocus="footer">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>

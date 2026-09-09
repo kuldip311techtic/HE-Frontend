@@ -1,4 +1,4 @@
-import * as React from 'react';
+import type { RefObject } from 'react';
 import { Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { DetailRow, DetailSection } from '@/components/features/admin/DetailFields';
 import { formatDate, humanizeEnum } from '@/lib/utils/format';
 import type { SupportRequest } from '@/types/support';
 
@@ -17,30 +18,14 @@ interface SupportRequestDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   request: SupportRequest | null;
-}
-
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="space-y-1">
-      <dt className="font-lato text-body-sm font-medium text-figma-accent">{label}</dt>
-      <dd className="whitespace-pre-wrap text-body-sm text-foreground">{value}</dd>
-    </div>
-  );
-}
-
-function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-3">
-      <h3 className="text-body-sm font-semibold text-foreground">{title}</h3>
-      <div className="grid gap-4">{children}</div>
-    </section>
-  );
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }
 
 export function SupportRequestDetailModal({
   open,
   onOpenChange,
   request,
+  returnFocusRef,
 }: SupportRequestDetailModalProps) {
   if (!request) return null;
 
@@ -48,7 +33,7 @@ export function SupportRequestDetailModal({
   const displayName = request.user || request.email || 'Support request';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} returnFocusRef={returnFocusRef}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{request.inquiry_subject || 'Support request'}</DialogTitle>
@@ -64,14 +49,12 @@ export function SupportRequestDetailModal({
           <DetailSection title="Request">
             <DetailRow label="Request date" value={formatDate(request.request_date)} />
             <DetailRow label="Subject" value={request.inquiry_subject || '—'} />
-            <DetailRow label="Message" value={request.message_description || '—'} />
+            <DetailRow label="Message" value={request.message_description || '—'} multiline />
             {request.status ? (
-              <div className="space-y-1">
-                <dt className="font-lato text-body-sm font-medium text-figma-accent">Status</dt>
-                <dd>
-                  <Badge variant="secondary">{humanizeEnum(request.status)}</Badge>
-                </dd>
-              </div>
+              <DetailRow
+                label="Status"
+                value={<Badge variant="secondary">{humanizeEnum(request.status)}</Badge>}
+              />
             ) : null}
           </DetailSection>
         </div>

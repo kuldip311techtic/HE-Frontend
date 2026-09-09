@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Columns3, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Columns3, Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,10 +16,12 @@ import { TableHead, TableHeader, TableRow, TableCell } from '@/components/ui/tab
 import { Pagination } from '@/components/ui/pagination';
 import { AdminDataTable } from '@/components/features/admin/AdminDataTable';
 import { ConfirmDeleteDialog } from '@/components/features/admin/ConfirmDeleteDialog';
+import { OrganizationDetailModal } from '@/components/features/admin/organizations/OrganizationDetailModal';
 import { SortableTableHead } from '@/components/features/admin/SortableTableHead';
 import { useDebounce } from '@/hooks/useDebounce';
 import { getApiErrorMessage } from '@/lib/api/getApiErrorMessage';
 import { useDeleteOrganization } from '@/hooks/useOrganizations';
+import { captureReturnFocus, setReturnFocus } from '@/lib/utils/captureReturnFocus';
 import { cycleSort, sortByColumn, type SortState } from '@/lib/utils/sort';
 import type { Organization } from '@/types/organization';
 
@@ -68,10 +70,10 @@ interface OrganizationsTableProps {
   isError: boolean;
   errorMessage?: string;
   onRetry?: () => void;
-  onAdd: () => void;
   onEdit: (organization: Organization) => void;
   emptyAction?: React.ReactNode;
   hasLoadedData: boolean;
+  returnFocusRef: React.MutableRefObject<HTMLElement | null>;
 }
 
 export function OrganizationsTable({
@@ -80,13 +82,15 @@ export function OrganizationsTable({
   isError,
   errorMessage,
   onRetry,
-  onAdd,
   onEdit,
   emptyAction,
   hasLoadedData,
+  returnFocusRef,
 }: OrganizationsTableProps) {
   const deleteMutation = useDeleteOrganization();
+  const rowTriggerRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
   const [deleteTarget, setDeleteTarget] = React.useState<Organization | null>(null);
+  const [viewTarget, setViewTarget] = React.useState<Organization | null>(null);
   const [search, setSearch] = React.useState('');
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(10);
@@ -137,6 +141,11 @@ export function OrganizationsTable({
     const config = COLUMNS.find((col) => col.key === key);
     if (config?.alwaysVisible) return;
     setVisibleColumns((prev) => ({ ...prev, [key]: checked }));
+  };
+
+  const runRowMenuAction = (organizationId: string, action: () => void) => {
+    setReturnFocus(returnFocusRef, rowTriggerRefs.current.get(organizationId) ?? null);
+    action();
   };
 
   const handleDelete = async () => {
@@ -191,43 +200,37 @@ export function OrganizationsTable({
         }
         emptyAction={isDatasetEmpty ? emptyAction : undefined}
         toolbar={
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-              <Input
-                type="search"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search organizations…"
-                aria-label="Search organizations"
-                className="h-11 max-w-full border-[#0d1612] bg-[#0b1f12] sm:max-w-[280px]"
-              />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="outline" size="sm" className="h-11">
-                    <Columns3 className="mr-2 h-4 w-4" />
-                    Columns
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {COLUMNS.map((col) => (
-                    <DropdownMenuCheckboxItem
-                      key={col.key}
-                      checked={visibleColumns[col.key]}
-                      disabled={col.alwaysVisible}
-                      onCheckedChange={(checked) => toggleColumn(col.key, checked === true)}
-                    >
-                      {col.label}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <Button type="button" variant="brand" onClick={onAdd} className="shrink-0">
-              <Plus className="h-4 w-4" />
-              Add organization
-            </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search organizations…"
+              aria-label="Search organizations"
+              className="h-11 max-w-full sm:max-w-[280px]"
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="outline" size="sm" className="h-11">
+                  <Columns3 className="mr-2 h-4 w-4" />
+                  Columns
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {COLUMNS.map((col) => (
+                  <DropdownMenuCheckboxItem
+                    key={col.key}
+                    checked={visibleColumns[col.key]}
+                    disabled={col.alwaysVisible}
+                    onCheckedChange={(checked) => toggleColumn(col.key, checked === true)}
+                  >
+                    {col.label}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         }
         footer={
@@ -273,18 +276,36 @@ export function OrganizationsTable({
             <TableCell className="text-right">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="ghost" size="icon" aria-label="Open actions menu">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Open actions menu"
+                    ref={(element) => {
+                      if (element) {
+                        rowTriggerRefs.current.set(org.id, element);
+                      } else {
+                        rowTriggerRefs.current.delete(org.id);
+                      }
+                    }}
+                    onFocus={(event) => captureReturnFocus(returnFocusRef, event)}
+                    onPointerDown={(event) => captureReturnFocus(returnFocusRef, event)}
+                  >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onEdit(org)}>
+                  <DropdownMenuItem onSelect={() => runRowMenuAction(org.id, () => setViewTarget(org))}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    View
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => runRowMenuAction(org.id, () => onEdit(org))}>
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-destructive focus:text-destructive"
-                    onClick={() => setDeleteTarget(org)}
+                    onSelect={() => runRowMenuAction(org.id, () => setDeleteTarget(org))}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Remove
@@ -296,9 +317,17 @@ export function OrganizationsTable({
         ))}
       </AdminDataTable>
 
+      <OrganizationDetailModal
+        open={Boolean(viewTarget)}
+        onOpenChange={(open) => !open && setViewTarget(null)}
+        organization={viewTarget}
+        returnFocusRef={returnFocusRef}
+      />
+
       <ConfirmDeleteDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
+        returnFocusRef={returnFocusRef}
         title="Remove organization?"
         description={`This will permanently remove "${deleteTarget?.name ?? 'this organization'}". This action cannot be undone.`}
         confirmLabel="Remove"

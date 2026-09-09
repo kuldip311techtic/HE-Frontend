@@ -1,7 +1,7 @@
 /* Page-scoped login styles — overrides shared Input/Button on this screen only. */
 .login-page {
   /* GLOBAL DESIGN TOKENS — literal Figma hex */
-  --login-accent: #445154;
+  --login-accent: #9ca3af;
   --login-brand: #86d31f;
   --login-border: #0d1612;
   --login-surface: #13291b;
@@ -84,7 +84,7 @@
   font-weight: 500;
   line-height: 17.64px;
   letter-spacing: 0;
-  color: #445154;
+  color: var(--login-accent);
 }
 
 .login-page .login-form {
@@ -107,7 +107,7 @@
   font-weight: 500 !important;
   line-height: 19.2px !important;
   letter-spacing: 0 !important;
-  color: #445154 !important;
+  color: var(--login-accent) !important;
 }
 
 /* Page-only Input overrides — dark Figma fill (#0b1f12), not library white */

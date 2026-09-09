@@ -18,6 +18,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { AdminDataTable } from '@/components/features/admin/AdminDataTable';
 import { SortableTableHead } from '@/components/features/admin/SortableTableHead';
 import { useDebounce } from '@/hooks/useDebounce';
+import { captureReturnFocus, setReturnFocus } from '@/lib/utils/captureReturnFocus';
 import { cycleSort, compareValues, type SortState } from '@/lib/utils/sort';
 import { formatDate, humanizeEnum } from '@/lib/utils/format';
 import type { SupportRequest } from '@/types/support';
@@ -130,6 +131,7 @@ interface SupportRequestsTableProps {
   onRetry?: () => void;
   onView: (request: SupportRequest) => void;
   hasLoadedData: boolean;
+  returnFocusRef: React.MutableRefObject<HTMLElement | null>;
 }
 
 export function SupportRequestsTable({
@@ -140,7 +142,9 @@ export function SupportRequestsTable({
   onRetry,
   onView,
   hasLoadedData,
+  returnFocusRef,
 }: SupportRequestsTableProps) {
+  const rowTriggerRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
   const [search, setSearch] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState(ALL_STATUS_VALUE);
   const [page, setPage] = React.useState(1);
@@ -205,6 +209,11 @@ export function SupportRequestsTable({
     setVisibleColumns((prev) => ({ ...prev, [key]: checked }));
   };
 
+  const runRowMenuAction = (requestId: string, action: () => void) => {
+    setReturnFocus(returnFocusRef, rowTriggerRefs.current.get(requestId) ?? null);
+    action();
+  };
+
   const renderCell = (row: SupportRequest, key: ColumnKey) => {
     switch (key) {
       case 'request_id':
@@ -259,7 +268,7 @@ export function SupportRequestsTable({
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search support requests…"
               aria-label="Search support requests"
-              className="h-11 max-w-full border-[#0d1612] bg-[#0b1f12] sm:max-w-[280px]"
+              className="h-11 max-w-full sm:max-w-[280px]"
             />
             {statusOptions.length > 1 ? (
               <Select
@@ -338,12 +347,26 @@ export function SupportRequestsTable({
           <TableCell className="text-right">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button type="button" variant="ghost" size="icon" aria-label="Open actions menu">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Open actions menu"
+                  ref={(element) => {
+                    if (element) {
+                      rowTriggerRefs.current.set(row.id, element);
+                    } else {
+                      rowTriggerRefs.current.delete(row.id);
+                    }
+                  }}
+                  onFocus={(event) => captureReturnFocus(returnFocusRef, event)}
+                  onPointerDown={(event) => captureReturnFocus(returnFocusRef, event)}
+                >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onView(row)}>
+                <DropdownMenuItem onSelect={() => runRowMenuAction(row.id, () => onView(row))}>
                   <Eye className="mr-2 h-4 w-4" />
                   View
                 </DropdownMenuItem>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type RefObject } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -43,12 +43,14 @@ interface SubscriptionFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   subscription?: SubscriptionPlan | null;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }
 
 export function SubscriptionFormDialog({
   open,
   onOpenChange,
   subscription,
+  returnFocusRef,
 }: SubscriptionFormDialogProps) {
   const isEdit = Boolean(subscription);
   const createMutation = useCreateSubscription();
@@ -90,7 +92,7 @@ export function SubscriptionFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} returnFocusRef={returnFocusRef}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit subscription plan' : 'Add subscription plan'}</DialogTitle>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type RefObject } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -52,9 +52,15 @@ interface UserFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user?: SuperAdminUser | null;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }
 
-export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps) {
+export function UserFormDialog({
+  open,
+  onOpenChange,
+  user,
+  returnFocusRef,
+}: UserFormDialogProps) {
   const isEdit = Boolean(user);
   const createMutation = useCreateUser();
   const updateMutation = useUpdateUser();
@@ -108,7 +114,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} returnFocusRef={returnFocusRef}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit user' : 'Add user'}</DialogTitle>

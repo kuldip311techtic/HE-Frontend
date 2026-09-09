@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Columns3, Eye, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Columns3, Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,7 @@ import { SortableTableHead } from '@/components/features/admin/SortableTableHead
 import { useDebounce } from '@/hooks/useDebounce';
 import { getApiErrorMessage } from '@/lib/api/getApiErrorMessage';
 import { useDeleteSubscription } from '@/hooks/useSubscriptions';
+import { captureReturnFocus, setReturnFocus } from '@/lib/utils/captureReturnFocus';
 import { cycleSort, sortByColumn, type SortState } from '@/lib/utils/sort';
 import { formatCurrency, humanizeEnum } from '@/lib/utils/format';
 import type { SubscriptionPlan } from '@/types/subscription';
@@ -87,10 +88,10 @@ interface SubscriptionsTableProps {
   isError: boolean;
   errorMessage?: string;
   onRetry?: () => void;
-  onAdd: () => void;
   onEdit: (subscription: SubscriptionPlan) => void;
   onView: (subscription: SubscriptionPlan) => void;
   emptyAction?: React.ReactNode;
+  returnFocusRef: React.MutableRefObject<HTMLElement | null>;
 }
 
 export function SubscriptionsTable({
@@ -99,12 +100,13 @@ export function SubscriptionsTable({
   isError,
   errorMessage,
   onRetry,
-  onAdd,
   onEdit,
   onView,
   emptyAction,
+  returnFocusRef,
 }: SubscriptionsTableProps) {
   const deleteMutation = useDeleteSubscription();
+  const rowTriggerRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
   const [deleteTarget, setDeleteTarget] = React.useState<SubscriptionPlan | null>(null);
   const [search, setSearch] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState(ALL_STATUS_VALUE);
@@ -170,6 +172,11 @@ export function SubscriptionsTable({
     setVisibleColumns((prev) => ({ ...prev, [key]: checked }));
   };
 
+  const runRowMenuAction = (subscriptionId: string, action: () => void) => {
+    setReturnFocus(returnFocusRef, rowTriggerRefs.current.get(subscriptionId) ?? null);
+    action();
+  };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
@@ -227,15 +234,14 @@ export function SubscriptionsTable({
         }
         emptyAction={isDatasetEmpty ? emptyAction : undefined}
         toolbar={
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <Input
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search plans…"
                 aria-label="Search subscription plans"
-                className="h-11 max-w-full border-[#0d1612] bg-[#0b1f12] sm:max-w-[280px]"
+                className="h-11 max-w-full sm:max-w-[280px]"
               />
               {statusOptions.length > 1 ? (
                 <Select
@@ -268,11 +274,6 @@ export function SubscriptionsTable({
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
-            <Button type="button" variant="brand" onClick={onAdd} className="shrink-0">
-              <Plus className="h-4 w-4" />
-              Add subscription plan
-            </Button>
           </div>
         }
         footer={
@@ -318,22 +319,36 @@ export function SubscriptionsTable({
             <TableCell className="text-right">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="ghost" size="icon" aria-label="Open actions menu">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Open actions menu"
+                    ref={(element) => {
+                      if (element) {
+                        rowTriggerRefs.current.set(row.id, element);
+                      } else {
+                        rowTriggerRefs.current.delete(row.id);
+                      }
+                    }}
+                    onFocus={(event) => captureReturnFocus(returnFocusRef, event)}
+                    onPointerDown={(event) => captureReturnFocus(returnFocusRef, event)}
+                  >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onView(row)}>
+                  <DropdownMenuItem onSelect={() => runRowMenuAction(row.id, () => onView(row))}>
                     <Eye className="mr-2 h-4 w-4" />
                     View
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onEdit(row)}>
+                  <DropdownMenuItem onSelect={() => runRowMenuAction(row.id, () => onEdit(row))}>
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-destructive focus:text-destructive"
-                    onClick={() => setDeleteTarget(row)}
+                    onSelect={() => runRowMenuAction(row.id, () => setDeleteTarget(row))}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Remove
@@ -348,6 +363,7 @@ export function SubscriptionsTable({
       <ConfirmDeleteDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
+        returnFocusRef={returnFocusRef}
         title="Remove subscription plan?"
         description={`This will permanently remove "${deleteTarget?.name ?? 'this plan'}". This action cannot be undone.`}
         warning={

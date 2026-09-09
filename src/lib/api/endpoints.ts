@@ -31,8 +31,6 @@ export const endpoints = {
   },
   supportRequests: {
     list: { method: 'GET', path: '/api/super-admin/support-requests' } satisfies EndpointDefinition,
-    create: { method: 'POST', path: '/api/super-admin/support-requests' } satisfies EndpointDefinition,
-    update: { method: 'PUT', path: '/api/super-admin/support-requests/{id}' } satisfies EndpointDefinition,
   },
 } as const;
 

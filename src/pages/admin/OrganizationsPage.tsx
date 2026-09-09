@@ -7,9 +7,11 @@ import { OrganizationsTable } from '@/components/features/admin/organizations/Or
 import { OrganizationFormDialog } from '@/components/features/admin/organizations/OrganizationFormDialog';
 import { getApiErrorMessage } from '@/lib/api/getApiErrorMessage';
 import { useOrganizationsList } from '@/hooks/useOrganizations';
+import { captureReturnFocus } from '@/lib/utils/captureReturnFocus';
 import type { Organization } from '@/types/organization';
 
 export function OrganizationsPage() {
+  const returnFocusRef = React.useRef<HTMLElement | null>(null);
   const { data, isLoading, isError, error, refetch, isSuccess } = useOrganizationsList();
   const [formOpen, setFormOpen] = React.useState(false);
   const [editTarget, setEditTarget] = React.useState<Organization | null>(null);
@@ -31,6 +33,17 @@ export function OrganizationsPage() {
       <PageHeader
         title="Organizations"
         description="Manage organizations registered on the platform."
+        actions={
+          <Button
+            type="button"
+            variant="brand"
+            onPointerDown={(event) => captureReturnFocus(returnFocusRef, event)}
+            onClick={handleAdd}
+          >
+            <Plus className="h-4 w-4" />
+            Add organization
+          </Button>
+        }
       />
       <Card>
         <CardContent className="px-6 py-4">
@@ -41,10 +54,15 @@ export function OrganizationsPage() {
             hasLoadedData={isSuccess}
             errorMessage={isError ? getApiErrorMessage(error) : undefined}
             onRetry={() => void refetch()}
-            onAdd={handleAdd}
             onEdit={handleEdit}
+            returnFocusRef={returnFocusRef}
             emptyAction={
-              <Button type="button" variant="brand" onClick={handleAdd}>
+              <Button
+                type="button"
+                variant="brand"
+                onPointerDown={(event) => captureReturnFocus(returnFocusRef, event)}
+                onClick={handleAdd}
+              >
                 <Plus className="h-4 w-4" />
                 Add organization
               </Button>
@@ -56,6 +74,7 @@ export function OrganizationsPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         organization={editTarget}
+        returnFocusRef={returnFocusRef}
       />
     </div>
   );

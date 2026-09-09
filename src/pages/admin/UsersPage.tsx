@@ -7,11 +7,13 @@ import { UsersTable } from '@/components/features/admin/users/UsersTable';
 import { UserFormDialog } from '@/components/features/admin/users/UserFormDialog';
 import { getApiErrorMessage } from '@/lib/api/getApiErrorMessage';
 import { useUsersList } from '@/hooks/useUsers';
+import { captureReturnFocus } from '@/lib/utils/captureReturnFocus';
 import type { SuperAdminUser } from '@/types/user';
 
 const DEFAULT_LIMIT = 20;
 
 export function UsersPage() {
+  const returnFocusRef = React.useRef<HTMLElement | null>(null);
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(DEFAULT_LIMIT);
   const { data, isLoading, isError, error, refetch, isSuccess } = useUsersList({
@@ -45,6 +47,17 @@ export function UsersPage() {
       <PageHeader
         title="Users"
         description="Manage coach and player accounts across the platform."
+        actions={
+          <Button
+            type="button"
+            variant="brand"
+            onPointerDown={(event) => captureReturnFocus(returnFocusRef, event)}
+            onClick={handleAdd}
+          >
+            <Plus className="h-4 w-4" />
+            Add user
+          </Button>
+        }
       />
       <Card>
         <CardContent className="px-6 py-4">
@@ -55,8 +68,8 @@ export function UsersPage() {
             hasLoadedData={isSuccess}
             errorMessage={isError ? getApiErrorMessage(error) : undefined}
             onRetry={() => void refetch()}
-            onAdd={handleAdd}
             onEdit={handleEdit}
+            returnFocusRef={returnFocusRef}
             page={page}
             totalPages={totalPages}
             totalItems={total}
@@ -64,7 +77,12 @@ export function UsersPage() {
             onPageChange={setPage}
             onPageSizeChange={handlePageSizeChange}
             emptyAction={
-              <Button type="button" variant="brand" onClick={handleAdd}>
+              <Button
+                type="button"
+                variant="brand"
+                onPointerDown={(event) => captureReturnFocus(returnFocusRef, event)}
+                onClick={handleAdd}
+              >
                 <Plus className="h-4 w-4" />
                 Add user
               </Button>
@@ -72,7 +90,12 @@ export function UsersPage() {
           />
         </CardContent>
       </Card>
-      <UserFormDialog open={formOpen} onOpenChange={setFormOpen} user={editTarget} />
+      <UserFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        user={editTarget}
+        returnFocusRef={returnFocusRef}
+      />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import type { RefObject } from 'react';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -5,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { DetailRow } from '@/components/features/admin/DetailFields';
 import { formatCurrency, humanizeEnum } from '@/lib/utils/format';
 import type { SubscriptionPlan } from '@/types/subscription';
 
@@ -12,26 +14,19 @@ interface SubscriptionDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   subscription: SubscriptionPlan | null;
-}
-
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="space-y-1">
-      <dt className="font-lato text-body-sm font-medium text-figma-accent">{label}</dt>
-      <dd className="text-body-sm text-foreground">{value}</dd>
-    </div>
-  );
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }
 
 export function SubscriptionDetailModal({
   open,
   onOpenChange,
   subscription,
+  returnFocusRef,
 }: SubscriptionDetailModalProps) {
   if (!subscription) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} returnFocusRef={returnFocusRef}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{subscription.name}</DialogTitle>
@@ -50,12 +45,12 @@ export function SubscriptionDetailModal({
               )
             }
           />
-          <div className="sm:col-span-2">
-            <DetailRow
-              label="Description"
-              value={subscription.description || '—'}
-            />
-          </div>
+          <DetailRow
+            label="Description"
+            value={subscription.description || '—'}
+            multiline
+            className="sm:col-span-2"
+          />
         </dl>
       </DialogContent>
     </Dialog>

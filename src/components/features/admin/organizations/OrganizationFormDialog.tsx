@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type RefObject } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -42,12 +42,14 @@ interface OrganizationFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   organization?: Organization | null;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }
 
 export function OrganizationFormDialog({
   open,
   onOpenChange,
   organization,
+  returnFocusRef,
 }: OrganizationFormDialogProps) {
   const isEdit = Boolean(organization);
   const createMutation = useCreateOrganization();
@@ -91,7 +93,7 @@ export function OrganizationFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} returnFocusRef={returnFocusRef}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit organization' : 'Add organization'}</DialogTitle>

@@ -8,9 +8,11 @@ import { SubscriptionFormDialog } from '@/components/features/admin/subscription
 import { SubscriptionDetailModal } from '@/components/features/admin/subscriptions/SubscriptionDetailModal';
 import { getApiErrorMessage } from '@/lib/api/getApiErrorMessage';
 import { useSubscriptionsList } from '@/hooks/useSubscriptions';
+import { captureReturnFocus } from '@/lib/utils/captureReturnFocus';
 import type { SubscriptionPlan } from '@/types/subscription';
 
 export function SubscriptionsPage() {
+  const returnFocusRef = React.useRef<HTMLElement | null>(null);
   const { data, isLoading, isError, error, refetch } = useSubscriptionsList();
   const [formOpen, setFormOpen] = React.useState(false);
   const [editTarget, setEditTarget] = React.useState<SubscriptionPlan | null>(null);
@@ -37,6 +39,17 @@ export function SubscriptionsPage() {
       <PageHeader
         title="Subscriptions"
         description="Manage subscription plans and billing cycles."
+        actions={
+          <Button
+            type="button"
+            variant="brand"
+            onPointerDown={(event) => captureReturnFocus(returnFocusRef, event)}
+            onClick={handleAdd}
+          >
+            <Plus className="h-4 w-4" />
+            Add subscription plan
+          </Button>
+        }
       />
       <Card>
         <CardContent className="px-6 py-4">
@@ -46,11 +59,16 @@ export function SubscriptionsPage() {
             isError={isError}
             errorMessage={isError ? getApiErrorMessage(error) : undefined}
             onRetry={() => void refetch()}
-            onAdd={handleAdd}
             onEdit={handleEdit}
             onView={handleView}
+            returnFocusRef={returnFocusRef}
             emptyAction={
-              <Button type="button" variant="brand" onClick={handleAdd}>
+              <Button
+                type="button"
+                variant="brand"
+                onPointerDown={(event) => captureReturnFocus(returnFocusRef, event)}
+                onClick={handleAdd}
+              >
                 <Plus className="h-4 w-4" />
                 Add subscription plan
               </Button>
@@ -62,11 +80,13 @@ export function SubscriptionsPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         subscription={editTarget}
+        returnFocusRef={returnFocusRef}
       />
       <SubscriptionDetailModal
         open={Boolean(viewTarget)}
         onOpenChange={(open) => !open && setViewTarget(null)}
         subscription={viewTarget}
+        returnFocusRef={returnFocusRef}
       />
     </div>
   );

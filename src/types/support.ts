@@ -13,18 +13,3 @@ export interface SupportRequest {
 export interface SupportRequestListResponse {
   items: SupportRequest[];
 }
-
-export interface SupportRequestRespondRequest {
-  request_id: string;
-  message: string;
-}
-
-export interface SupportRequestUpdateRequest {
-  status?: string;
-}
-
-export interface SupportRequestMutationResponse {
-  message: string;
-  id?: string;
-  request_id?: string;
-}
