@@ -53,7 +53,7 @@ export function LoginPage() {
       });
 
       if (!canAccessAdmin(response.user)) {
-        toast.error('You do not have permission to access the admin panel.');
+        navigate('/admin/unauthorized', { replace: true });
         return;
       }
 

@@ -20,5 +20,3 @@ export interface SuperAdminDashboardMetrics {
   link?: string | null;
   error?: ApiError | null;
 }
-
-export type DashboardMetricRow = SuperAdminDashboardMetrics & { id: string };

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,9 +16,11 @@ import { Badge } from '@/components/ui/badge';
 
 interface AdminHeaderProps {
   onMenuClick?: () => void;
+  menuTriggerRef?: React.RefObject<HTMLButtonElement>;
+  mobileMenuOpen?: boolean;
 }
 
-export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
+export function AdminHeader({ onMenuClick, menuTriggerRef, mobileMenuOpen }: AdminHeaderProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -40,11 +43,13 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
     <header className="flex h-14 items-center justify-between border-b border-sidebar-border bg-background px-4 md:px-6">
       <div className="flex items-center gap-3">
         <Button
+          ref={menuTriggerRef}
           variant="ghost"
           size="icon"
           className="lg:hidden"
           onClick={onMenuClick}
           aria-label="Open navigation menu"
+          aria-expanded={mobileMenuOpen ?? false}
         >
           <Menu className="h-5 w-5" />
         </Button>

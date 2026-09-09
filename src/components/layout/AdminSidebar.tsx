@@ -43,7 +43,7 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
                 <Icon className="h-4 w-4" aria-hidden />
                 {item.label}
               </span>
-              <Badge variant="secondary">Soon</Badge>
+              <Badge variant="secondary">Coming soon</Badge>
             </div>
           );
         }

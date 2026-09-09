@@ -1,18 +1,21 @@
-/// <reference types="vitest/config" />
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+    server: {
+    proxy: {
+      '/api': {
+        target: process.env.LUNA_VALIDATION_API_PROXY_TARGET || 'http://localhost:3300',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+    },
   plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
   },
 });
