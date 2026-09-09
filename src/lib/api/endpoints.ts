@@ -6,12 +6,11 @@ export interface EndpointDefinition {
 }
 
 export const endpoints = {
-  authLogin: { method: 'POST', path: '/api/super-admin/login' } satisfies EndpointDefinition,
+  authLogin: { method: 'POST', path: '/api/v1/auth/login' } satisfies EndpointDefinition,
   superAdminDashboard: {
     method: 'GET',
     path: '/api/v1/super-admin/dashboard',
   } satisfies EndpointDefinition,
-  quickAccess: { method: 'GET', path: '/api/super-admin/quick-access' } satisfies EndpointDefinition,
 
   organizationsList: {
     method: 'GET',
@@ -43,19 +42,19 @@ export const endpoints = {
 
   subscriptionPlansList: {
     method: 'GET',
-    path: '/api/super-admin/subscriptions',
+    path: '/api/v1/super-admin/subscription-plans',
   } satisfies EndpointDefinition,
   subscriptionPlansCreate: {
     method: 'POST',
-    path: '/api/super-admin/subscriptions',
+    path: '/api/v1/super-admin/subscription-plans',
   } satisfies EndpointDefinition,
   subscriptionPlansUpdate: {
     method: 'PUT',
-    path: '/api/super-admin/subscriptions/{id}',
+    path: '/api/v1/super-admin/subscription-plans/{plan_id}',
   } satisfies EndpointDefinition,
   subscriptionPlansDelete: {
     method: 'DELETE',
-    path: '/api/super-admin/subscriptions/{id}',
+    path: '/api/v1/super-admin/subscription-plans/{plan_id}',
   } satisfies EndpointDefinition,
   subscriptionCurrencies: {
     method: 'GET',
@@ -64,15 +63,7 @@ export const endpoints = {
 
   supportRequestsList: {
     method: 'GET',
-    path: '/api/super-admin/support-requests',
-  } satisfies EndpointDefinition,
-  supportRequestsRespond: {
-    method: 'POST',
-    path: '/api/super-admin/support-requests',
-  } satisfies EndpointDefinition,
-  supportRequestsClose: {
-    method: 'PUT',
-    path: '/api/super-admin/support-requests/{id}',
+    path: '/api/v1/support-requests',
   } satisfies EndpointDefinition,
 } as const;
 

@@ -41,7 +41,7 @@ export async function updateSubscriptionPlan(
   role: SubscriptionPlanListParams['role'],
 ): Promise<SubscriptionPlanItem> {
   return apiRequest<SubscriptionPlanItem>(endpoints.subscriptionPlansUpdate, {
-    pathParams: { id: planId },
+    pathParams: { plan_id: planId },
     params: { role },
     data: payload,
   });
@@ -53,7 +53,7 @@ export async function archiveSubscriptionPlan(
   replacementPlanId?: string,
 ): Promise<SubscriptionPlanDeleteResponse> {
   return apiRequest<SubscriptionPlanDeleteResponse>(endpoints.subscriptionPlansDelete, {
-    pathParams: { id: planId },
+    pathParams: { plan_id: planId },
     params: { role, replacement_plan_id: replacementPlanId },
   });
 }

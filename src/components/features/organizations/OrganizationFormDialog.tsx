@@ -66,8 +66,8 @@ export function OrganizationFormDialog({
     if (!open) return;
     form.reset({
       name: organization?.name ?? '',
-      contact_email: organization?.contact_email || organization?.email || '',
-      phone_number: organization?.phone_number || organization?.phone || '',
+      contact_email: organization?.contact_email ?? '',
+      phone_number: organization?.phone_number ?? '',
       address: organization?.address ?? '',
     });
   }, [open, organization, form]);

@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { DetailFields } from '@/components/features/shared/DetailFields';
 import { SupportResponseForm } from '@/components/features/support/SupportResponseForm';
+import { SUPPORT_MUTATIONS_UNAVAILABLE } from '@/components/features/support/supportCopy';
 import { getAttachmentLabel, getAttachmentUrl } from '@/lib/utils/attachment';
 import { formatDateTime } from '@/lib/utils/format';
 import type { SupportRequestItem } from '@/types/support';
@@ -10,17 +11,9 @@ interface SupportRequestDetailProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   request: SupportRequestItem | null;
-  onCloseRequest: (request: SupportRequestItem) => void;
-  isClosing?: boolean;
 }
 
-export function SupportRequestDetail({
-  open,
-  onOpenChange,
-  request,
-  onCloseRequest,
-  isClosing = false,
-}: SupportRequestDetailProps) {
+export function SupportRequestDetail({ open, onOpenChange, request }: SupportRequestDetailProps) {
   const attachmentUrl = request ? getAttachmentUrl(request.attachment) : null;
   const attachmentText = request ? getAttachmentLabel(request.attachment) : 'None';
 
@@ -29,7 +22,7 @@ export function SupportRequestDetail({
       open={open}
       onOpenChange={onOpenChange}
       title={request?.subject ?? 'Support request'}
-      description="Review the inquiry, send a response, or close the request."
+      description="Review the inquiry and the response form. Sending a reply or closing the request is not available in the live API."
       className="max-w-2xl"
       footer={
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
@@ -80,16 +73,12 @@ export function SupportRequestDetail({
           </section>
           <section className="space-y-3">
             <h3 className="text-body-13 text-foreground">Respond</h3>
-            <SupportResponseForm
-              key={request.id}
-              requestId={request.id}
-              isClosing={isClosing}
-              onResponded={() => onOpenChange(false)}
-              onCloseRequest={() => onCloseRequest(request)}
-            />
+            <SupportResponseForm key={request.id} />
           </section>
         </div>
-      ) : null}
+      ) : (
+        <p className="text-body-sm text-muted-foreground">{SUPPORT_MUTATIONS_UNAVAILABLE}</p>
+      )}
     </Dialog>
   );
 }

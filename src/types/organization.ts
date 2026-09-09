@@ -3,11 +3,8 @@ import type { PaginationMeta } from '@/types/api';
 export interface OrganizationItem {
   id: string;
   name: string;
-  organization: string;
   contact_email: string;
-  email: string;
   phone_number: string | null;
-  phone: string | null;
   address: string | null;
   description?: string | null;
   join_code: string | null;

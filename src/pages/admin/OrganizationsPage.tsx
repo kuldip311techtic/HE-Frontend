@@ -142,7 +142,6 @@ export function OrganizationsPage() {
                 title: 'Profile',
                 fields: [
                   { label: 'Name', value: viewing.name },
-                  { label: 'Organization', value: viewing.organization },
                   { label: 'Description', value: viewing.description || '—' },
                 ],
               },
@@ -150,8 +149,7 @@ export function OrganizationsPage() {
                 title: 'Contact',
                 fields: [
                   { label: 'Contact email', value: viewing.contact_email },
-                  { label: 'Email', value: viewing.email },
-                  { label: 'Phone number', value: viewing.phone_number || viewing.phone || '—' },
+                  { label: 'Phone number', value: viewing.phone_number || '—' },
                   { label: 'Address', value: viewing.address || '—' },
                 ],
               },

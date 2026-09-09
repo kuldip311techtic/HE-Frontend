@@ -20,16 +20,3 @@ export interface SupportRequestListParams {
   page_size?: number;
   search?: string;
 }
-
-export interface SupportRespondRequest {
-  request_id: string;
-  response: string;
-}
-
-export interface SupportRespondResponse {
-  message?: string;
-}
-
-export interface SupportCloseResponse {
-  message?: string;
-}

@@ -29,18 +29,3 @@ export interface SuperAdminDashboardMetrics {
   link?: string | null;
   error?: ApiError | null;
 }
-
-export interface QuickAccessItem {
-  module?: string | null;
-  name?: string | null;
-  label?: string | null;
-  description?: string | null;
-  link?: string | null;
-  to?: string | null;
-  path?: string | null;
-  status?: string | null;
-}
-
-export interface QuickAccessResponse {
-  items: QuickAccessItem[];
-}

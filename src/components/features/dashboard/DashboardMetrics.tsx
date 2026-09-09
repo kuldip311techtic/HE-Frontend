@@ -15,29 +15,25 @@ const METRICS: Array<{
   key: keyof SuperAdminDashboardMetrics;
   label: string;
   icon: LucideIcon;
-  to?: string;
   revenue?: boolean;
 }> = [
   {
     key: 'total_organizations',
     label: 'Total Organizations',
     icon: Building2,
-    to: '/admin/organizations',
   },
-  { key: 'total_coaches', label: 'Total Coaches', icon: Users, to: '/admin/users' },
-  { key: 'total_players', label: 'Total Players', icon: UserRound, to: '/admin/users' },
+  { key: 'total_coaches', label: 'Total Coaches', icon: Users },
+  { key: 'total_players', label: 'Total Players', icon: UserRound },
   { key: 'total_sessions', label: 'Total Sessions', icon: Timer },
   {
     key: 'active_subscriptions',
     label: 'Active Subscriptions',
     icon: CreditCard,
-    to: '/admin/subscriptions',
   },
   {
     key: 'revenue_overview',
     label: 'Revenue Overview',
     icon: TrendingUp,
-    to: '/admin/analytics',
     revenue: true,
   },
 ];
@@ -76,7 +72,6 @@ export function DashboardMetrics({ metrics, loading = false }: DashboardMetricsP
               label={metric.label}
               value={value}
               icon={metric.icon}
-              to={metric.to}
             />
           );
         })}

@@ -5,7 +5,6 @@ import type { SupportRequestListParams } from '@/types/support';
 
 export const queryKeys = {
   superAdminDashboard: ['super-admin', 'dashboard'] as const,
-  quickAccess: ['super-admin', 'quick-access'] as const,
   organizations: (params: OrganizationListParams) =>
     ['super-admin', 'organizations', params] as const,
   users: (params: AdminUserListParams) => ['super-admin', 'users', params] as const,

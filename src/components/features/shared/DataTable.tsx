@@ -153,6 +153,8 @@ export function DataTable<T>({
                           <button
                             type="button"
                             className="inline-flex items-center gap-1 rounded-figma-10 text-left text-body-sm font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand"
+                            aria-label={`Sort ${column.label} (current page)`}
+                            title="Sort applies to the current page"
                             onClick={() => setSort((current) => cycleSort(current, column.id))}
                           >
                             {column.label}

@@ -17,9 +17,71 @@ function initials(name: string): string {
     .toUpperCase();
 }
 
-function phoneDisplay(row: OrganizationItem): string {
-  return row.phone_number || row.phone || '—';
+function renderName(row: OrganizationItem) {
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      <Avatar className="h-8 w-8">
+        <AvatarFallback>{initials(row.name)}</AvatarFallback>
+      </Avatar>
+      <span className="truncate">{row.name || '—'}</span>
+    </div>
+  );
 }
+
+function renderPhone(row: OrganizationItem) {
+  return row.phone_number || '—';
+}
+
+function renderCreatedAt(row: OrganizationItem) {
+  return formatDateTime(row.created_at);
+}
+
+const ORGANIZATION_COLUMNS: DataTableColumn<OrganizationItem>[] = [
+  { id: 'id', label: 'Id', accessor: (row) => row.id, sortable: false, defaultHidden: true },
+  {
+    id: 'name',
+    label: 'Organization Name',
+    accessor: (row) => row.name,
+    sortable: true,
+    alwaysVisible: true,
+    render: renderName,
+  },
+  {
+    id: 'contact_email',
+    label: 'Contact Email',
+    accessor: (row) => row.contact_email,
+    sortable: true,
+  },
+  {
+    id: 'phone_number',
+    label: 'Phone Number',
+    accessor: (row) => row.phone_number,
+    sortable: true,
+    render: renderPhone,
+  },
+  {
+    id: 'description',
+    label: 'Description',
+    accessor: (row) => row.description,
+    sortable: true,
+    defaultHidden: true,
+  },
+  {
+    id: 'join_code',
+    label: 'Join Code',
+    accessor: (row) => row.join_code,
+    sortable: true,
+    defaultHidden: true,
+  },
+  {
+    id: 'created_at',
+    label: 'Created At',
+    accessor: (row) => row.created_at,
+    sortable: true,
+    defaultHidden: true,
+    render: renderCreatedAt,
+  },
+];
 
 interface OrganizationsTableProps {
   items: OrganizationItem[];
@@ -52,91 +114,9 @@ export function OrganizationsTable({
   onEdit,
   onRemove,
 }: OrganizationsTableProps) {
-  const columns: DataTableColumn<OrganizationItem>[] = [
-    { id: 'id', label: 'Id', accessor: (row) => row.id, sortable: false, defaultHidden: true },
-    {
-      id: 'name',
-      label: 'Organization Name',
-      accessor: (row) => row.name,
-      sortable: true,
-      alwaysVisible: true,
-      render: (row) => (
-        <div className="flex min-w-0 items-center gap-2">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback>{initials(row.name || row.organization)}</AvatarFallback>
-          </Avatar>
-          <span className="truncate">{row.name || '—'}</span>
-        </div>
-      ),
-    },
-    {
-      id: 'organization',
-      label: 'Organization',
-      accessor: (row) => row.organization,
-      sortable: true,
-      defaultHidden: true,
-    },
-    {
-      id: 'contact_email',
-      label: 'Contact Email',
-      accessor: (row) => row.contact_email,
-      sortable: true,
-    },
-    {
-      id: 'email',
-      label: 'Email',
-      accessor: (row) => row.email,
-      sortable: true,
-      defaultHidden: true,
-    },
-    {
-      id: 'phone_number',
-      label: 'Phone Number',
-      accessor: (row) => row.phone_number || row.phone,
-      sortable: true,
-      render: (row) => phoneDisplay(row),
-    },
-    {
-      id: 'phone',
-      label: 'Phone',
-      accessor: (row) => row.phone,
-      sortable: true,
-      defaultHidden: true,
-    },
-    {
-      id: 'address',
-      label: 'Address',
-      accessor: (row) => row.address,
-      sortable: true,
-      defaultHidden: true,
-    },
-    {
-      id: 'description',
-      label: 'Description',
-      accessor: (row) => row.description,
-      sortable: true,
-      defaultHidden: true,
-    },
-    {
-      id: 'join_code',
-      label: 'Join Code',
-      accessor: (row) => row.join_code,
-      sortable: true,
-      defaultHidden: true,
-    },
-    {
-      id: 'created_at',
-      label: 'Created At',
-      accessor: (row) => row.created_at,
-      sortable: true,
-      defaultHidden: true,
-      render: (row) => formatDateTime(row.created_at),
-    },
-  ];
-
   return (
     <DataTable
-      columns={columns}
+      columns={ORGANIZATION_COLUMNS}
       data={items}
       getRowId={(row) => row.id}
       loading={loading}
@@ -164,6 +144,7 @@ export function OrganizationsTable({
             <Eye className="h-4 w-4" aria-hidden />
           </Button>
           <RowActions
+            label={`Actions for ${row.name}`}
             items={[
               { label: 'View', onSelect: () => onView(row) },
               { label: 'Edit', onSelect: () => onEdit(row) },

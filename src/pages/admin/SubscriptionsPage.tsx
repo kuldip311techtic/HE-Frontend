@@ -36,17 +36,16 @@ function toPagination(
   meta: PaginationMeta | undefined,
   page: number,
   pageSize: number,
-  total: number,
+  loadedCount: number,
 ): PaginationMeta {
   if (meta) return meta;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize) || 1);
   return {
     page,
     page_size: pageSize,
-    total,
-    total_pages: totalPages,
-    has_next: page < totalPages,
-    has_prev: page > 1,
+    total: loadedCount,
+    total_pages: 1,
+    has_next: false,
+    has_prev: false,
   };
 }
 

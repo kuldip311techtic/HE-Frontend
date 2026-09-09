@@ -4,28 +4,18 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { DashboardMetrics } from '@/components/features/dashboard/DashboardMetrics';
-import { DashboardModuleNav } from '@/components/features/dashboard/DashboardModuleNav';
 import { QuickAccessSection } from '@/components/features/dashboard/QuickAccessSection';
-import { useDashboard, useQuickAccess } from '@/hooks/useDashboard';
+import { useDashboard } from '@/hooks/useDashboard';
 import { getApiErrorMessage } from '@/lib/api/getApiErrorMessage';
 
 export function DashboardPage() {
   const dashboard = useDashboard();
-  const quickAccess = useQuickAccess();
-
-  const isRefreshing = dashboard.isFetching || quickAccess.isFetching;
 
   const handleRefresh = async () => {
-    const [dashboardResult, quickAccessResult] = await Promise.all([
-      dashboard.refetch(),
-      quickAccess.refetch(),
-    ]);
-    if (dashboardResult.error || quickAccessResult.error) {
+    const result = await dashboard.refetch();
+    if (result.error) {
       toast.error(
-        getApiErrorMessage(
-          dashboardResult.error ?? quickAccessResult.error,
-          'Unable to refresh the dashboard. Please try again.',
-        ),
+        getApiErrorMessage(result.error, 'Unable to refresh the dashboard. Please try again.'),
       );
       return;
     }
@@ -44,11 +34,11 @@ export function DashboardPage() {
             onClick={() => {
               void handleRefresh();
             }}
-            disabled={isRefreshing}
-            aria-busy={isRefreshing}
+            disabled={dashboard.isFetching}
+            aria-busy={dashboard.isFetching}
           >
-            {isRefreshing ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
-            {isRefreshing ? 'Refreshing…' : 'Refresh'}
+            {dashboard.isFetching ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+            {dashboard.isFetching ? 'Refreshing…' : 'Refresh'}
           </Button>
         }
       />
@@ -67,20 +57,7 @@ export function DashboardPage() {
       ) : (
         <DashboardMetrics metrics={dashboard.data} loading={dashboard.isLoading} />
       )}
-      <DashboardModuleNav loading={dashboard.isLoading} />
-      <QuickAccessSection
-        items={quickAccess.data?.items ?? []}
-        loading={quickAccess.isLoading}
-        error={
-          quickAccess.isError
-            ? getApiErrorMessage(
-                quickAccess.error,
-                'Unable to load quick access. Please try again.',
-              )
-            : null
-        }
-        onRetry={() => void quickAccess.refetch()}
-      />
+      <QuickAccessSection loading={dashboard.isLoading} />
     </div>
   );
 }
