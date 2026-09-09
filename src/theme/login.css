@@ -1,15 +1,16 @@
 /* Page-scoped login styles — overrides shared Input/Button on this screen only. */
 .login-page {
-  --login-accent: var(--figma-hex-accent);
-  --login-brand: var(--figma-hex-brand);
-  --login-border: var(--figma-hex-border);
-  --login-surface: var(--figma-surface);
-  --login-input-fill: var(--token-color-117);
-  --login-page-bg: var(--token-color-110);
-  --login-muted: var(--token-color-113);
-  --login-foreground: hsl(var(--foreground));
-  --login-error: var(--token-color-116);
-  --login-primary-bright: var(--token-color-114);
+  /* GLOBAL DESIGN TOKENS — literal Figma hex */
+  --login-accent: #9ca3af;
+  --login-brand: #86d31f;
+  --login-border: #0d1612;
+  --login-surface: #13291b;
+  --login-input-fill: #0b1f12;
+  --login-page-bg: #081410;
+  --login-muted: #9ca3af;
+  --login-foreground: #ffffff;
+  --login-error: #ff6b6b;
+  --login-primary-bright: #4bcd39;
   position: relative;
   display: flex;
   min-height: 100vh;
@@ -18,7 +19,7 @@
   overflow: hidden;
   padding: 28px 24px;
   font-family: 'Outfit', sans-serif;
-  background-color: var(--login-page-bg);
+  background-color: #081410;
 }
 
 .login-page .login-bg-glow {
@@ -28,19 +29,19 @@
   background:
     radial-gradient(
       ellipse 62% 52% at 78% 32%,
-      color-mix(in srgb, var(--login-brand) 38%, transparent) 0%,
-      color-mix(in srgb, var(--login-brand) 14%, transparent) 38%,
+      color-mix(in srgb, #86d31f 38%, transparent) 0%,
+      color-mix(in srgb, #86d31f 14%, transparent) 38%,
       transparent 70%
     ),
     radial-gradient(
       ellipse 48% 44% at 18% 72%,
-      color-mix(in srgb, var(--login-primary-bright) 22%, transparent) 0%,
-      color-mix(in srgb, var(--login-brand) 8%, transparent) 42%,
+      color-mix(in srgb, #4bcd39 22%, transparent) 0%,
+      color-mix(in srgb, #86d31f 8%, transparent) 42%,
       transparent 68%
     ),
     radial-gradient(
       ellipse 36% 30% at 50% 100%,
-      color-mix(in srgb, var(--login-brand) 12%, transparent) 0%,
+      color-mix(in srgb, #86d31f 12%, transparent) 0%,
       transparent 58%
     );
 }
@@ -51,9 +52,9 @@
   width: 100%;
   max-width: 400px;
   flex-shrink: 0;
-  border: 1px solid var(--login-border);
+  border: 1px solid #0d1612;
   border-radius: 10px;
-  background-color: var(--login-surface);
+  background-color: #13291b;
   box-sizing: border-box;
 }
 
@@ -83,7 +84,7 @@
   font-weight: 500;
   line-height: 17.64px;
   letter-spacing: 0;
-  color: var(--login-muted);
+  color: var(--login-accent);
 }
 
 .login-page .login-form {
@@ -106,25 +107,29 @@
   font-weight: 500 !important;
   line-height: 19.2px !important;
   letter-spacing: 0 !important;
-  color: var(--login-foreground) !important;
+  color: var(--login-accent) !important;
 }
 
-/* Page-only Input overrides — dark Figma fill, not library white */
+/* Page-only Input overrides — dark Figma fill (#0b1f12), not library white */
 .login-page input.login-field-input {
   box-sizing: border-box;
   height: 44px !important;
   width: 100% !important;
-  border: 1px solid var(--login-border) !important;
+  max-width: 100% !important;
+  border: 1px solid #0d1612 !important;
   border-radius: 10px !important;
-  background-color: var(--login-input-fill) !important;
+  background-color: #0b1f12 !important;
+  background-image: none !important;
   padding: 0 14px !important;
   font-family: 'Outfit', sans-serif !important;
   font-size: 16px !important;
   font-weight: 400 !important;
   line-height: 22px !important;
   letter-spacing: 0 !important;
-  color: var(--login-foreground) !important;
+  color: #ffffff !important;
   box-shadow: none !important;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .login-page input.login-field-input::placeholder {
@@ -138,8 +143,8 @@
 
 .login-page input.login-field-input:focus-visible {
   outline: none !important;
-  border-color: var(--login-border) !important;
-  box-shadow: 0 0 0 2px var(--login-brand) !important;
+  border-color: #0d1612 !important;
+  box-shadow: 0 0 0 2px #86d31f !important;
 }
 
 .login-page input.login-field-input:disabled {
@@ -165,7 +170,7 @@
   border-radius: 10px;
 }
 
-/* Page-only submit button — brand fill with dark label, not white */
+/* Page-only submit button — #86d31f fill with #0d1612 label, not white */
 .login-page button.login-submit-btn {
   font-family: 'Outfit', sans-serif !important;
   font-size: 16px !important;
@@ -179,10 +184,14 @@
   height: 44px !important;
   width: 100% !important;
   border-radius: 10px !important;
-  border: 1px solid var(--login-border) !important;
-  background-color: var(--login-brand) !important;
-  color: var(--login-border) !important;
+  border: 1px solid #0d1612 !important;
+  background-color: #86d31f !important;
+  color: #0d1612 !important;
   cursor: pointer;
+}
+
+.login-page button.login-submit-btn svg {
+  color: #0d1612 !important;
 }
 
 .login-page button.login-submit-btn:hover:not(:disabled) {
@@ -195,7 +204,7 @@
 
 .login-page button.login-submit-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--login-brand), 0 0 0 4px var(--login-border);
+  box-shadow: 0 0 0 2px #86d31f, 0 0 0 4px #0d1612;
 }
 
 .login-page button.login-submit-btn:disabled {

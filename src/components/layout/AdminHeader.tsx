@@ -63,16 +63,19 @@ export function AdminHeader({ onMenuClick, menuTriggerRef, mobileMenuOpen }: Adm
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-figma-10 px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand"
-            aria-label="Open account menu"
+            aria-label={`Open account menu for ${displayName}`}
           >
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>{initials}</AvatarFallback>
+            <Avatar className="h-8 w-8" aria-hidden>
+              <AvatarFallback aria-hidden>{initials}</AvatarFallback>
             </Avatar>
-            <span className="hidden max-w-[10rem] truncate text-body-sm text-foreground sm:inline">
+            <span
+              aria-hidden
+              className="hidden max-w-[10rem] truncate text-body-sm text-foreground sm:inline"
+            >
               {displayName}
             </span>
             {user?.role ? (
-              <Badge variant="outline" className="hidden sm:inline-flex capitalize">
+              <Badge variant="outline" className="hidden capitalize sm:inline-flex" aria-hidden>
                 {user.role.replace('_', ' ')}
               </Badge>
             ) : null}
