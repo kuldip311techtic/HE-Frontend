@@ -13,7 +13,7 @@ import type { SubscriptionPlan } from '@/types/subscription';
 
 export function SubscriptionsPage() {
   const returnFocusRef = React.useRef<HTMLElement | null>(null);
-  const { data, isLoading, isError, error, refetch } = useSubscriptionsList();
+  const { data, isLoading, isError, error, refetch, isSuccess } = useSubscriptionsList();
   const [formOpen, setFormOpen] = React.useState(false);
   const [editTarget, setEditTarget] = React.useState<SubscriptionPlan | null>(null);
   const [viewTarget, setViewTarget] = React.useState<SubscriptionPlan | null>(null);
@@ -61,6 +61,7 @@ export function SubscriptionsPage() {
             onRetry={() => void refetch()}
             onEdit={handleEdit}
             onView={handleView}
+            hasLoadedData={isSuccess}
             returnFocusRef={returnFocusRef}
             emptyAction={
               <Button

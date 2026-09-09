@@ -91,6 +91,7 @@ interface SubscriptionsTableProps {
   onEdit: (subscription: SubscriptionPlan) => void;
   onView: (subscription: SubscriptionPlan) => void;
   emptyAction?: React.ReactNode;
+  hasLoadedData: boolean;
   returnFocusRef: React.MutableRefObject<HTMLElement | null>;
 }
 
@@ -103,6 +104,7 @@ export function SubscriptionsTable({
   onEdit,
   onView,
   emptyAction,
+  hasLoadedData,
   returnFocusRef,
 }: SubscriptionsTableProps) {
   const deleteMutation = useDeleteSubscription();
@@ -277,7 +279,7 @@ export function SubscriptionsTable({
           </div>
         }
         footer={
-          sortedItems.length > 0 ? (
+          hasLoadedData || isError ? (
             <Pagination
               page={page}
               totalPages={totalPages}
@@ -285,7 +287,7 @@ export function SubscriptionsTable({
               pageSize={pageSize}
               onPageChange={setPage}
               onPageSizeChange={setPageSize}
-              disabled={isLoading}
+              disabled={isLoading || isError}
             />
           ) : null
         }

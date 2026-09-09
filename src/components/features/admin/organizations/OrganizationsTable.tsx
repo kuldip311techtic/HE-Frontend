@@ -234,7 +234,7 @@ export function OrganizationsTable({
           </div>
         }
         footer={
-          sortedItems.length > 0 ? (
+          hasLoadedData || isError ? (
             <Pagination
               page={page}
               totalPages={totalPages}
@@ -242,7 +242,7 @@ export function OrganizationsTable({
               pageSize={pageSize}
               onPageChange={setPage}
               onPageSizeChange={setPageSize}
-              disabled={isLoading}
+              disabled={isLoading || isError}
             />
           ) : null
         }

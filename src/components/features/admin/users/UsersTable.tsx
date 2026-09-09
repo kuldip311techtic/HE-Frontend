@@ -271,7 +271,7 @@ export function UsersTable({
           </div>
         }
         footer={
-          totalItems > 0 ? (
+          hasLoadedData || isError ? (
             <Pagination
               page={page}
               totalPages={totalPages}
@@ -279,7 +279,7 @@ export function UsersTable({
               pageSize={pageSize}
               onPageChange={onPageChange}
               onPageSizeChange={onPageSizeChange}
-              disabled={isLoading}
+              disabled={isLoading || isError}
             />
           ) : null
         }

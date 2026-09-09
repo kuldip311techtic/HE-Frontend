@@ -12,14 +12,14 @@ export function DashboardPlaceholderPage() {
         <CardHeader>
           <CardTitle>Platform overview</CardTitle>
           <CardDescription>
-            Analytics, organizations, users, and subscription modules will be available in upcoming
-            releases. Use the sidebar to preview planned navigation destinations.
+            Manage organizations, users, subscription plans, and support requests from the sidebar.
+            Analytics reporting is planned for a future release.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-body-sm text-muted-foreground">
-            You are signed in with administrator access. Feature modules such as Organizations,
-            Users, Subscriptions, Support, and Analytics are coming soon.
+            You are signed in with administrator access. Use Organizations, Users, Subscriptions,
+            and Support in the sidebar to manage platform data. Analytics is coming soon.
           </p>
         </CardContent>
       </Card>
