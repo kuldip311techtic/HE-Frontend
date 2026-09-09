@@ -37,7 +37,12 @@ export function LoginPage() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
+    mode: 'onChange',
   });
+
+  const email = form.watch('email');
+  const password = form.watch('password');
+  const canSubmit = Boolean(email.trim() && password.trim());
 
   React.useEffect(() => {
     if (isAuthenticated && isAdmin) {
@@ -87,7 +92,7 @@ export function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem className="login-field-group">
-                    <FormLabel className="login-field-label">Email</FormLabel>
+                    <FormLabel className="login-field-label font-lato">Email</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -106,7 +111,7 @@ export function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem className="login-field-group">
-                    <FormLabel className="login-field-label">Password</FormLabel>
+                    <FormLabel className="login-field-label font-lato">Password</FormLabel>
                     <FormControl>
                       <PasswordInput
                         {...field}
@@ -128,7 +133,7 @@ export function LoginPage() {
               <button
                 type="submit"
                 className="login-submit-btn"
-                disabled={loginMutation.isPending}
+                disabled={loginMutation.isPending || !canSubmit}
                 aria-busy={loginMutation.isPending}
               >
                 {loginMutation.isPending ? (

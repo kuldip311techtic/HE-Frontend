@@ -12,10 +12,10 @@ import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, enabled: true },
-  { to: '/admin/organizations', label: 'Organizations', icon: Building2, enabled: false },
-  { to: '/admin/users', label: 'Users', icon: Users, enabled: false },
-  { to: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard, enabled: false },
-  { to: '/admin/support', label: 'Support', icon: LifeBuoy, enabled: false },
+  { to: '/admin/organizations', label: 'Organizations', icon: Building2, enabled: true },
+  { to: '/admin/users', label: 'Users', icon: Users, enabled: true },
+  { to: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard, enabled: true },
+  { to: '/admin/support', label: 'Support', icon: LifeBuoy, enabled: true },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3, enabled: false },
 ];
 
