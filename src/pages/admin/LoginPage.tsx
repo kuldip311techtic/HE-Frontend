@@ -5,10 +5,11 @@ import * as React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { useAuth } from '@/lib/auth/useAuth';
+import { useLiveContractWarmup } from '@/hooks/useLiveContractWarmup';
 import { useLogin } from '@/hooks/useLogin';
 import { getApiErrorMessage } from '@/lib/api/getApiErrorMessage';
 import { canAccessAdmin } from '@/lib/auth/roles';
+import { useAuth } from '@/lib/auth/useAuth';
 import {
   Form,
   FormControl,
@@ -40,6 +41,7 @@ export function LoginPage() {
   const location = useLocation();
   const { login, isAuthenticated, isAdmin } = useAuth();
   const loginMutation = useLogin();
+  useLiveContractWarmup();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
