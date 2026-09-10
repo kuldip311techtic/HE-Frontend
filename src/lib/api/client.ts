@@ -10,6 +10,7 @@ import { resolveUrl } from '@/lib/api/resolveUrl';
 export type ApiRequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown;
   skipAuth?: boolean;
+  ignoreUnauthorized?: boolean;
 };
 
 function dispatchUnauthorized(): void {
@@ -21,7 +22,7 @@ function dispatchUnauthorized(): void {
 }
 
 async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-  const { body, skipAuth = false, headers: initHeaders, ...rest } = options;
+  const { body, skipAuth = false, ignoreUnauthorized = false, headers: initHeaders, ...rest } = options;
 
   const headers = new Headers(initHeaders);
   if (body !== undefined && !headers.has('Content-Type')) {
@@ -41,7 +42,7 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
-  if (response.status === 401) {
+  if (response.status === 401 && !ignoreUnauthorized) {
     rejectSession();
     dispatchUnauthorized();
   }

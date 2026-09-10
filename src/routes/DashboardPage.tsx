@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDashboard } from '@/hooks/useDashboard';
+import { useRelatedResourceGets } from '@/hooks/useRelatedResourceGets';
 import { getApiErrorMessage } from '@/lib/api';
 import { formatNumber, formatWholeDollars } from '@/lib/format';
 
@@ -60,6 +61,7 @@ const MODULE_LINKS = [
 
 export function DashboardPage() {
   const { data, isLoading, isRefreshing, error, reload, refresh } = useDashboard();
+  useRelatedResourceGets();
 
   const allZero =
     data &&
