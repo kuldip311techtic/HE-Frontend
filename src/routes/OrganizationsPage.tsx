@@ -1,47 +1,81 @@
 import { useEffect, useMemo, useState } from 'react';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { OrganizationFormDialog } from '@/components/features/organizations/OrganizationFormDialog';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
-import { ErrorMessage } from '@/components/shared/ErrorMessage';
+import type { DataTableColumn } from '@/components/shared/DataTable';
+import { DataTable } from '@/components/shared/DataTable';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { PaginationControls } from '@/components/shared/PaginationControls';
-import { SortableTableHead } from '@/components/shared/SortableTableHead';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
-import { LoadingState } from '@/components/ui/loading-state';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { useColumnVisibility } from '@/hooks/useColumnVisibility';
 import { useOrganizations } from '@/hooks/useOrganizations';
-import { useSortablePage } from '@/hooks/useSortablePage';
+import { useSortableItems } from '@/hooks/useSortableItems';
 import { getApiErrorMessage } from '@/lib/api';
 import type { Organization } from '@/types/api';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
+const ORGANIZATION_COLUMNS: DataTableColumn<Organization>[] = [
+  {
+    id: 'name',
+    label: 'Organization Name',
+    sortKey: 'name',
+    alwaysVisible: true,
+    render: (org) => org.name,
+  },
+  {
+    id: 'contact_email',
+    label: 'Contact Email',
+    sortKey: 'contact_email',
+    alwaysVisible: true,
+    render: (org) => org.contact_email,
+  },
+  {
+    id: 'phone_number',
+    label: 'Phone Number',
+    sortKey: 'phone_number',
+    alwaysVisible: true,
+    render: (org) => org.phone_number,
+  },
+  {
+    id: 'address',
+    label: 'Address',
+    sortKey: 'address',
+    defaultVisible: false,
+    render: (org) => org.address || '—',
+  },
+  {
+    id: 'join_code',
+    label: 'Join Code',
+    sortKey: 'join_code',
+    defaultVisible: false,
+    render: (org) => org.join_code || '—',
+  },
+];
+
 export function OrganizationsPage() {
-  const { items, isLoading, error, refetch, create, update, remove } = useOrganizations();
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const {
+    items,
+    isLoading,
+    error,
+    page,
+    setPage,
+    total,
+    pageSize,
+    refetch,
+    create,
+    update,
+    remove,
+  } = useOrganizations();
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Organization | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Organization | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { visibility, toggleColumn, toggleableColumns } = useColumnVisibility(ORGANIZATION_COLUMNS);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setSearchQuery(searchInput.trim()), SEARCH_DEBOUNCE_MS);
@@ -50,7 +84,7 @@ export function OrganizationsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, setPage]);
 
   const filteredItems = useMemo(() => {
     const query = searchQuery.toLowerCase();
@@ -62,19 +96,12 @@ export function OrganizationsPage() {
         org.name.toLowerCase().includes(query) ||
         org.contact_email.toLowerCase().includes(query) ||
         org.phone_number.toLowerCase().includes(query) ||
-        org.address.toLowerCase().includes(query),
+        org.address.toLowerCase().includes(query) ||
+        (org.join_code?.toLowerCase().includes(query) ?? false),
     );
   }, [items, searchQuery]);
 
-  const tableItems = useMemo(
-    () => filteredItems.map((item) => ({ ...item }) as Record<string, unknown>),
-    [filteredItems],
-  );
-  const { paginatedItems, totalItems, sortKey, sortDirection, handleSort } = useSortablePage(
-    tableItems,
-    page,
-    pageSize,
-  );
+  const { sortedItems, sortKey, sortDirection, handleSort } = useSortableItems(filteredItems);
 
   const openCreate = () => {
     setEditing(null);
@@ -129,124 +156,71 @@ export function OrganizationsPage() {
         description="Manage organization accounts across the platform."
       />
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <Input
-          type="search"
-          placeholder="Search Organizations"
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-          className="sm:max-w-xs"
-          aria-label="Search Organizations"
-        />
-        <Button type="button" onClick={openCreate}>
-          Add Organization
-        </Button>
-      </div>
-
-      {error ? (
-        <div className="space-y-3">
-          <ErrorMessage message={error} />
-          <Button type="button" variant="outline" onClick={() => void refetch()}>
-            Retry
-          </Button>
-        </div>
-      ) : null}
-
-      {isLoading ? (
-        <LoadingState label="Loading organizations…" />
-      ) : items.length === 0 && !error ? (
-        <EmptyState
-          title="No Organizations Yet"
-          description="Use Add Organization in the toolbar to create the first organization."
-        />
-      ) : showEmptyFiltered ? (
-        <EmptyState
-          title="No Matching Organizations"
-          description="Try adjusting your search terms."
-        />
-      ) : (
-        <div className="space-y-4">
-          <div className="overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <SortableTableHead
-                    label="Organization Name"
-                    sortKey="name"
-                    activeSortKey={sortKey}
-                    direction={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <SortableTableHead
-                    label="Contact Email"
-                    sortKey="contact_email"
-                    activeSortKey={sortKey}
-                    direction={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <SortableTableHead
-                    label="Phone Number"
-                    sortKey="phone_number"
-                    activeSortKey={sortKey}
-                    direction={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <TableHead scope="col">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedItems.map((row) => {
-                  const org = row as unknown as Organization;
-                  return (
-                    <TableRow key={org.id}>
-                      <TableCell>{org.name}</TableCell>
-                      <TableCell>{org.contact_email}</TableCell>
-                      <TableCell>{org.phone_number}</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              aria-label={`Actions for ${org.name}`}
-                            >
-                              <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEdit(org)}>
-                              <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() => setDeleteTarget(org)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
-                              Remove
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+      <DataTable
+        columns={ORGANIZATION_COLUMNS}
+        rows={sortedItems}
+        getRowKey={(org) => org.id}
+        sortKey={sortKey}
+        sortDirection={sortDirection}
+        onSort={handleSort}
+        sortScopeNote="Search and sorting apply to the current page only. Page size is controlled by the server."
+        columnVisibility={visibility}
+        onColumnVisibilityChange={toggleColumn}
+        toggleableColumns={toggleableColumns}
+        isLoading={isLoading}
+        loadingLabel="Loading organizations…"
+        error={error}
+        onRetry={() => void refetch()}
+        isEmpty={!isLoading && !error && total === 0}
+        emptyTitle="No Organizations Yet"
+        emptyDescription="Use Add Organization in the toolbar to create the first organization."
+        isEmptyFiltered={showEmptyFiltered}
+        filteredEmptyTitle="No Matching Organizations"
+        filteredEmptyDescription="Try adjusting your search terms."
+        toolbar={
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Input
+              type="search"
+              placeholder="Search Organizations"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              className="sm:max-w-xs"
+              aria-label="Search Organizations"
+            />
+            <Button type="button" onClick={openCreate}>
+              Add Organization
+            </Button>
           </div>
-          <PaginationControls
-            page={page}
-            pageSize={pageSize}
-            totalItems={totalItems}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
-          />
-        </div>
-      )}
+        }
+        renderActions={(org) => (
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => openEdit(org)}>
+              Edit
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              onClick={() => setDeleteTarget(org)}
+            >
+              Remove
+            </Button>
+          </div>
+        )}
+        pagination={
+          total > 0 ? (
+            <PaginationControls
+              page={page}
+              pageSize={pageSize}
+              totalItems={total}
+              onPageChange={setPage}
+              onPageSizeChange={() => {}}
+              hidePageSize
+            />
+          ) : null
+        }
+      />
 
       <OrganizationFormDialog
         open={dialogOpen}

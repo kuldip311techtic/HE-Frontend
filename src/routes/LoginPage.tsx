@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { getApiErrorMessage } from '@/lib/api';
+import { isDevAdminBypassEnabled } from '@/lib/auth/devBypass';
 import { useAuth } from '@/lib/auth/useAuth';
 
 const loginSchema = z.object({
@@ -58,7 +59,7 @@ export function LoginPage() {
     }
   };
 
-  const devBypass = import.meta.env.VITE_DEV_ADMIN_BYPASS === 'true';
+  const devBypass = isDevAdminBypassEnabled();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">

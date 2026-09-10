@@ -6,11 +6,8 @@ function sortValue<T extends object>(item: T, key: string): unknown {
   return (item as Record<string, unknown>)[key];
 }
 
-export function useSortablePage<T extends object>(
-  items: T[],
-  page: number,
-  pageSize: number,
-) {
+/** Client-side sort only — no pagination slice. */
+export function useSortableItems<T extends object>(items: T[]) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
@@ -23,11 +20,6 @@ export function useSortablePage<T extends object>(
     );
   }, [items, sortKey, sortDirection]);
 
-  const paginatedItems = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return sortedItems.slice(start, start + pageSize);
-  }, [sortedItems, page, pageSize]);
-
   const handleSort = (key: string) => {
     const next = cycleSort(sortKey, sortDirection, key);
     setSortKey(next.key);
@@ -38,7 +30,6 @@ export function useSortablePage<T extends object>(
     sortKey,
     sortDirection,
     handleSort,
-    paginatedItems,
-    totalItems: sortedItems.length,
+    sortedItems,
   };
 }

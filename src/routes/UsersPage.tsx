@@ -1,33 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { UserFormDialog } from '@/components/features/users/UserFormDialog';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
-import { ErrorMessage } from '@/components/shared/ErrorMessage';
+import type { DataTableColumn } from '@/components/shared/DataTable';
+import { DataTable } from '@/components/shared/DataTable';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { PaginationControls } from '@/components/shared/PaginationControls';
-import { SortableTableHead } from '@/components/shared/SortableTableHead';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
-import { LoadingState } from '@/components/ui/loading-state';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { useColumnVisibility } from '@/hooks/useColumnVisibility';
 import { useUsers } from '@/hooks/useUsers';
-import { useSortablePage } from '@/hooks/useSortablePage';
+import { useSortableItems } from '@/hooks/useSortableItems';
 import { getApiErrorMessage } from '@/lib/api';
 import { cn, titleCase } from '@/lib/utils';
 import type { User } from '@/types/api';
@@ -38,10 +22,56 @@ function displayName(user: User): string {
   return user.name?.trim() || `${user.first_name} ${user.last_name}`.trim();
 }
 
+type UserRow = User & {
+  name: string;
+  rolesDisplay: string;
+};
+
+const USER_COLUMNS: DataTableColumn<UserRow>[] = [
+  {
+    id: 'name',
+    label: 'Name',
+    sortKey: 'name',
+    alwaysVisible: true,
+    render: (user) => displayName(user),
+  },
+  {
+    id: 'email',
+    label: 'Email',
+    sortKey: 'email',
+    alwaysVisible: true,
+    render: (user) => user.email,
+  },
+  {
+    id: 'role',
+    label: 'Role',
+    sortKey: 'role',
+    alwaysVisible: true,
+    render: (user) => <Badge variant="secondary">{titleCase(user.role)}</Badge>,
+  },
+  {
+    id: 'roles',
+    label: 'Roles',
+    sortKey: 'rolesDisplay',
+    defaultVisible: false,
+    render: (user) => user.rolesDisplay || '—',
+  },
+];
+
 export function UsersPage() {
-  const { items, isLoading, error, refetch, create, update, remove } = useUsers();
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const {
+    items,
+    isLoading,
+    error,
+    page,
+    setPage,
+    total,
+    pageSize,
+    refetch,
+    create,
+    update,
+    remove,
+  } = useUsers();
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -50,6 +80,8 @@ export function UsersPage() {
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const { visibility, toggleColumn, toggleableColumns } = useColumnVisibility(USER_COLUMNS);
+
   useEffect(() => {
     const timer = window.setTimeout(() => setSearchQuery(searchInput.trim()), SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
@@ -57,7 +89,7 @@ export function UsersPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery, roleFilter]);
+  }, [searchQuery, roleFilter, setPage]);
 
   const filteredItems = useMemo(() => {
     const query = searchQuery.toLowerCase();
@@ -70,27 +102,26 @@ export function UsersPage() {
         return true;
       }
       const name = displayName(user).toLowerCase();
+      const roles = user.roles?.join(' ').toLowerCase() ?? '';
       return (
         name.includes(query) ||
         user.email.toLowerCase().includes(query) ||
-        role.includes(query)
+        role.includes(query) ||
+        roles.includes(query)
       );
     });
   }, [items, searchQuery, roleFilter]);
 
-  const tableItems = useMemo(
+  const tableRows = useMemo<UserRow[]>(
     () =>
       filteredItems.map((item) => ({
         ...item,
         name: displayName(item),
-      })) as Record<string, unknown>[],
+        rolesDisplay: item.roles?.join(', ') ?? '',
+      })),
     [filteredItems],
   );
-  const { paginatedItems, totalItems, sortKey, sortDirection, handleSort } = useSortablePage(
-    tableItems,
-    page,
-    pageSize,
-  );
+  const { sortedItems, sortKey, sortDirection, handleSort } = useSortableItems(tableRows);
 
   const openCreate = () => {
     setEditing(null);
@@ -150,144 +181,90 @@ export function UsersPage() {
     <div className="space-y-6">
       <PageHeader title="Users" description="Manage coach and player accounts." />
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-          <Input
-            type="search"
-            placeholder="Search Users"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-            className="sm:max-w-xs"
-            aria-label="Search Users"
-          />
-          <select
-            value={roleFilter}
-            onChange={(event) => setRoleFilter(event.target.value)}
-            className={cn(
-              'flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto',
-            )}
-            aria-label="Filter By Role"
-          >
-            <option value="all">All Roles</option>
-            <option value="coach">Coach</option>
-            <option value="player">Player</option>
-          </select>
-        </div>
-        <Button type="button" onClick={openCreate}>
-          Add User
-        </Button>
-      </div>
-
-      {error ? (
-        <div className="space-y-3">
-          <ErrorMessage message={error} />
-          <Button type="button" variant="outline" onClick={() => void refetch()}>
-            Retry
-          </Button>
-        </div>
-      ) : null}
-
-      {isLoading ? (
-        <LoadingState label="Loading users…" />
-      ) : items.length === 0 && !error ? (
-        <EmptyState
-          title="No Users Yet"
-          description="Use Add User in the toolbar to create the first user account."
-        />
-      ) : showEmptyFiltered ? (
-        <EmptyState
-          title="No Matching Users"
-          description="Try adjusting your search or role filter."
-        />
-      ) : (
-        <div className="space-y-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <SortableTableHead
-                  label="Name"
-                  sortKey="name"
-                  activeSortKey={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                />
-                <SortableTableHead
-                  label="Email"
-                  sortKey="email"
-                  activeSortKey={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                />
-                <SortableTableHead
-                  label="Role"
-                  sortKey="role"
-                  activeSortKey={sortKey}
-                  direction={sortDirection}
-                  onSort={handleSort}
-                />
-                <TableHead scope="col">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedItems.map((row) => {
-                const user = row as unknown as User;
-                const name = displayName(user);
-                return (
-                  <TableRow key={user.id}>
-                    <TableCell>{name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{titleCase(user.role)}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            aria-label={`Actions for ${name}`}
-                          >
-                            <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEdit(user)}>
-                            <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            disabled={user.is_self === true}
-                            onClick={() => {
-                              if (user.is_self !== true) {
-                                setDeleteTarget(user);
-                              }
-                            }}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
-                            Remove
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-          <PaginationControls
-            page={page}
-            pageSize={pageSize}
-            totalItems={totalItems}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
-          />
-        </div>
-      )}
+      <DataTable
+        columns={USER_COLUMNS}
+        rows={sortedItems}
+        getRowKey={(user) => user.id}
+        sortKey={sortKey}
+        sortDirection={sortDirection}
+        onSort={handleSort}
+        sortScopeNote="Search, role filter, and sorting apply to the current page only. Page size is controlled by the server."
+        columnVisibility={visibility}
+        onColumnVisibilityChange={toggleColumn}
+        toggleableColumns={toggleableColumns}
+        isLoading={isLoading}
+        loadingLabel="Loading users…"
+        error={error}
+        onRetry={() => void refetch()}
+        isEmpty={!isLoading && !error && total === 0}
+        emptyTitle="No Users Yet"
+        emptyDescription="Use Add User in the toolbar to create the first user account."
+        isEmptyFiltered={showEmptyFiltered}
+        filteredEmptyTitle="No Matching Users"
+        filteredEmptyDescription="Try adjusting your search or role filter."
+        toolbar={
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+              <Input
+                type="search"
+                placeholder="Search Users"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                className="sm:max-w-xs"
+                aria-label="Search Users"
+              />
+              <select
+                value={roleFilter}
+                onChange={(event) => setRoleFilter(event.target.value)}
+                className={cn(
+                  'flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto',
+                )}
+                aria-label="Filter By Role"
+              >
+                <option value="all">All Roles</option>
+                <option value="coach">Coach</option>
+                <option value="player">Player</option>
+              </select>
+            </div>
+            <Button type="button" onClick={openCreate}>
+              Add User
+            </Button>
+          </div>
+        }
+        renderActions={(user) => (
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => openEdit(user)}>
+              Edit
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              disabled={user.is_self === true}
+              onClick={() => {
+                if (user.is_self !== true) {
+                  setDeleteTarget(user);
+                }
+              }}
+            >
+              Remove
+            </Button>
+          </div>
+        )}
+        pagination={
+          total > 0 ? (
+            <PaginationControls
+              page={page}
+              pageSize={pageSize}
+              totalItems={total}
+              onPageChange={setPage}
+              onPageSizeChange={() => {}}
+              hidePageSize
+            />
+          ) : null
+        }
+      />
 
       <UserFormDialog
         open={dialogOpen}

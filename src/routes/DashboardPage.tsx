@@ -2,6 +2,7 @@ import {
   Building2,
   CreditCard,
   DollarSign,
+  ExternalLink,
   RefreshCw,
   TrendingUp,
   UserCheck,
@@ -9,7 +10,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetricCard } from '@/components/features/dashboard/MetricCard';
-import { ModuleNavGrid } from '@/components/features/dashboard/ModuleNavGrid';
 import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,8 @@ export function DashboardPage() {
       toast.success('Dashboard refreshed successfully.');
     }
   };
+
+  const hasStatusPanel = Boolean(data?.description || data?.link || data?.error);
 
   if (error && !data) {
     return (
@@ -77,6 +79,26 @@ export function DashboardPage() {
         </Button>
       </div>
 
+      {hasStatusPanel ? (
+        <div className="space-y-3 rounded-lg border bg-card p-4 text-sm">
+          {data?.error ? <ErrorMessage message={data.error} /> : null}
+          {data?.description ? (
+            <p className="text-muted-foreground">{data.description}</p>
+          ) : null}
+          {data?.link ? (
+            <a
+              href={data.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary hover:underline"
+            >
+              View Details
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard
           label="Total Organizations"
@@ -115,8 +137,6 @@ export function DashboardPage() {
           isLoading={isLoading}
         />
       </div>
-
-      <ModuleNavGrid />
     </div>
   );
 }

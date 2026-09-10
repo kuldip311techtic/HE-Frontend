@@ -9,6 +9,7 @@ import {
 import { superAdminLogin } from '@/lib/api/superAdmin';
 import { isAdminRole } from '@/lib/auth/isAdminRole';
 import { normalizeLoginResponse } from '@/lib/auth/normalizeLoginResponse';
+import { isDevAdminBypassEnabled } from '@/lib/auth/devBypass';
 import { clearSession, getSession, setSession } from '@/lib/auth/session';
 import type { AdminSession, LoginCredentials } from '@/types/auth';
 
@@ -23,7 +24,7 @@ interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
-const DEV_BYPASS = import.meta.env.VITE_DEV_ADMIN_BYPASS === 'true';
+const DEV_BYPASS = isDevAdminBypassEnabled();
 
 const DEV_SESSION: AdminSession = {
   token: 'dev-bypass',

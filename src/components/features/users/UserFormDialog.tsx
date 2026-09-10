@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -89,6 +90,11 @@ export function UserFormDialog({ open, onOpenChange, user, onSubmit }: UserFormD
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit User' : 'Add User'}</DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? 'Update this user account. Leave the password blank to keep the current password.'
+              : 'Create a new coach or player account with login credentials.'}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">

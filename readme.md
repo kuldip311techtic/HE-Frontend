@@ -17,7 +17,7 @@ The app runs at `http://localhost:5173` by default.
 | Variable | Description |
 |----------|-------------|
 | `VITE_API_BASE_URL` | Backend API base URL (default: `http://localhost:3300/api`) |
-| `VITE_DEV_ADMIN_BYPASS` | Set to `true` to seed a mock Super Admin session for layout testing without a backend |
+| `VITE_DEV_ADMIN_BYPASS` | Seeds a mock Super Admin session without a backend. Defaults to enabled in `npm run dev`; set to `false` to require real login locally |
 
 ## Scripts
 

@@ -1,30 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Eye, MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import { SupportRequestDetailDialog } from '@/components/features/support/SupportRequestDetailDialog';
-import { ErrorMessage } from '@/components/shared/ErrorMessage';
+import type { DataTableColumn } from '@/components/shared/DataTable';
+import { DataTable } from '@/components/shared/DataTable';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { PaginationControls } from '@/components/shared/PaginationControls';
-import { SortableTableHead } from '@/components/shared/SortableTableHead';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
-import { LoadingState } from '@/components/ui/loading-state';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { useSupportRequests } from '@/hooks/useSupportRequests';
 import { useSortablePage } from '@/hooks/useSortablePage';
 import { getApiErrorMessage } from '@/lib/api';
@@ -50,9 +33,10 @@ function formatRequestDate(value: string | undefined): string {
   return dateFormatter.format(parsed);
 }
 
-function getSubmitter(request: SupportRequest): string {
-  return request.user ?? request.name ?? request.email ?? 'Unknown User';
-}
+type SupportRequestRow = SupportRequest & {
+  display_user: string;
+  display_date: string;
+};
 
 export function SupportRequestsPage() {
   const { items, isLoading, error, refetch, respond, close } = useSupportRequests();
@@ -92,33 +76,65 @@ export function SupportRequestsPage() {
       if (!query) {
         return true;
       }
-      const submitter = getSubmitter(item).toLowerCase();
-      const subject = (item.inquiry_subject ?? item.message ?? '').toLowerCase();
-      const description = (item.message_description ?? '').toLowerCase();
+      const user = (item.user ?? '').toLowerCase();
+      const message = (item.message ?? '').toLowerCase();
       return (
-        submitter.includes(query) ||
+        user.includes(query) ||
         item.status?.toLowerCase().includes(query) ||
-        subject.includes(query) ||
-        description.includes(query) ||
-        formatRequestDate(item.request_date ?? item.created_at).toLowerCase().includes(query)
+        message.includes(query) ||
+        formatRequestDate(item.request_date).toLowerCase().includes(query)
       );
     });
   }, [items, searchQuery, statusFilter]);
 
-  const tableItems = useMemo(
+  const tableRows = useMemo<SupportRequestRow[]>(
     () =>
       filteredItems.map((item) => ({
         ...item,
-        submitter: getSubmitter(item),
-        display_date: item.request_date ?? item.created_at ?? '',
-      })) as Record<string, unknown>[],
+        display_user: item.user ?? '—',
+        display_date: item.request_date ?? '',
+      })),
     [filteredItems],
   );
 
   const { paginatedItems, totalItems, sortKey, sortDirection, handleSort } = useSortablePage(
-    tableItems,
+    tableRows,
     page,
     pageSize,
+  );
+
+  const supportColumns: DataTableColumn<SupportRequestRow>[] = useMemo(
+    () => [
+      {
+        id: 'user',
+        label: 'User',
+        sortKey: 'display_user',
+        alwaysVisible: true,
+        render: (request) => request.display_user,
+      },
+      {
+        id: 'request_date',
+        label: 'Request Date',
+        sortKey: 'display_date',
+        alwaysVisible: true,
+        render: (request) => formatRequestDate(request.request_date),
+      },
+      {
+        id: 'status',
+        label: 'Status',
+        sortKey: 'status',
+        alwaysVisible: true,
+        render: (request) => {
+          const isClosed = request.status?.toLowerCase() === 'closed';
+          return (
+            <Badge variant={isClosed ? 'secondary' : 'default'}>
+              {titleCase(request.status ?? 'Open')}
+            </Badge>
+          );
+        },
+      },
+    ],
+    [],
   );
 
   const handleRespond = async (requestId: string, response: string) => {
@@ -155,137 +171,74 @@ export function SupportRequestsPage() {
         description="Review and respond to user support inquiries."
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <Input
-          type="search"
-          placeholder="Search Support Requests"
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-          className="sm:max-w-xs"
-          aria-label="Search Support Requests"
-        />
-        <select
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
-          className={cn(
-            'flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto',
-          )}
-          aria-label="Filter By Status"
-        >
-          <option value="all">All Statuses</option>
-          {statusOptions.map((status) => (
-            <option key={status} value={status}>
-              {titleCase(status)}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {error ? (
-        <div className="space-y-3">
-          <ErrorMessage message={error} />
-          <Button type="button" variant="outline" onClick={() => void refetch()}>
-            Retry
-          </Button>
-        </div>
-      ) : null}
-
-      {isLoading ? (
-        <LoadingState label="Loading support requests…" />
-      ) : items.length === 0 && !error ? (
-        <EmptyState
-          title="No Support Requests Yet"
-          description="Support requests from users will appear here when submitted."
-        />
-      ) : showEmptyFiltered ? (
-        <EmptyState
-          title="No Matching Requests"
-          description="Try adjusting your search or status filter."
-        />
-      ) : (
-        <div className="space-y-4">
-          <div className="overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <SortableTableHead
-                    label="User"
-                    sortKey="submitter"
-                    activeSortKey={sortKey}
-                    direction={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <SortableTableHead
-                    label="Request Date"
-                    sortKey="display_date"
-                    activeSortKey={sortKey}
-                    direction={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <SortableTableHead
-                    label="Status"
-                    sortKey="status"
-                    activeSortKey={sortKey}
-                    direction={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <TableHead scope="col">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedItems.map((row) => {
-                  const request = row as unknown as SupportRequest & {
-                    submitter: string;
-                    display_date: string;
-                  };
-                  const isClosed = request.status?.toLowerCase() === 'closed';
-                  return (
-                    <TableRow key={request.id}>
-                      <TableCell>{request.submitter}</TableCell>
-                      <TableCell>{formatRequestDate(request.display_date)}</TableCell>
-                      <TableCell>
-                        <Badge variant={isClosed ? 'secondary' : 'default'}>
-                          {titleCase(request.status ?? 'Open')}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              aria-label={`Actions for ${request.submitter}`}
-                            >
-                              <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openDetail(request)}>
-                              <Eye className="mr-2 h-4 w-4" aria-hidden="true" />
-                              View
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+      <DataTable
+        columns={supportColumns}
+        rows={paginatedItems}
+        getRowKey={(request) => request.id}
+        sortKey={sortKey}
+        sortDirection={sortDirection}
+        onSort={handleSort}
+        columnVisibility={{ user: true, request_date: true, status: true }}
+        onColumnVisibilityChange={() => {}}
+        toggleableColumns={[]}
+        showColumnsControl={false}
+        isLoading={isLoading}
+        loadingLabel="Loading support requests…"
+        error={error}
+        onRetry={() => void refetch()}
+        isEmpty={!isLoading && !error && items.length === 0}
+        emptyTitle="No Support Requests Yet"
+        emptyDescription="Support requests from users will appear here when submitted."
+        isEmptyFiltered={showEmptyFiltered}
+        filteredEmptyTitle="No Matching Requests"
+        filteredEmptyDescription="Try adjusting your search or status filter."
+        toolbar={
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Input
+              type="search"
+              placeholder="Search Support Requests"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              className="sm:max-w-xs"
+              aria-label="Search Support Requests"
+            />
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              className={cn(
+                'flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto',
+              )}
+              aria-label="Filter By Status"
+            >
+              <option value="all">All Statuses</option>
+              {statusOptions.map((status) => (
+                <option key={status} value={status}>
+                  {titleCase(status)}
+                </option>
+              ))}
+            </select>
           </div>
-          <PaginationControls
-            page={page}
-            pageSize={pageSize}
-            totalItems={totalItems}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
-          />
-        </div>
-      )}
+        }
+        renderActions={(request) => (
+          <Button type="button" variant="outline" size="sm" onClick={() => openDetail(request)}>
+            View
+          </Button>
+        )}
+        pagination={
+          totalItems > 0 ? (
+            <PaginationControls
+              page={page}
+              pageSize={pageSize}
+              totalItems={totalItems}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
+            />
+          ) : null
+        }
+      />
 
       <SupportRequestDetailDialog
         open={dialogOpen}

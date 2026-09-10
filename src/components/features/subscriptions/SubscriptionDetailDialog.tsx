@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -33,6 +34,9 @@ export function SubscriptionDetailDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Subscription Plan Details</DialogTitle>
+          <DialogDescription>
+            Read-only view of this subscription plan&apos;s pricing and billing settings.
+          </DialogDescription>
         </DialogHeader>
         <dl className="space-y-4 text-sm">
           <div>

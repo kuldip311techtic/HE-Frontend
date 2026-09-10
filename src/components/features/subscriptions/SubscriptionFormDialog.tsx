@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -73,6 +74,11 @@ export function SubscriptionFormDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Subscription Plan' : 'Add Subscription Plan'}</DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? 'Update the plan name, price, or billing cycle for this subscription.'
+              : 'Define a new subscription plan with pricing and billing cycle.'}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">

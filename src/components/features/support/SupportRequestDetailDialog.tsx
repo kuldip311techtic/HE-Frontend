@@ -82,11 +82,10 @@ export function SupportRequestDetailDialog({
     return null;
   }
 
-  const submitter = request.user ?? request.name ?? request.email ?? 'Unknown User';
-  const date = formatRequestDate(request.request_date ?? request.created_at);
+  const submitter = request.user ?? '—';
+  const date = formatRequestDate(request.request_date);
   const isClosed = request.status?.toLowerCase() === 'closed';
-  const inquiryText =
-    request.message_description ?? request.message ?? request.inquiry_subject ?? '—';
+  const inquiryText = request.message ?? '—';
 
   const handleRespond = async (values: FormValues) => {
     const id = request.request_id ?? request.id;
@@ -130,16 +129,8 @@ export function SupportRequestDetailDialog({
               <dt className="font-medium text-foreground">Status</dt>
               <dd className="text-muted-foreground">{titleCase(request.status ?? 'Open')}</dd>
             </div>
-            {(request.inquiry_subject ?? request.message) && (
-              <div>
-                <dt className="font-medium text-foreground">Subject</dt>
-                <dd className="text-muted-foreground">
-                  {request.inquiry_subject ?? request.message}
-                </dd>
-              </div>
-            )}
             <div>
-              <dt className="font-medium text-foreground">Inquiry</dt>
+              <dt className="font-medium text-foreground">Message</dt>
               <dd className="whitespace-pre-wrap text-muted-foreground">{inquiryText}</dd>
             </div>
           </dl>
