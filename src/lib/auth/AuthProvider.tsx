@@ -13,6 +13,8 @@ import { normalizeAdminRole } from '@/lib/auth/normalizeAdminRole';
 import {
   clearSession,
   clearSessionRejected,
+  getSession,
+  isDevBypassToken,
   isSessionRejected,
   setSession,
 } from '@/lib/auth/session';
@@ -56,8 +58,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    clearSession();
-    setUser(null);
+    const stored = getSession();
+    if (stored && isDevBypassToken(stored.token) && (!DEV_BYPASS || isSessionRejected())) {
+      clearSession();
+    } else if (stored) {
+      setUser(stored);
+    }
     setIsLoading(false);
   }, []);
 

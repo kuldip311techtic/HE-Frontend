@@ -10,9 +10,6 @@ export const API_PATHS = {
   subscriptionPlans: '/api/v1/super-admin/subscription-plans',
   subscriptionPlanById: '/api/v1/super-admin/subscription-plans/{plan_id}',
   supportRequests: '/api/v1/support-requests',
-  playerRoleSelection: '/api/v1/player/role-selection',
-  organizationAdminTeamById: '/api/v1/organization-admin/teams/{team_id}',
-  sessionById: '/api/sessions/{session_id}',
 } as const;
 
 export function fillPath(template: string, params: Record<string, string>): string {
@@ -32,14 +29,6 @@ export function userPath(user_id: string): string {
 
 export function subscriptionPlanPath(plan_id: string): string {
   return fillPath(API_PATHS.subscriptionPlanById, { plan_id });
-}
-
-export function organizationAdminTeamPath(team_id: string): string {
-  return fillPath(API_PATHS.organizationAdminTeamById, { team_id });
-}
-
-export function sessionPath(session_id: string): string {
-  return fillPath(API_PATHS.sessionById, { session_id });
 }
 
 export function withQuery(
