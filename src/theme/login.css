@@ -1,16 +1,15 @@
 /* Page-scoped login styles — overrides shared Input/Button on this screen only. */
 .login-page {
-  /* GLOBAL DESIGN TOKENS — exact Figma hex (this page only; also set from LoginPage) */
-  --login-accent: #445154;
-  --login-brand: #86d31f;
-  --login-border: #0d1612;
-  --login-surface: #13291b;
-  --login-input-fill: #0b1f12;
-  --login-page-bg: #081410;
-  --login-muted: #9ca3af;
+  --login-accent: #9aa89e;
+  --login-brand: #b8ff3c;
+  --login-border: #2a3a2e;
+  --login-surface: #111814;
+  --login-input-fill: #0c100e;
+  --login-page-bg: #070907;
+  --login-muted: #9aa89e;
   --login-foreground: #ffffff;
-  --login-error: #ff6b6b;
-  --login-primary-bright: #4bcd39;
+  --login-error: #ff5f6d;
+  --login-primary-bright: #b8ff3c;
   position: relative;
   display: flex;
   min-height: 100vh;
@@ -18,8 +17,8 @@
   justify-content: center;
   overflow: hidden;
   padding: 28px 24px;
-  font-family: 'Inter', sans-serif;
-  background-color: #081410;
+  font-family: 'Outfit', sans-serif;
+  background-color: #070907;
   color: #ffffff;
 }
 
@@ -30,19 +29,19 @@
   background:
     radial-gradient(
       ellipse 62% 52% at 78% 32%,
-      color-mix(in srgb, #86d31f 38%, transparent) 0%,
-      color-mix(in srgb, #86d31f 14%, transparent) 38%,
+      color-mix(in srgb, #b8ff3c 38%, transparent) 0%,
+      color-mix(in srgb, #b8ff3c 14%, transparent) 38%,
       transparent 70%
     ),
     radial-gradient(
       ellipse 48% 44% at 18% 72%,
-      color-mix(in srgb, #4bcd39 22%, transparent) 0%,
-      color-mix(in srgb, #86d31f 8%, transparent) 42%,
+      color-mix(in srgb, #b8ff3c 22%, transparent) 0%,
+      color-mix(in srgb, #b8ff3c 8%, transparent) 42%,
       transparent 68%
     ),
     radial-gradient(
       ellipse 36% 30% at 50% 100%,
-      color-mix(in srgb, #86d31f 12%, transparent) 0%,
+      color-mix(in srgb, #b8ff3c 12%, transparent) 0%,
       transparent 58%
     );
 }
@@ -53,9 +52,9 @@
   width: 100%;
   max-width: 400px;
   flex-shrink: 0;
-  border: 1px solid #0d1612;
-  border-radius: 10px;
-  background-color: #13291b;
+  border: 1px solid #2a3a2e;
+  border-radius: 12px;
+  background-color: #111814;
   box-sizing: border-box;
 }
 
@@ -103,7 +102,7 @@
 }
 
 .login-page .login-field-label {
-  font-family: 'Lato', sans-serif !important;
+  font-family: 'Outfit', sans-serif !important;
   font-size: 16px !important;
   font-weight: 500 !important;
   line-height: 19.2px !important;
@@ -111,19 +110,19 @@
   color: #ffffff !important;
 }
 
-/* Page-only Input overrides — dark Figma fill, not library white */
+/* Page-only Input overrides — dark fill, 10px radius, 48px height */
 .login-page input.login-field-input {
   box-sizing: border-box;
-  height: 44px !important;
+  height: 48px !important;
   width: 100% !important;
-  border: 1px solid #0d1612 !important;
+  border: 1px solid #2a3a2e !important;
   border-radius: 10px !important;
-  background-color: #0b1f12 !important;
+  background-color: #0c100e !important;
   padding: 0 14px !important;
   font-family: 'Outfit', sans-serif !important;
   font-size: 16px !important;
   font-weight: 400 !important;
-  line-height: 22px !important;
+  line-height: 24px !important;
   letter-spacing: 0 !important;
   color: #ffffff !important;
   box-shadow: none !important;
@@ -133,19 +132,19 @@
   font-family: 'Outfit', sans-serif !important;
   font-size: 16px !important;
   font-weight: 400 !important;
-  line-height: 22px !important;
-  color: #9ca3af !important;
+  line-height: 24px !important;
+  color: #9aa89e !important;
   opacity: 1 !important;
 }
 
 .login-page input.login-field-input:hover:not(:disabled) {
-  border-color: #0d1612 !important;
+  border-color: #2a3a2e !important;
 }
 
 .login-page input.login-field-input:focus-visible {
   outline: none !important;
-  border-color: #0d1612 !important;
-  box-shadow: 0 0 0 2px #86d31f !important;
+  border-color: #b8ff3c !important;
+  box-shadow: 0 0 0 3px rgba(184, 255, 60, 0.15) !important;
 }
 
 .login-page input.login-field-input:disabled {
@@ -158,7 +157,7 @@
 }
 
 .login-page .login-field-group .relative > button[type='button'] {
-  color: #9ca3af;
+  color: #9aa89e;
 }
 
 .login-page .login-field-group .relative > button[type='button']:hover {
@@ -167,46 +166,48 @@
 
 .login-page .login-field-group .relative > button[type='button']:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px #86d31f;
+  box-shadow: 0 0 0 2px #b8ff3c;
   border-radius: 10px;
 }
 
-/* Page-only submit button — brand fill with dark label, not white */
+/* Page-only submit button — neon pill with dark label */
 .login-page button.login-submit-btn {
   font-family: 'Outfit', sans-serif !important;
-  font-size: 16px !important;
+  font-size: 15px !important;
   font-weight: 600 !important;
-  line-height: 20.16px !important;
+  line-height: 20px !important;
   letter-spacing: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 10px !important;
-  height: 44px !important;
+  height: 48px !important;
   width: 100% !important;
-  border-radius: 10px !important;
-  border: 1px solid #0d1612 !important;
-  background-color: #86d31f !important;
-  color: #0d1612 !important;
+  border-radius: 9999px !important;
+  border: 1px solid transparent !important;
+  background-color: #b8ff3c !important;
+  color: #070907 !important;
+  box-shadow: 0 0 20px rgba(184, 255, 60, 0.35);
   cursor: pointer;
 }
 
 .login-page button.login-submit-btn:hover:not(:disabled) {
-  filter: brightness(0.92);
+  filter: brightness(1.05);
 }
 
 .login-page button.login-submit-btn:active:not(:disabled) {
-  filter: brightness(0.88);
+  filter: brightness(0.95);
 }
 
 .login-page button.login-submit-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px #86d31f, 0 0 0 4px #0d1612;
+  box-shadow: 0 0 0 2px #b8ff3c, 0 0 0 4px #070907, 0 0 20px rgba(184, 255, 60, 0.35);
 }
 
 .login-page button.login-submit-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .login-page .login-field-error {
@@ -214,7 +215,7 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 17.64px;
-  color: #ff6b6b;
+  color: #ff5f6d;
 }
 
 .login-page [role='alert'].text-destructive,
@@ -223,5 +224,5 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 17.64px;
-  color: #ff6b6b;
+  color: #ff5f6d;
 }

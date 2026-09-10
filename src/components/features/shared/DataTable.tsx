@@ -98,7 +98,7 @@ export function DataTable<T>({
           {hideableColumns.length > 0 ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button type="button" variant="outline" className="min-h-11">
+                <Button type="button" variant="outline" className="min-h-12">
                   <Columns3 className="h-4 w-4" aria-hidden />
                   Columns
                 </Button>
@@ -124,7 +124,7 @@ export function DataTable<T>({
       </div>
 
       {error ? (
-        <div className="flex flex-col items-start gap-3 rounded-figma-10 border border-figma-border px-4 py-6">
+        <div className="flex flex-col items-start gap-3 rounded-xl border border-figma-border px-4 py-6">
           <ErrorMessage message={error} />
           {onRetry ? (
             <Button type="button" variant="outline" onClick={onRetry}>
@@ -134,7 +134,7 @@ export function DataTable<T>({
         </div>
       ) : (
         <>
-          <div className="rounded-figma-10 border border-figma-border">
+          <div className="rounded-xl border border-figma-border">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
@@ -152,7 +152,7 @@ export function DataTable<T>({
                         {column.sortable ? (
                           <button
                             type="button"
-                            className="inline-flex items-center gap-1 rounded-figma-10 text-left text-body-sm font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand"
+                            className="inline-flex items-center gap-1 rounded-[10px] text-left font-outfit text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9aa89e] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand"
                             aria-label={`Sort ${column.label} (current page)`}
                             title="Sort applies to the current page"
                             onClick={() => setSort((current) => cycleSort(current, column.id))}

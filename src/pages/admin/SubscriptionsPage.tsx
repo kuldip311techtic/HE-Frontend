@@ -133,13 +133,8 @@ export function SubscriptionsPage() {
   return (
     <div className="w-full space-y-6">
       <PageHeader
-        title="Subscription plans"
+        title="Subscription Plans"
         description="Manage org admin and coach subscription plans. Archiving keeps existing subscribers until period end."
-        actions={
-          <Button type="button" variant="brand" onClick={openCreate}>
-            Add plan
-          </Button>
-        }
       />
       <div className="flex flex-wrap gap-2">
         {(['org_admin', 'coach'] as const).map((value) => (
@@ -172,37 +167,32 @@ export function SubscriptionsPage() {
         pagination={pagination}
         onPageChange={list.setPage}
         onPageSizeChange={list.setPageSize}
-        emptyAction={
-          <Button type="button" variant="brand" onClick={openCreate}>
-            Add plan
-          </Button>
-        }
         leadingToolbar={
           <>
             <Input
               value={list.searchInput}
               onChange={(event) => list.setSearchInput(event.target.value)}
-              placeholder="Search plans"
-              aria-label="Search subscription plans"
+              placeholder="Search Plans"
+              aria-label="Search Subscription Plans"
               className="md:max-w-sm"
             />
             <Select
               value={list.extras.billing_frequency ?? ''}
               onChange={(event) => list.setExtra('billing_frequency', event.target.value || undefined)}
-              aria-label="Filter by billing frequency"
+              aria-label="Filter By Billing Frequency"
               className="md:w-44"
             >
-              <option value="">All frequencies</option>
+              <option value="">All Frequencies</option>
               <option value="monthly">Monthly</option>
               <option value="yearly">Yearly</option>
             </Select>
             <Select
               value={list.extras.is_active ?? ''}
               onChange={(event) => list.setExtra('is_active', event.target.value || undefined)}
-              aria-label="Filter by active state"
+              aria-label="Filter By Active State"
               className="md:w-40"
             >
-              <option value="">All active states</option>
+              <option value="">All Active States</option>
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </Select>
@@ -210,7 +200,7 @@ export function SubscriptionsPage() {
         }
         trailingToolbar={
           <Button type="button" variant="brand" onClick={openCreate}>
-            Add plan
+            Add Plan
           </Button>
         }
         onView={setViewing}

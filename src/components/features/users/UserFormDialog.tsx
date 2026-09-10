@@ -148,7 +148,7 @@ export function UserFormDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? 'Edit user' : 'Add user'}
+      title={isEdit ? 'Edit User' : 'Add User'}
       description={
         isEdit
           ? 'Update user details. Leave password blank to keep the current password.'

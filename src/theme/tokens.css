@@ -1,14 +1,14 @@
 :root {
-  /* GLOBAL DESIGN TOKENS — exact Figma hex (literal values for surfaces/text) */
-  --color-accent: #445154;
-  --color-brand: #86d31f;
-  --color-border: #0d1612;
-  --figma-hex-accent: #445154;
-  --figma-hex-brand: #86d31f;
-  --figma-hex-border: #0d1612;
-  --token-accent: #445154;
-  --token-brand: #86d31f;
-  --token-border: #0d1612;
+  /* Neon court theme — high-contrast dark admin UI */
+  --color-accent: #9aa89e;
+  --color-brand: #b8ff3c;
+  --color-border: #2a3a2e;
+  --figma-hex-accent: #9aa89e;
+  --figma-hex-brand: #b8ff3c;
+  --figma-hex-border: #2a3a2e;
+  --token-accent: #9aa89e;
+  --token-brand: #b8ff3c;
+  --token-border: #2a3a2e;
   --token-color-100: #ff41411f;
   --token-color-101: #ffd70033;
   --token-color-102: #ffd70014;
@@ -16,19 +16,19 @@
   --token-color-104: #c0c0c014;
   --token-color-105: #cd7f3233;
   --token-color-106: #cd7f3214;
-  --token-color-107: #1bc94f1f;
+  --token-color-107: rgba(184, 255, 60, 0.12);
   --token-color-108: #3b82f6;
   --token-color-109: #030a077f;
-  --token-color-110: #081410;
-  --token-color-111: #081410fa;
+  --token-color-110: #070907;
+  --token-color-111: #0c100efa;
   --token-color-112: #ff414114;
-  --token-color-113: #9ca3af;
-  --token-color-114: #4bcd39;
-  --token-color-115: #1bc94f1a;
-  --token-color-116: #ff6b6b;
-  --token-color-117: #0b1f12;
+  --token-color-113: #9aa89e;
+  --token-color-114: #b8ff3c;
+  --token-color-115: rgba(184, 255, 60, 0.15);
+  --token-color-116: #ff5f6d;
+  --token-color-117: #0c100e;
   --token-color-118: #ffb84d;
-  --token-color-119: #13291b;
+  --token-color-119: #111814;
   --token-color-120: #1c0505;
   --figma-accent: var(--figma-hex-accent);
   --figma-brand: var(--figma-hex-brand);
@@ -38,28 +38,46 @@
   --figma-surface-deep: var(--token-color-117);
   --figma-muted: var(--token-color-113);
   --figma-primary-bright: var(--token-color-114);
-  --background: 156 60% 4%;
+
+  /* HSL channels for Tailwind semantic colors */
+  --background: 120 12% 3%;
   --foreground: 0 0% 100%;
-  --card: 152 33% 12%;
+  --card: 150 15% 7%;
   --card-foreground: 0 0% 100%;
-  --popover: 152 33% 12%;
+  --popover: 150 15% 7%;
   --popover-foreground: 0 0% 100%;
-  --primary: 112 58% 51%;
-  --primary-foreground: 156 60% 4%;
-  --secondary: 188 9% 29%;
+  --primary: 78 100% 62%;
+  --primary-foreground: 120 12% 4%;
+  --secondary: 150 12% 12%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 152 20% 18%;
-  --muted-foreground: 218 11% 65%;
-  --accent: 188 9% 29%;
+  --muted: 150 10% 12%;
+  --muted-foreground: 140 10% 68%;
+  --accent: 150 12% 12%;
   --accent-foreground: 0 0% 100%;
-  --destructive: 0 100% 71%;
+  --destructive: 355 100% 68%;
   --destructive-foreground: 0 0% 100%;
-  --border: 156 40% 6%;
-  --input: 152 20% 18%;
-  --ring: 112 58% 51%;
-  --radius: 0.625rem;
-  --sidebar: 152 33% 10%;
-  --sidebar-foreground: 0 0% 100%;
-  --sidebar-border: 156 40% 6%;
-  --sidebar-accent: 112 58% 51%;
+  --border: 145 14% 20%;
+  --input: 150 12% 6%;
+  --ring: 78 100% 62%;
+  --radius: 0.75rem;
+  --sidebar: 150 14% 5%;
+  --sidebar-foreground: 140 12% 88%;
+  --sidebar-border: 145 14% 18%;
+  --sidebar-accent: 78 100% 62%;
+
+  /* Direct neon aliases used by admin CSS */
+  --neon: #b8ff3c;
+  --neon-dim: rgba(184, 255, 60, 0.15);
+  --neon-glow: rgba(184, 255, 60, 0.35);
+  --bg-primary: #070907;
+  --bg-secondary: #0c100e;
+  --bg-elevated: #111814;
+  --bg-input: #0e1310;
+  --text-secondary: #c5d2c8;
+  --text-muted: #9aa89e;
+  --danger: #ff5f6d;
+  --danger-bg: rgba(255, 95, 109, 0.14);
+  --danger-glow: 0 0 20px rgba(255, 95, 109, 0.35);
+  --shadow-neon: 0 0 20px rgba(184, 255, 60, 0.35);
+  --shadow-glow: 0 0 24px rgba(184, 255, 60, 0.08);
 }

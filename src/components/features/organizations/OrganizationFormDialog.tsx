@@ -106,7 +106,7 @@ export function OrganizationFormDialog({
         if (isPending && !nextOpen) return;
         onOpenChange(nextOpen);
       }}
-      title={isEdit ? 'Edit organization' : 'Add organization'}
+      title={isEdit ? 'Edit Organization' : 'Add Organization'}
       description={
         isEdit
           ? 'Update organization contact details. Changes replace the current values.'

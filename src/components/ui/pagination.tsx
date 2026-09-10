@@ -36,7 +36,7 @@ export function Pagination({ page, totalPages, onPageChange, className }: Pagina
         type="button"
         variant="outline"
         size="icon"
-        className="min-h-11 min-w-11"
+        className="h-12 w-12 min-h-12 min-w-12"
         disabled={previousDisabled}
         onClick={() => onPageChange(page - 1)}
         aria-label="Previous page"
@@ -53,7 +53,8 @@ export function Pagination({ page, totalPages, onPageChange, className }: Pagina
             key={item}
             type="button"
             variant={item === page ? 'brand' : 'outline'}
-            className="min-h-11 min-w-11"
+            size="icon"
+            className="h-12 w-12 min-h-12 min-w-12"
             aria-current={item === page ? 'page' : undefined}
             onClick={() => onPageChange(item)}
           >
@@ -65,7 +66,7 @@ export function Pagination({ page, totalPages, onPageChange, className }: Pagina
         type="button"
         variant="outline"
         size="icon"
-        className="min-h-11 min-w-11"
+        className="h-12 w-12 min-h-12 min-w-12"
         disabled={nextDisabled}
         onClick={() => onPageChange(page + 1)}
         aria-label="Next page"

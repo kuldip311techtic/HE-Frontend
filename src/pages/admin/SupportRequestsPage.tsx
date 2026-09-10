@@ -59,8 +59,8 @@ export function SupportRequestsPage() {
           <Input
             value={list.searchInput}
             onChange={(event) => list.setSearchInput(event.target.value)}
-            placeholder="Search support requests"
-            aria-label="Search support requests"
+            placeholder="Search Support Requests"
+            aria-label="Search Support Requests"
             className="md:max-w-sm"
           />
         }

@@ -25,7 +25,7 @@ export function PaginationBar({ pagination, onPageChange, onPageSizeChange }: Pa
             value={String(pagination.page_size)}
             onChange={(event) => onPageSizeChange(Number(event.target.value))}
             aria-label="Rows per page"
-            className="h-11 w-[88px]"
+            className="h-12 w-[88px]"
           >
             {PAGE_SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>

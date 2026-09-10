@@ -28,11 +28,11 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-/** Figma GLOBAL DESIGN TOKENS — login page only (do not restyle shared Input/Button). */
+/** Neon court tokens — login page only (do not restyle shared Input/Button). */
 const LOGIN_FIGMA_TOKENS: React.CSSProperties = {
-  ['--login-accent' as string]: '#445154',
-  ['--login-brand' as string]: '#86d31f',
-  ['--login-border' as string]: '#0d1612',
+  ['--login-accent' as string]: '#9aa89e',
+  ['--login-brand' as string]: '#b8ff3c',
+  ['--login-border' as string]: '#2a3a2e',
 };
 
 export function LoginPage() {

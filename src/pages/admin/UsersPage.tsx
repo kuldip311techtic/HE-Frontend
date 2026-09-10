@@ -84,11 +84,6 @@ export function UsersPage() {
       <PageHeader
         title="Manage Users"
         description="Create and manage Super Admin, organization, coach, and player accounts."
-        actions={
-          <Button type="button" variant="brand" onClick={openCreate}>
-            Add user
-          </Button>
-        }
       />
       <UsersTable
         items={items}
@@ -101,27 +96,22 @@ export function UsersPage() {
         pagination={pagination}
         onPageChange={list.setPage}
         onPageSizeChange={list.setPageSize}
-        emptyAction={
-          <Button type="button" variant="brand" onClick={openCreate}>
-            Add user
-          </Button>
-        }
         leadingToolbar={
           <>
             <Input
               value={list.searchInput}
               onChange={(event) => list.setSearchInput(event.target.value)}
-              placeholder="Search users"
-              aria-label="Search users"
+              placeholder="Search Users"
+              aria-label="Search Users"
               className="md:max-w-sm"
             />
             <Select
               value={list.extras.role ?? ''}
               onChange={(event) => list.setExtra('role', event.target.value || undefined)}
-              aria-label="Filter by role"
+              aria-label="Filter By Role"
               className="md:w-52"
             >
-              <option value="">All roles</option>
+              <option value="">All Roles</option>
               {(roles.length > 0
                 ? roles
                 : [
@@ -140,7 +130,7 @@ export function UsersPage() {
         }
         trailingToolbar={
           <Button type="button" variant="brand" onClick={openCreate}>
-            Add user
+            Add User
           </Button>
         }
         isOwnAccount={isOwnAccount}

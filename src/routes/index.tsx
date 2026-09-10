@@ -4,7 +4,6 @@ import { AdminRouteGuard } from '@/components/features/auth/AdminRouteGuard';
 import { RootRedirect } from '@/routes/RootRedirect';
 import { LoginPage } from '@/pages/admin/LoginPage';
 import { DashboardPage } from '@/pages/admin/DashboardPage';
-import { AnalyticsPage } from '@/pages/admin/AnalyticsPage';
 import { OrganizationsPage } from '@/pages/admin/OrganizationsPage';
 import { UsersPage } from '@/pages/admin/UsersPage';
 import { SubscriptionsPage } from '@/pages/admin/SubscriptionsPage';
@@ -26,7 +25,6 @@ export function AppRoutes() {
           <Route path="/admin/users" element={<UsersPage />} />
           <Route path="/admin/subscriptions" element={<SubscriptionsPage />} />
           <Route path="/admin/support" element={<SupportRequestsPage />} />
-          <Route path="/admin/analytics" element={<AnalyticsPage />} />
           <Route path="/admin/teams/:teamId" element={<TeamDetailPage />} />
           <Route path="/admin/sessions/:sessionId" element={<SessionDetailPage />} />
           <Route path="/sessions/:sessionId" element={<SessionDetailPage />} />

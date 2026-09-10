@@ -4,7 +4,6 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { DashboardMetrics } from '@/components/features/dashboard/DashboardMetrics';
-import { QuickAccessSection } from '@/components/features/dashboard/QuickAccessSection';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useOrganizationAdminTeam } from '@/hooks/useOrganizationAdminTeam';
 import { usePlayerRoleSelection } from '@/hooks/usePlayerRoleSelection';
@@ -64,7 +63,6 @@ export function DashboardPage() {
       ) : (
         <DashboardMetrics metrics={dashboard.data} loading={dashboard.isLoading} />
       )}
-      <QuickAccessSection loading={dashboard.isLoading} />
     </div>
   );
 }

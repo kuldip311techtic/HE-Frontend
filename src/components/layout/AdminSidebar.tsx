@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom';
 import {
-  BarChart3,
   Building2,
   CreditCard,
   LayoutDashboard,
@@ -16,7 +15,6 @@ const navItems = [
   { to: '/admin/users', label: 'Users', icon: Users, enabled: true },
   { to: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard, enabled: true },
   { to: '/admin/support', label: 'Support', icon: LifeBuoy, enabled: true },
-  { to: '/admin/analytics', label: 'Analytics', icon: BarChart3, enabled: true },
 ];
 
 interface AdminSidebarProps {
@@ -36,10 +34,10 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
           return (
             <div
               key={item.to}
-              className="flex items-center justify-between rounded-figma-10 px-3 py-2 text-muted-foreground opacity-60"
+              className="flex items-center justify-between rounded-full px-3.5 py-[11px] text-muted-foreground opacity-60"
               aria-disabled="true"
             >
-              <span className="inline-flex items-center gap-2 text-body-sm">
+              <span className="inline-flex items-center gap-3 text-body-sm">
                 <Icon className="h-4 w-4" aria-hidden />
                 {item.label}
               </span>
@@ -55,15 +53,31 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
             onClick={onNavigate}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-2 rounded-figma-10 px-3 py-2 text-body-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand',
+                'group relative flex items-center gap-3 rounded-full px-3.5 py-[11px] font-outfit text-sm font-medium transition-[background,color] duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand',
                 isActive
-                  ? 'bg-sidebar-accent/15 text-sidebar-accent'
-                  : 'text-sidebar-foreground hover:bg-muted/40',
+                  ? 'bg-[rgba(184,255,60,0.16)] text-primary'
+                  : 'text-[#d7e0d9] hover:bg-[rgba(184,255,60,0.1)] hover:text-primary',
               )
             }
           >
-            <Icon className="h-4 w-4" aria-hidden />
-            {item.label}
+            {({ isActive }) => (
+              <>
+                <Icon
+                  className={cn(
+                    'h-4 w-4 shrink-0 transition-colors',
+                    isActive ? 'text-primary' : 'text-[#c5d2c8] group-hover:text-primary',
+                  )}
+                  aria-hidden
+                />
+                <span className="flex-1">{item.label}</span>
+                {isActive ? (
+                  <span
+                    className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_8px_rgba(184,255,60,0.8)]"
+                    aria-hidden
+                  />
+                ) : null}
+              </>
+            )}
           </NavLink>
         );
       })}

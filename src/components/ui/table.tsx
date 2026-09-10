@@ -6,7 +6,7 @@ const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableE
     <div className="w-full overflow-x-auto">
       <table
         ref={ref}
-        className={cn('w-full caption-bottom text-sm', className)}
+        className={cn('w-full caption-bottom border-collapse font-outfit text-body-sm', className)}
         {...props}
       />
     </div>
@@ -52,7 +52,7 @@ const TableHead = React.forwardRef<
     ref={ref}
     scope="col"
     className={cn(
-      'h-12 px-3 text-left align-middle text-body-sm font-medium text-muted-foreground',
+      'h-12 px-4 text-left align-middle font-outfit text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9aa89e]',
       className,
     )}
     {...props}
@@ -64,7 +64,11 @@ const TableCell = React.forwardRef<
   HTMLTableCellElement,
   React.TdHTMLAttributes<HTMLTableCellElement>
 >(({ className, ...props }, ref) => (
-  <td ref={ref} className={cn('px-3 py-2 align-middle text-body-sm text-foreground', className)} {...props} />
+  <td
+    ref={ref}
+    className={cn('h-12 px-4 align-middle text-body-sm text-foreground', className)}
+    {...props}
+  />
 ));
 TableCell.displayName = 'TableCell';
 

@@ -70,11 +70,6 @@ export function OrganizationsPage() {
       <PageHeader
         title="Manage Organizations"
         description="Create, update, and remove organizations on the platform."
-        actions={
-          <Button type="button" variant="brand" onClick={openCreate}>
-            Add organization
-          </Button>
-        }
       />
       <OrganizationsTable
         items={items}
@@ -88,23 +83,18 @@ export function OrganizationsPage() {
         pagination={pagination}
         onPageChange={list.setPage}
         onPageSizeChange={list.setPageSize}
-        emptyAction={
-          <Button type="button" variant="brand" onClick={openCreate}>
-            Add organization
-          </Button>
-        }
         leadingToolbar={
           <Input
             value={list.searchInput}
             onChange={(event) => list.setSearchInput(event.target.value)}
-            placeholder="Search organizations"
-            aria-label="Search organizations"
+            placeholder="Search Organizations"
+            aria-label="Search Organizations"
             className="md:max-w-sm"
           />
         }
         trailingToolbar={
           <Button type="button" variant="brand" onClick={openCreate}>
-            Add organization
+            Add Organization
           </Button>
         }
         onView={setViewing}

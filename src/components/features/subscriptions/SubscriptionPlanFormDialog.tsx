@@ -223,7 +223,7 @@ export function SubscriptionPlanFormDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? 'Edit subscription plan' : 'Add subscription plan'}
+      title={isEdit ? 'Edit Subscription Plan' : 'Add Subscription Plan'}
       description={
         isEdit
           ? 'Update plan billing and limits. Role cannot be changed after create.'
