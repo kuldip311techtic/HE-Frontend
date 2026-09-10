@@ -12,3 +12,8 @@ export function titleCase(value: string): string {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }
+
+/** Humanize snake_case API keys for table column labels. */
+export function humanizeFieldKey(key: string): string {
+  return titleCase(key.replace(/_/g, ' '));
+}

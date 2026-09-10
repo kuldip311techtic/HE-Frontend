@@ -6,7 +6,9 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { superAdminLogin } from '@/lib/api/superAdmin';
 import { isAdminRole } from '@/lib/auth/isAdminRole';
+import { normalizeLoginResponse } from '@/lib/auth/normalizeLoginResponse';
 import { clearSession, getSession, setSession } from '@/lib/auth/session';
 import type { AdminSession, LoginCredentials } from '@/types/auth';
 
@@ -71,7 +73,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
 
-    throw new Error('Sign-in is not available. Contact your administrator.');
+    const response = await superAdminLogin({
+      email: credentials.email.trim(),
+      password: credentials.password,
+    });
+    const session = normalizeLoginResponse(response, credentials.email.trim());
+    setSession(session);
+    setUser(session);
   }, []);
 
   const logout = useCallback(() => {

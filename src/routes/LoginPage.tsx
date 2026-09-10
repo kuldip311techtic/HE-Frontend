@@ -37,6 +37,10 @@ export function LoginPage() {
     defaultValues: { email: '', password: '' },
   });
 
+  const email = form.watch('email');
+  const password = form.watch('password');
+  const canSubmit = Boolean(email.trim() && password.trim()) && !isSubmitting;
+
   if (isAuthenticated && isAdmin) {
     return <Navigate to="/admin/dashboard" replace />;
   }
@@ -102,7 +106,12 @@ export function LoginPage() {
                 )}
               />
               {submitError ? <ErrorMessage message={submitError} /> : null}
-              <Button type="submit" className="w-full" disabled={isSubmitting} aria-busy={isSubmitting}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={!canSubmit}
+                aria-busy={isSubmitting}
+              >
                 {isSubmitting ? 'Signing In…' : 'Sign In'}
               </Button>
             </form>

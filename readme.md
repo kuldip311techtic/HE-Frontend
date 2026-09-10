@@ -30,6 +30,10 @@ The app runs at `http://localhost:5173` by default.
 ## Routes
 
 - `/` — redirects to dashboard (authenticated admin) or login
-- `/admin/login` — sign in
-- `/admin/dashboard` — protected placeholder dashboard
+- `/admin/login` — Super Admin sign in
+- `/admin/dashboard` — platform metrics overview
+- `/admin/organizations` — manage organizations
+- `/admin/users` — manage coaches and players
+- `/admin/subscriptions` — manage subscription plans
+- `/admin/support-requests` — support request inbox
 - `/admin/unauthorized` — forbidden for non-admin roles

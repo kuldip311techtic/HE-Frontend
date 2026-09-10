@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, Users, Menu, X } from 'lucide-react';
+import { Building2, CreditCard, LayoutDashboard, LifeBuoy, Menu, Users, X } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { HoopsEngineWordmark } from '@/components/layout/HoopsEngineWordmark';
@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 
 const navItems = [
   { label: 'Dashboard', to: '/admin/dashboard', icon: LayoutDashboard, enabled: true },
-  { label: 'Organizations', to: '#', icon: Building2, enabled: false },
-  { label: 'Users', to: '#', icon: Users, enabled: false },
+  { label: 'Organizations', to: '/admin/organizations', icon: Building2, enabled: true },
+  { label: 'Users', to: '/admin/users', icon: Users, enabled: true },
+  { label: 'Subscriptions', to: '/admin/subscriptions', icon: CreditCard, enabled: true },
+  { label: 'Support Requests', to: '/admin/support-requests', icon: LifeBuoy, enabled: true },
 ];
 
 interface AdminSidebarProps {
@@ -40,7 +42,7 @@ export function AdminSidebar({ mobileOpen, onMobileToggle }: AdminSidebarProps) 
             size="icon"
             className="lg:hidden text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
             onClick={onMobileToggle}
-            aria-label="Close navigation menu"
+            aria-label="Close Navigation Menu"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -88,7 +90,7 @@ export function AdminSidebar({ mobileOpen, onMobileToggle }: AdminSidebarProps) 
         size="icon"
         className="fixed left-4 top-3 z-30 lg:hidden"
         onClick={onMobileToggle}
-        aria-label="Open navigation menu"
+        aria-label="Open Navigation Menu"
       >
         <Menu className="h-5 w-5" />
       </Button>
