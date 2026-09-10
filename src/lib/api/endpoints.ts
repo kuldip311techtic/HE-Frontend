@@ -10,6 +10,7 @@ export const API_PATHS = {
   subscriptionPlans: '/api/v1/super-admin/subscription-plans',
   subscriptionPlanById: '/api/v1/super-admin/subscription-plans/{plan_id}',
   supportRequests: '/api/v1/support-requests',
+  playerRoleSelection: '/api/v1/player/role-selection',
 } as const;
 
 export function fillPath(template: string, params: Record<string, string>): string {

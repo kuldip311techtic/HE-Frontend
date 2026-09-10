@@ -17,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { ErrorMessage } from '@/components/shared/ErrorMessage';
+import { usePlayerRoleSelection } from '@/hooks/usePlayerRoleSelection';
 import { getApiErrorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
 
@@ -28,6 +29,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
+  usePlayerRoleSelection();
   const { login, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [submitError, setSubmitError] = useState<string | null>(null);
