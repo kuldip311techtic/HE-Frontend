@@ -1,0 +1,33 @@
+:root {
+  --background: 220 20% 97%;
+  --foreground: 220 26% 14%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 26% 14%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 26% 14%;
+  --primary: 213 67% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 65% 18%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 214 100% 62%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 213 67% 33%;
+  --radius: 0.5rem;
+  --radius-md: 8px;
+  --sidebar-background: 210 65% 18%;
+  --sidebar-foreground: 214 32% 91%;
+  --sidebar-accent: 213 67% 33%;
+  --sidebar-border: 210 50% 24%;
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-size-base: 16px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --layout-sidebar-width: 240px;
+  --layout-header-height: 56px;
+}

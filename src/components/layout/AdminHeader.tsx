@@ -30,7 +30,7 @@ export function AdminHeader() {
   };
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b bg-card px-4 lg:px-6">
+    <header className="flex h-[var(--layout-header-height)] shrink-0 items-center justify-between border-b bg-card px-[var(--space-4)] lg:px-[var(--space-6)]">
       <p className="pl-12 text-sm font-semibold lg:pl-0">Hoops Engine Admin</p>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

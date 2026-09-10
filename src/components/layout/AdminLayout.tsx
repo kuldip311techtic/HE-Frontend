@@ -11,7 +11,7 @@ export function AdminLayout() {
       <AdminSidebar mobileOpen={mobileOpen} onMobileToggle={() => setMobileOpen((v) => !v)} />
       <div className="flex min-h-screen flex-1 flex-col lg:pl-0">
         <AdminHeader />
-        <main className="flex-1 overflow-auto p-4 lg:p-6">
+        <main className="flex-1 overflow-auto p-[var(--space-4)] lg:p-[var(--space-6)]">
           <Outlet />
         </main>
       </div>

@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -37,12 +37,6 @@ export function LoginPage() {
     defaultValues: { email: '', password: '' },
   });
 
-  useEffect(() => {
-    if (isAuthenticated && isAdmin) {
-      navigate('/admin/dashboard', { replace: true });
-    }
-  }, [isAuthenticated, isAdmin, navigate]);
-
   if (isAuthenticated && isAdmin) {
     return <Navigate to="/admin/dashboard" replace />;
   }
@@ -66,7 +60,7 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-[400px]">
         <CardHeader>
-          <CardTitle className="text-[22px]">Super Admin Sign In</CardTitle>
+          <h1 className="text-[22px] font-semibold leading-none tracking-tight">Super Admin Sign In</h1>
           <CardDescription>
             {devBypass
               ? 'Development bypass is enabled. Use any credentials to access the admin panel.'

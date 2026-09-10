@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ShieldX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export function UnauthorizedPage() {
   return (
@@ -11,7 +11,7 @@ export function UnauthorizedPage() {
           <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
             <ShieldX className="h-6 w-6" aria-hidden="true" />
           </div>
-          <CardTitle>Access Denied</CardTitle>
+          <h1 className="text-[22px] font-semibold leading-none tracking-tight">Access Denied</h1>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">

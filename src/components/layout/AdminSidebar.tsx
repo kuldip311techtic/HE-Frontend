@@ -1,6 +1,7 @@
 import { LayoutDashboard, Building2, Users, Menu, X } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { HoopsEngineWordmark } from '@/components/layout/HoopsEngineWordmark';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
@@ -27,17 +28,12 @@ export function AdminSidebar({ mobileOpen, onMobileToggle }: AdminSidebarProps) 
       />
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-transform lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex w-[var(--layout-sidebar-width)] flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-transform lg:static lg:translate-x-0',
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         )}
       >
-        <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">
-              HE
-            </div>
-            <span className="text-sm font-semibold">Hoops Engine</span>
-          </div>
+        <div className="flex h-[var(--layout-header-height)] items-center justify-between border-b border-sidebar-border px-[var(--space-4)]">
+          <HoopsEngineWordmark />
           <Button
             type="button"
             variant="ghost"

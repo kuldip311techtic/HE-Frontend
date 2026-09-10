@@ -1,0 +1,23 @@
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground)) hsl(var(--background));
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground));
+  border-radius: 4px;
+}
