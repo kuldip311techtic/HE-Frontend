@@ -1,1 +1,9 @@
-export { api, resolveUrl, getApiBaseUrl, getApiErrorMessage, ApiError } from '@/lib/api/client';
+export {
+  api,
+  resolveUrl,
+  getApiBaseUrl,
+  getApiErrorMessage,
+  getApiFieldErrors,
+  getDuplicateEmailMessage,
+  ApiError,
+} from '@/lib/api/client';

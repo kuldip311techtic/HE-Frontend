@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,10 +18,12 @@ interface ConfirmDialogProps {
   title: string;
   description: string;
   confirmLabel?: string;
+  loadingLabel?: string;
   cancelLabel?: string;
   variant?: 'default' | 'destructive';
   isLoading?: boolean;
   onConfirm: () => void;
+  children?: ReactNode;
 }
 
 export function ConfirmDialog({
@@ -29,10 +32,12 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel = 'Confirm',
+  loadingLabel,
   cancelLabel = 'Cancel',
   variant = 'default',
   isLoading = false,
   onConfirm,
+  children,
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -41,6 +46,7 @@ export function ConfirmDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
+        {children}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
@@ -52,7 +58,7 @@ export function ConfirmDialog({
               onConfirm();
             }}
           >
-            {isLoading ? `${confirmLabel}…` : confirmLabel}
+            {isLoading ? loadingLabel ?? `${confirmLabel}…` : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

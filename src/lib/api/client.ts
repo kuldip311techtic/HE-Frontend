@@ -1,4 +1,9 @@
-import { getSession, clearSession } from '@/lib/auth/session';
+import { AUTH_UNAUTHORIZED_EVENT } from '@/lib/auth/constants';
+import {
+  getSession,
+  isDevBypassToken,
+  rejectSession,
+} from '@/lib/auth/session';
 import { parseResponseError } from '@/lib/api/errors';
 import { resolveUrl } from '@/lib/api/resolveUrl';
 
@@ -6,6 +11,14 @@ export type ApiRequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown;
   skipAuth?: boolean;
 };
+
+function dispatchUnauthorized(): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
+  if (!window.location.pathname.startsWith('/admin/login')) {
+    window.location.replace('/admin/login');
+  }
+}
 
 async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
   const { body, skipAuth = false, headers: initHeaders, ...rest } = options;
@@ -17,7 +30,7 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
 
   if (!skipAuth) {
     const session = getSession();
-    if (session?.token) {
+    if (session?.token && !isDevBypassToken(session.token)) {
       headers.set('Authorization', `Bearer ${session.token}`);
     }
   }
@@ -29,10 +42,8 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
   });
 
   if (response.status === 401) {
-    clearSession();
-    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/admin/login')) {
-      window.location.assign('/admin/login');
-    }
+    rejectSession();
+    dispatchUnauthorized();
   }
 
   if (!response.ok) {
@@ -60,4 +71,9 @@ export const api = {
 };
 
 export { resolveUrl, getApiBaseUrl } from '@/lib/api/resolveUrl';
-export { getApiErrorMessage, ApiError } from '@/lib/api/errors';
+export {
+  getApiErrorMessage,
+  getApiFieldErrors,
+  getDuplicateEmailMessage,
+  ApiError,
+} from '@/lib/api/errors';

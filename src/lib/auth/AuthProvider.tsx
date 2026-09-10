@@ -6,8 +6,19 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { api } from '@/lib/api';
+import { AUTH_UNAUTHORIZED_EVENT, DEV_BYPASS_TOKEN } from '@/lib/auth/constants';
 import { isAdminRole } from '@/lib/auth/isAdminRole';
-import { clearSession, getSession, setSession } from '@/lib/auth/session';
+import { normalizeAdminRole } from '@/lib/auth/normalizeAdminRole';
+import {
+  clearSession,
+  clearSessionRejected,
+  getSession,
+  isDevBypassToken,
+  isSessionRejected,
+  setSession,
+} from '@/lib/auth/session';
+import type { LoginResponse, UserPublic } from '@/types/api';
 import type { AdminSession, LoginCredentials } from '@/types/auth';
 
 interface AuthContextValue {
@@ -23,12 +34,20 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 
 const DEV_BYPASS = import.meta.env.VITE_DEV_ADMIN_BYPASS === 'true';
 
-const DEV_SESSION: AdminSession = {
-  token: 'dev-bypass',
-  role: 'super_admin',
-  email: 'dev@hoops.local',
-  name: 'Dev Super Admin',
-};
+const PERMISSION_ERROR = 'You do not have permission to access the Super Admin panel.';
+
+function displayNameFromUser(user: UserPublic, email: string): string {
+  const first = user.first_name?.trim() ?? '';
+  const last = user.last_name?.trim() ?? '';
+  const combined = `${first} ${last}`.trim();
+  if (combined) return combined;
+  const local = (user.email || email).split('@')[0];
+  return local || 'Super Admin';
+}
+
+function isSuperAdminUser(user: UserPublic): boolean {
+  return user.is_super_admin === true || user.role === 'super_admin';
+}
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -39,19 +58,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const existing = getSession();
-    if (existing) {
-      setUser(existing);
-      setIsLoading(false);
-      return;
+    const stored = getSession();
+    if (stored && isDevBypassToken(stored.token) && (!DEV_BYPASS || isSessionRejected())) {
+      clearSession();
+    } else if (stored) {
+      setUser(stored);
     }
-
-    if (DEV_BYPASS) {
-      setSession(DEV_SESSION);
-      setUser(DEV_SESSION);
-    }
-
     setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const onUnauthorized = () => {
+      setUser(null);
+    };
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, onUnauthorized);
+    return () => window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, onUnauthorized);
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials) => {
@@ -59,19 +80,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
       throw new Error('Email and password are required.');
     }
 
-    if (DEV_BYPASS) {
+    if (DEV_BYPASS && !isSessionRejected()) {
       const session: AdminSession = {
-        token: 'dev-bypass',
+        token: DEV_BYPASS_TOKEN,
         role: 'super_admin',
         email: credentials.email.trim(),
         name: credentials.email.split('@')[0] || 'Super Admin',
       };
+      clearSessionRejected();
       setSession(session);
       setUser(session);
       return;
     }
 
-    throw new Error('Sign-in is not available. Contact your administrator.');
+    const data = await api.post<LoginResponse>(
+      '/api/v1/auth/login',
+      { email: credentials.email.trim(), password: credentials.password },
+      { skipAuth: true },
+    );
+
+    const token = data.access_token ?? data.token;
+    if (!token) {
+      throw new Error('Sign-in did not return a token.');
+    }
+
+    const apiUser = data.user;
+    if (!apiUser || !isSuperAdminUser(apiUser)) {
+      throw new Error(PERMISSION_ERROR);
+    }
+
+    const role = normalizeAdminRole(apiUser.role) ?? (apiUser.is_super_admin ? 'super_admin' : null);
+    if (!role) {
+      throw new Error(PERMISSION_ERROR);
+    }
+
+    const session: AdminSession = {
+      token,
+      role,
+      email: apiUser.email ?? credentials.email.trim(),
+      name: displayNameFromUser(apiUser, credentials.email.trim()),
+    };
+
+    clearSessionRejected();
+    setSession(session);
+    setUser(session);
   }, []);
 
   const logout = useCallback(() => {

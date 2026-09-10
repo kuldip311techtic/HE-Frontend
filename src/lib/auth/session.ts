@@ -1,4 +1,8 @@
-import { SESSION_STORAGE_KEY } from '@/lib/auth/constants';
+import {
+  DEV_BYPASS_TOKEN,
+  SESSION_REJECTED_KEY,
+  SESSION_STORAGE_KEY,
+} from '@/lib/auth/constants';
 import { normalizeAdminRole } from '@/lib/auth/normalizeAdminRole';
 import type { AdminSession } from '@/types/auth';
 
@@ -28,8 +32,37 @@ function parseSession(raw: string): AdminSession | null {
   }
 }
 
+export function isDevBypassToken(token: string | undefined | null): boolean {
+  return token === DEV_BYPASS_TOKEN;
+}
+
+export function isSessionRejected(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_REJECTED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function markSessionRejected(): void {
+  try {
+    sessionStorage.setItem(SESSION_REJECTED_KEY, '1');
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+export function clearSessionRejected(): void {
+  try {
+    sessionStorage.removeItem(SESSION_REJECTED_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function getSession(): AdminSession | null {
   try {
+    if (isSessionRejected()) return null;
     const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) return null;
     return parseSession(raw);
@@ -56,4 +89,9 @@ export function setSession(session: AdminSession): void {
 
 export function clearSession(): void {
   sessionStorage.removeItem(SESSION_STORAGE_KEY);
+}
+
+export function rejectSession(): void {
+  clearSession();
+  markSessionRejected();
 }
