@@ -14,10 +14,15 @@ export function registerApiInterceptors(client: AxiosInstance): void {
     (response) => response,
     (error) => {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
-        clearAuthStorage();
-        window.dispatchEvent(new CustomEvent('auth:logout'));
-        if (!window.location.pathname.startsWith('/admin/login')) {
-          window.location.assign('/admin/login');
+        const requestUrl = String(error.config?.url ?? '');
+        const isLoginCall = requestUrl.includes('/login');
+        if (!isLoginCall) {
+          const hadToken = Boolean(getToken());
+          clearAuthStorage();
+          window.dispatchEvent(new CustomEvent('auth:logout'));
+          if (hadToken && !window.location.pathname.startsWith('/admin/login')) {
+            window.location.assign('/admin/login');
+          }
         }
       }
       return Promise.reject(error);

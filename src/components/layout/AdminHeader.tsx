@@ -25,7 +25,7 @@ export function AdminHeader({ onMenuClick, menuTriggerRef, mobileMenuOpen }: Adm
   const navigate = useNavigate();
 
   const displayName = user
-    ? `${user.first_name} ${user.last_name}`.trim() || user.email
+    ? `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.email
     : 'Admin';
   const initials = displayName
     .split(' ')
@@ -62,7 +62,7 @@ export function AdminHeader({ onMenuClick, menuTriggerRef, mobileMenuOpen }: Adm
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-figma-10 px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand"
+            className="inline-flex items-center gap-2 rounded-full px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-figma-brand"
             aria-label="Open account menu"
           >
             <Avatar className="h-8 w-8">
@@ -86,6 +86,7 @@ export function AdminHeader({ onMenuClick, menuTriggerRef, mobileMenuOpen }: Adm
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem disabled>Profile</DropdownMenuItem>
           <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -8,6 +8,22 @@
 @layer base {
   * {
     @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: var(--token-border) var(--token-color-117);
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--token-border);
+    border-radius: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--token-color-117);
   }
 
   body {
@@ -145,3 +161,31 @@
     letter-spacing: 0;
   }
 }
+
+.admin-dashboard-metric-card {
+  min-height: 168px;
+  overflow: hidden;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+
+.admin-dashboard-metric-card:hover {
+  border-color: color-mix(in srgb, #b8ff3c 55%, #2a3a2e);
+  background-color: color-mix(in srgb, #111814 88%, #b8ff3c 12%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, #b8ff3c 35%, transparent);
+}
+
+.admin-dashboard-metric-card__icon {
+  display: flex;
+  height: 36px;
+  width: 36px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(184, 255, 60, 0.12);
+  color: var(--neon);
+}
+

@@ -1,13 +1,12 @@
-import { apiClient } from '@/lib/api/client';
+import { apiRequest } from '@/lib/api/request';
 import { endpoints } from '@/lib/api/endpoints';
 import type { AuthLoginRequest, AuthLoginResponse } from '@/types/auth';
 
 export async function loginRequest(payload: AuthLoginRequest): Promise<AuthLoginResponse> {
-  const { method, path } = endpoints.authLogin;
-  const { data } = await apiClient.request<AuthLoginResponse>({
-    method,
-    url: path,
-    data: payload,
+  return apiRequest<AuthLoginResponse>(endpoints.authLogin, {
+    data: {
+      email: payload.email,
+      password: payload.password,
+    },
   });
-  return data;
 }

@@ -9,6 +9,15 @@ export interface ApiError {
   details?: ApiErrorDetail[];
 }
 
+export interface PaginationMeta {
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
 export interface SuperAdminDashboardMetrics {
   total_organizations: number;
   total_coaches: number;
