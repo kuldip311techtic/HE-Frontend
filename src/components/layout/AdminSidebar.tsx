@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, Users, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, CreditCard, LifeBuoy, Menu, X } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { HoopsEngineWordmark } from '@/components/layout/HoopsEngineWordmark';
@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 
 const navItems = [
   { label: 'Dashboard', to: '/admin/dashboard', icon: LayoutDashboard, enabled: true },
-  { label: 'Organizations', to: '#', icon: Building2, enabled: false },
-  { label: 'Users', to: '#', icon: Users, enabled: false },
+  { label: 'Organizations', to: '/admin/organizations', icon: Building2, enabled: true },
+  { label: 'Users', to: '/admin/users', icon: Users, enabled: true },
+  { label: 'Subscriptions', to: '/admin/subscriptions', icon: CreditCard, enabled: true },
+  { label: 'Support Requests', to: '/admin/support-requests', icon: LifeBuoy, enabled: true },
 ];
 
 interface AdminSidebarProps {

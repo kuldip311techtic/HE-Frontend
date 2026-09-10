@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,10 @@ export function LoginPage() {
     defaultValues: { email: '', password: '' },
   });
 
+  const emailValue = form.watch('email');
+  const passwordValue = form.watch('password');
+  const canSubmit = emailValue.trim().length > 0 && passwordValue.trim().length > 0;
+
   if (isAuthenticated && isAdmin) {
     return <Navigate to="/admin/dashboard" replace />;
   }
@@ -48,7 +53,9 @@ export function LoginPage() {
       await login(values);
       navigate('/admin/dashboard', { replace: true });
     } catch (err) {
-      setSubmitError(getApiErrorMessage(err, 'Unable to sign in. Please try again.'));
+      setSubmitError(
+        getApiErrorMessage(err, 'Unable to sign in. Please try again.', { isLogin: true }),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -102,7 +109,13 @@ export function LoginPage() {
                 )}
               />
               {submitError ? <ErrorMessage message={submitError} /> : null}
-              <Button type="submit" className="w-full" disabled={isSubmitting} aria-busy={isSubmitting}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || !canSubmit}
+                aria-busy={isSubmitting}
+              >
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
                 {isSubmitting ? 'Signing In…' : 'Sign In'}
               </Button>
             </form>
