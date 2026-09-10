@@ -9,11 +9,7 @@ export function ProtectedRoute() {
     return <LoadingState label="Checking session…" />;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
-  }
-
-  if (!isAdmin) {
+  if (isAuthenticated && !isAdmin) {
     return <Navigate to="/admin/unauthorized" replace />;
   }
 
