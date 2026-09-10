@@ -2,18 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { CreditCard } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { EmptyState } from '@/components/ui/empty-state';
-import { LoadingState } from '@/components/ui/loading-state';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ColumnVisibilityMenu, type ColumnOption } from '@/components/features/admin/ColumnVisibilityMenu';
+import { DataTable, type DataTableColumn } from '@/components/features/admin/DataTable';
 import { NativeSelect } from '@/components/features/admin/NativeSelect';
-import { ResourcePagination } from '@/components/features/admin/ResourcePagination';
 import { RowActionsMenu } from '@/components/features/admin/RowActionsMenu';
-import { SortableHeader } from '@/components/features/admin/SortableHeader';
 import {
   SubscriptionPlanFormDialog,
   type SubscriptionPlanFormValues,
@@ -26,10 +20,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useListQueryState } from '@/hooks/useListQueryState';
+import { useColumnVisibility } from '@/hooks/useColumnVisibility';
 import { useSubscriptionPlans } from '@/hooks/useSubscriptionPlans';
 import { getApiErrorMessage } from '@/lib/api';
 import { displayText, formatDateTime, formatMoneyAmount } from '@/lib/format';
-import { nextSortState, sortCollection, type SortState } from '@/lib/sort';
+import { sortCollection, type SortState } from '@/lib/sort';
 import { titleCase } from '@/lib/utils';
 import type {
   LimitType,
@@ -38,16 +33,91 @@ import type {
   SubscriptionPlanRole,
 } from '@/types/api';
 
-const COLUMN_OPTIONS: ColumnOption[] = [
-  { key: 'name', label: 'Name', alwaysVisible: true },
-  { key: 'price_amount', label: 'Price' },
-  { key: 'billing_frequency', label: 'Duration' },
-  { key: 'status', label: 'Status' },
-  { key: 'role', label: 'Audience' },
-  { key: 'currency', label: 'Currency' },
-  { key: 'teams_count', label: 'Teams' },
-  { key: 'players_count', label: 'Players' },
-  { key: 'description', label: 'Description' },
+function formatPlanLimit(type: LimitType | null | undefined, count: number | null | undefined): string {
+  if (type === 'unlimited') return 'Unlimited';
+  if (count === null || count === undefined) return '—';
+  return String(count);
+}
+
+function formatPlanFeatures(features: string[] | null | undefined): string {
+  if (!features?.length) return '—';
+  return features.join(', ');
+}
+
+function formatYesNo(value: boolean): string {
+  return value ? 'Yes' : 'No';
+}
+
+const COLUMNS: DataTableColumn<SubscriptionPlanItem>[] = [
+  { key: 'name', label: 'Name', alwaysVisible: true, className: 'font-medium', render: (row) => displayText(row.name) },
+  {
+    key: 'price_amount',
+    label: 'Price',
+    className: 'text-right',
+    headerClassName: 'text-right',
+    render: (row) => formatMoneyAmount(row.price_amount, row.currency),
+  },
+  {
+    key: 'billing_frequency',
+    label: 'Duration',
+    render: (row) => titleCase(row.billing_frequency),
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    render: (row) => (
+      <Badge variant={row.status === 'active' ? 'default' : 'secondary'}>{titleCase(row.status)}</Badge>
+    ),
+  },
+  {
+    key: 'role',
+    label: 'Audience',
+    render: (row) => (row.role === 'org_admin' ? 'Organization Admin' : 'Coach'),
+  },
+  {
+    key: 'teams_count',
+    label: 'Teams',
+    render: (row) => formatPlanLimit(row.teams_limit_type, row.teams_count),
+  },
+  {
+    key: 'players_count',
+    label: 'Players',
+    render: (row) => formatPlanLimit(row.players_limit_type, row.players_count),
+  },
+  {
+    key: 'coaches_count',
+    label: 'Coaches',
+    render: (row) => formatPlanLimit(row.coaches_limit_type, row.coaches_count),
+  },
+  {
+    key: 'historical_records_duration',
+    label: 'Historical Records',
+    render: (row) => titleCase(row.historical_records_duration),
+  },
+  {
+    key: 'include_offline_sync',
+    label: 'Offline Sync',
+    render: (row) => formatYesNo(row.include_offline_sync),
+  },
+  {
+    key: 'is_active',
+    label: 'Is Active',
+    render: (row) => formatYesNo(row.is_active),
+  },
+  {
+    key: 'features',
+    label: 'Features',
+    className: 'max-w-[240px] truncate',
+    render: (row) => formatPlanFeatures(row.features),
+  },
+  {
+    key: 'description',
+    label: 'Description',
+    className: 'max-w-[240px] truncate',
+    render: (row) => displayText(row.description),
+  },
+  { key: 'created_at', label: 'Created At', render: (row) => formatDateTime(row.created_at) },
+  { key: 'updated_at', label: 'Updated At', render: (row) => formatDateTime(row.updated_at) },
 ];
 
 const DEFAULT_VISIBLE_COLUMNS = ['name', 'price_amount', 'billing_frequency', 'status'];
@@ -73,7 +143,7 @@ export function SubscriptionsPage() {
   );
 
   const [sort, setSort] = useState<SortState | null>(null);
-  const [visibleKeys, setVisibleKeys] = useState(DEFAULT_VISIBLE_COLUMNS);
+  const { visibleKeys, toggleColumn } = useColumnVisibility(COLUMNS, DEFAULT_VISIBLE_COLUMNS);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<SubscriptionPlanItem | null>(null);
   const [viewing, setViewing] = useState<SubscriptionPlanItem | null>(null);
@@ -120,23 +190,27 @@ export function SubscriptionsPage() {
     };
     try {
       if (editing) {
-        const response = await update(editing.id, {
-          name: body.name,
-          billing_frequency: body.billing_frequency,
-          currency: body.currency,
-          price_amount: body.price_amount,
-          teams_limit_type: body.teams_limit_type,
-          teams_count: body.teams_count,
-          coaches_limit_type: body.coaches_limit_type,
-          coaches_count: body.coaches_count,
-          players_limit_type: body.players_limit_type,
-          players_count: body.players_count,
-          historical_records_duration: body.historical_records_duration,
-          is_active: body.is_active,
-          include_offline_sync: body.include_offline_sync,
-          description: body.description,
-          features: body.features,
-        }, editing.role);
+        const response = await update(
+          editing.id,
+          {
+            name: body.name,
+            billing_frequency: body.billing_frequency,
+            currency: body.currency,
+            price_amount: body.price_amount,
+            teams_limit_type: body.teams_limit_type,
+            teams_count: body.teams_count,
+            coaches_limit_type: body.coaches_limit_type,
+            coaches_count: body.coaches_count,
+            players_limit_type: body.players_limit_type,
+            players_count: body.players_count,
+            historical_records_duration: body.historical_records_duration,
+            is_active: body.is_active,
+            include_offline_sync: body.include_offline_sync,
+            description: body.description,
+            features: body.features,
+          },
+          editing.role,
+        );
         toast.success(response.message || 'Subscription Plan Updated Successfully.');
       } else {
         const response = await create(body);
@@ -173,40 +247,40 @@ export function SubscriptionsPage() {
     <div className="space-y-6">
       <PageHeader title="Subscriptions" description="Manage subscription plans for organization admins and coaches." />
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <NativeSelect
-          aria-label="Audience"
-          className="lg:w-56"
-          value={audience}
-          onChange={(event) => setQuery({ role: event.target.value, page: 1 })}
-          options={[
-            { value: 'org_admin', label: 'Organization Admin' },
-            { value: 'coach', label: 'Coach' },
-          ]}
-        />
-        <NativeSelect
-          aria-label="Status"
-          className="lg:w-44"
-          value={status}
-          onChange={(event) => setQuery({ status: event.target.value, page: 1 })}
-          options={[
-            { value: '', label: 'All Statuses' },
-            { value: 'active', label: 'Active' },
-            { value: 'archived', label: 'Archived' },
-          ]}
-        />
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
-          <ColumnVisibilityMenu
-            columns={COLUMN_OPTIONS}
-            visibleKeys={visibleKeys}
-            onToggle={(key) => {
-              const column = COLUMN_OPTIONS.find((item) => item.key === key);
-              if (column?.alwaysVisible) return;
-              setVisibleKeys((current) =>
-                current.includes(key) ? current.filter((item) => item !== key) : [...current, key],
-              );
-            }}
-          />
+      <DataTable
+        columns={COLUMNS}
+        rows={sortedItems}
+        getRowId={(row) => row.id}
+        sort={sort}
+        onSortChange={setSort}
+        visibleKeys={visibleKeys}
+        onToggleColumn={toggleColumn}
+        filters={
+          <>
+            <NativeSelect
+              aria-label="Audience"
+              className="lg:w-56"
+              value={audience}
+              onChange={(event) => setQuery({ role: event.target.value, page: 1 })}
+              options={[
+                { value: 'org_admin', label: 'Organization Admin' },
+                { value: 'coach', label: 'Coach' },
+              ]}
+            />
+            <NativeSelect
+              aria-label="Status"
+              className="lg:w-44"
+              value={status}
+              onChange={(event) => setQuery({ status: event.target.value, page: 1 })}
+              options={[
+                { value: '', label: 'All Statuses' },
+                { value: 'active', label: 'Active' },
+                { value: 'archived', label: 'Archived' },
+              ]}
+            />
+          </>
+        }
+        primaryAction={
           <Button
             type="button"
             onClick={() => {
@@ -217,160 +291,42 @@ export function SubscriptionsPage() {
           >
             Add Plan
           </Button>
-        </div>
-      </div>
-
-      {isLoading ? <LoadingState label="Loading Subscriptions…" /> : null}
-      {!isLoading && error ? (
-        <div className="space-y-3">
-          <ErrorMessage message={error} />
-          <Button type="button" variant="outline" onClick={() => void reload()}>
-            Retry
-          </Button>
-        </div>
-      ) : null}
-      {!isLoading && !error && items.length === 0 ? (
-        <EmptyState
-          icon={<CreditCard className="h-6 w-6" aria-hidden="true" />}
-          title="No Subscription Plans Yet"
-          description="Use Add Plan in the toolbar to create the first plan."
-        />
-      ) : null}
-      {!isLoading && !error && items.length > 0 ? (
-        <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {visibleKeys.includes('name') ? (
-                  <SortableHeader label="Name" columnKey="name" sort={sort} onSort={(key) => setSort(nextSortState(sort, key))} />
-                ) : null}
-                {visibleKeys.includes('price_amount') ? (
-                  <SortableHeader
-                    label="Price"
-                    columnKey="price_amount"
-                    sort={sort}
-                    className="text-right"
-                    onSort={(key) => setSort(nextSortState(sort, key))}
-                  />
-                ) : null}
-                {visibleKeys.includes('billing_frequency') ? (
-                  <SortableHeader
-                    label="Duration"
-                    columnKey="billing_frequency"
-                    sort={sort}
-                    onSort={(key) => setSort(nextSortState(sort, key))}
-                  />
-                ) : null}
-                {visibleKeys.includes('status') ? (
-                  <SortableHeader label="Status" columnKey="status" sort={sort} onSort={(key) => setSort(nextSortState(sort, key))} />
-                ) : null}
-                {visibleKeys.includes('role') ? (
-                  <SortableHeader label="Audience" columnKey="role" sort={sort} onSort={(key) => setSort(nextSortState(sort, key))} />
-                ) : null}
-                {visibleKeys.includes('currency') ? (
-                  <SortableHeader
-                    label="Currency"
-                    columnKey="currency"
-                    sort={sort}
-                    onSort={(key) => setSort(nextSortState(sort, key))}
-                  />
-                ) : null}
-                {visibleKeys.includes('teams_count') ? (
-                  <SortableHeader
-                    label="Teams"
-                    columnKey="teams_count"
-                    sort={sort}
-                    onSort={(key) => setSort(nextSortState(sort, key))}
-                  />
-                ) : null}
-                {visibleKeys.includes('players_count') ? (
-                  <SortableHeader
-                    label="Players"
-                    columnKey="players_count"
-                    sort={sort}
-                    onSort={(key) => setSort(nextSortState(sort, key))}
-                  />
-                ) : null}
-                {visibleKeys.includes('description') ? (
-                  <SortableHeader
-                    label="Description"
-                    columnKey="description"
-                    sort={sort}
-                    onSort={(key) => setSort(nextSortState(sort, key))}
-                  />
-                ) : null}
-                <TableHead className="w-12 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedItems.map((row) => (
-                <TableRow key={row.id}>
-                  {visibleKeys.includes('name') ? <TableCell className="font-medium">{displayText(row.name)}</TableCell> : null}
-                  {visibleKeys.includes('price_amount') ? (
-                    <TableCell className="text-right">
-                      {formatMoneyAmount(
-                        row.price_amount,
-                        visibleKeys.includes('currency') ? undefined : row.currency,
-                      )}
-                    </TableCell>
-                  ) : null}
-                  {visibleKeys.includes('billing_frequency') ? (
-                    <TableCell>{titleCase(row.billing_frequency)}</TableCell>
-                  ) : null}
-                  {visibleKeys.includes('status') ? (
-                    <TableCell>
-                      <Badge variant={row.status === 'active' ? 'default' : 'secondary'}>
-                        {titleCase(row.status)}
-                      </Badge>
-                    </TableCell>
-                  ) : null}
-                  {visibleKeys.includes('role') ? (
-                    <TableCell>{row.role === 'org_admin' ? 'Organization Admin' : 'Coach'}</TableCell>
-                  ) : null}
-                  {visibleKeys.includes('currency') ? <TableCell>{displayText(row.currency)}</TableCell> : null}
-                  {visibleKeys.includes('teams_count') ? (
-                    <TableCell>{row.teams_limit_type === 'unlimited' ? 'Unlimited' : row.teams_count ?? '—'}</TableCell>
-                  ) : null}
-                  {visibleKeys.includes('players_count') ? (
-                    <TableCell>{row.players_limit_type === 'unlimited' ? 'Unlimited' : row.players_count ?? '—'}</TableCell>
-                  ) : null}
-                  {visibleKeys.includes('description') ? (
-                    <TableCell className="max-w-[240px] truncate">{displayText(row.description)}</TableCell>
-                  ) : null}
-                  <TableCell className="text-right">
-                    <RowActionsMenu
-                      actions={[
-                        { label: 'View', onSelect: () => setViewing(row) },
-                        {
-                          label: 'Edit',
-                          onSelect: () => {
-                            setEditing(row);
-                            setFormError(null);
-                            setFormOpen(true);
-                          },
-                        },
-                        {
-                          label: 'Remove',
-                          destructive: true,
-                          onSelect: () => {
-                            setReplacementPlanId('');
-                            setRemoving(row);
-                          },
-                        },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <ResourcePagination
-            pagination={pagination}
-            onPageChange={(nextPage) => setQuery({ page: nextPage, role: audience })}
-            onPageSizeChange={(nextSize) => setQuery({ page: 1, page_size: nextSize, role: audience })}
+        }
+        pagination={pagination}
+        onPageChange={(nextPage) => setQuery({ page: nextPage, role: audience })}
+        onPageSizeChange={(nextSize) => setQuery({ page: 1, page_size: nextSize, role: audience })}
+        isLoading={isLoading}
+        loadingLabel="Loading Subscriptions…"
+        error={error}
+        onRetry={() => void reload()}
+        emptyIcon={<CreditCard className="h-6 w-6" aria-hidden="true" />}
+        emptyTitle="No Subscription Plans Yet"
+        emptyDescription="Use Add Plan in the toolbar to create the first plan."
+        renderRowActions={(row) => (
+          <RowActionsMenu
+            label={`${displayText(row.name)} Actions`}
+            actions={[
+              { label: 'View', onSelect: () => setViewing(row) },
+              {
+                label: 'Edit',
+                onSelect: () => {
+                  setEditing(row);
+                  setFormError(null);
+                  setFormOpen(true);
+                },
+              },
+              {
+                label: 'Remove',
+                destructive: true,
+                onSelect: () => {
+                  setReplacementPlanId('');
+                  setRemoving(row);
+                },
+              },
+            ]}
           />
-        </>
-      ) : null}
+        )}
+      />
 
       <SubscriptionPlanFormDialog
         open={formOpen}
@@ -414,12 +370,44 @@ export function SubscriptionsPage() {
                 <dd>{titleCase(viewing.status)}</dd>
               </div>
               <div>
+                <dt className="text-muted-foreground">Is Active</dt>
+                <dd>{formatYesNo(viewing.is_active)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Teams</dt>
+                <dd>{formatPlanLimit(viewing.teams_limit_type, viewing.teams_count)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Players</dt>
+                <dd>{formatPlanLimit(viewing.players_limit_type, viewing.players_count)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Coaches</dt>
+                <dd>{formatPlanLimit(viewing.coaches_limit_type, viewing.coaches_count)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Historical Records</dt>
+                <dd>{titleCase(viewing.historical_records_duration)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Offline Sync</dt>
+                <dd>{formatYesNo(viewing.include_offline_sync)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Features</dt>
+                <dd>{formatPlanFeatures(viewing.features)}</dd>
+              </div>
+              <div>
                 <dt className="text-muted-foreground">Description</dt>
                 <dd>{displayText(viewing.description)}</dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Created At</dt>
                 <dd>{formatDateTime(viewing.created_at)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Updated At</dt>
+                <dd>{formatDateTime(viewing.updated_at)}</dd>
               </div>
             </dl>
           ) : null}

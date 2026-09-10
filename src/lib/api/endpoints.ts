@@ -1,17 +1,15 @@
 import { isRecord } from '@/lib/isRecord';
 
 export const API_PATHS = {
-  login: '/api/super-admin/login',
+  login: '/api/v1/auth/login',
   dashboard: '/api/v1/super-admin/dashboard',
   organizations: '/api/v1/super-admin/organizations',
   organizationById: '/api/v1/super-admin/organizations/{organization_id}',
   users: '/api/v1/super-admin/users',
   userById: '/api/v1/super-admin/users/{user_id}',
-  subscriptions: '/api/super-admin/subscriptions',
-  subscriptionById: '/api/super-admin/subscriptions/{id}',
+  subscriptionPlans: '/api/v1/super-admin/subscription-plans',
+  subscriptionPlanById: '/api/v1/super-admin/subscription-plans/{plan_id}',
   supportRequests: '/api/v1/support-requests',
-  ticketSupportRequests: '/api/super-admin/support-requests',
-  ticketSupportRequestById: '/api/super-admin/support-requests/{id}',
 } as const;
 
 export function fillPath(template: string, params: Record<string, string>): string {
@@ -29,12 +27,8 @@ export function userPath(user_id: string): string {
   return fillPath(API_PATHS.userById, { user_id });
 }
 
-export function subscriptionPath(id: string): string {
-  return fillPath(API_PATHS.subscriptionById, { id });
-}
-
-export function ticketSupportRequestPath(id: string): string {
-  return fillPath(API_PATHS.ticketSupportRequestById, { id });
+export function subscriptionPlanPath(plan_id: string): string {
+  return fillPath(API_PATHS.subscriptionPlanById, { plan_id });
 }
 
 export function withQuery(
@@ -50,11 +44,22 @@ export function withQuery(
   return qs ? `${path}?${qs}` : path;
 }
 
-export function unwrapListItems<T>(payload: unknown): T[] {
-  if (Array.isArray(payload)) return payload as T[];
+function listArrayFromPayload(payload: unknown): unknown[] {
+  if (Array.isArray(payload)) return payload;
   if (!isRecord(payload)) return [];
-  if (Array.isArray(payload.items)) return payload.items as T[];
-  if (Array.isArray(payload.data)) return payload.data as T[];
-  if (Array.isArray(payload.results)) return payload.results as T[];
+  if (Array.isArray(payload.items)) return payload.items;
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.results)) return payload.results;
   return [];
+}
+
+export function unwrapListItems<T>(
+  payload: unknown,
+  isItem: (value: unknown) => value is T,
+): T[] {
+  return listArrayFromPayload(payload).filter(isItem);
+}
+
+export function isIdentifiedItem(value: unknown): value is Record<string, unknown> & { id: string } {
+  return isRecord(value) && typeof value.id === 'string' && value.id.length > 0;
 }

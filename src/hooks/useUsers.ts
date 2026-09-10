@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, getApiErrorMessage } from '@/lib/api';
-import { API_PATHS, unwrapListItems, withQuery } from '@/lib/api/endpoints';
+import { API_PATHS, isIdentifiedItem, unwrapListItems, withQuery } from '@/lib/api/endpoints';
+import { isRecord } from '@/lib/isRecord';
 import { getSession, isDevBypassToken } from '@/lib/auth/session';
 import type {
   AdminUserCreateRequest,
@@ -12,6 +13,14 @@ import type {
   PaginationMeta,
   RoleOption,
 } from '@/types/api';
+
+function isAdminUserItem(value: unknown): value is AdminUserItem {
+  return isIdentifiedItem(value) && typeof value.email === 'string';
+}
+
+function isRoleOption(value: unknown): value is RoleOption {
+  return isRecord(value) && typeof value.value === 'string' && typeof value.label === 'string';
+}
 
 const EMPTY_PAGINATION: PaginationMeta = {
   page: 1,
@@ -47,9 +56,9 @@ export function useUsers(page: number, pageSize: number, search: string, role: s
           role: role || undefined,
         }),
       );
-      setItems(unwrapListItems<AdminUserItem>(response));
+      setItems(unwrapListItems(response, isAdminUserItem));
       setPagination(response.pagination ?? { ...EMPTY_PAGINATION, page, page_size: pageSize });
-      setRoles(response.roles ?? []);
+      setRoles(Array.isArray(response.roles) ? response.roles.filter(isRoleOption) : []);
     } catch (err) {
       setItems([]);
       setError(getApiErrorMessage(err, 'Unable to load users. Please try again.'));

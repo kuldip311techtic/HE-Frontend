@@ -13,11 +13,10 @@ import { normalizeAdminRole } from '@/lib/auth/normalizeAdminRole';
 import {
   clearSession,
   clearSessionRejected,
-  getSession,
   isSessionRejected,
   setSession,
 } from '@/lib/auth/session';
-import type { LoginResponse } from '@/types/api';
+import type { LoginResponse, UserPublic } from '@/types/api';
 import type { AdminSession, LoginCredentials } from '@/types/auth';
 
 interface AuthContextValue {
@@ -33,20 +32,19 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 
 const DEV_BYPASS = import.meta.env.VITE_DEV_ADMIN_BYPASS === 'true';
 
-const DEV_SESSION: AdminSession = {
-  token: DEV_BYPASS_TOKEN,
-  role: 'super_admin',
-  email: 'dev@hoops.local',
-  name: 'Dev Super Admin',
-};
+const PERMISSION_ERROR = 'You do not have permission to access the Super Admin panel.';
 
-function displayNameFromUser(user: LoginResponse['user'], email: string): string {
-  const first = user?.first_name?.trim() ?? '';
-  const last = user?.last_name?.trim() ?? '';
+function displayNameFromUser(user: UserPublic, email: string): string {
+  const first = user.first_name?.trim() ?? '';
+  const last = user.last_name?.trim() ?? '';
   const combined = `${first} ${last}`.trim();
   if (combined) return combined;
-  const local = (user?.email || email).split('@')[0];
+  const local = (user.email || email).split('@')[0];
   return local || 'Super Admin';
+}
+
+function isSuperAdminUser(user: UserPublic): boolean {
+  return user.is_super_admin === true || user.role === 'super_admin';
 }
 
 interface AuthProviderProps {
@@ -58,25 +56,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isSessionRejected()) {
-      clearSession();
-      setUser(null);
-      setIsLoading(false);
-      return;
-    }
-
-    const existing = getSession();
-    if (existing) {
-      setUser(existing);
-      setIsLoading(false);
-      return;
-    }
-
-    if (DEV_BYPASS) {
-      setSession(DEV_SESSION);
-      setUser(DEV_SESSION);
-    }
-
+    clearSession();
+    setUser(null);
     setIsLoading(false);
   }, []);
 
@@ -107,7 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     const data = await api.post<LoginResponse>(
-      '/api/super-admin/login',
+      '/api/v1/auth/login',
       { email: credentials.email.trim(), password: credentials.password },
       { skipAuth: true },
     );
@@ -118,20 +99,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     const apiUser = data.user;
-    if (apiUser && apiUser.is_super_admin !== true && apiUser.role !== 'super_admin') {
-      throw new Error('You do not have permission to access the Super Admin panel.');
+    if (!apiUser || !isSuperAdminUser(apiUser)) {
+      throw new Error(PERMISSION_ERROR);
     }
 
-    const roleSource = apiUser?.role ?? 'super_admin';
-    const role = normalizeAdminRole(roleSource);
+    const role = normalizeAdminRole(apiUser.role) ?? (apiUser.is_super_admin ? 'super_admin' : null);
     if (!role) {
-      throw new Error('You do not have permission to access the Super Admin panel.');
+      throw new Error(PERMISSION_ERROR);
     }
 
     const session: AdminSession = {
       token,
       role,
-      email: apiUser?.email ?? credentials.email.trim(),
+      email: apiUser.email ?? credentials.email.trim(),
       name: displayNameFromUser(apiUser, credentials.email.trim()),
     };
 

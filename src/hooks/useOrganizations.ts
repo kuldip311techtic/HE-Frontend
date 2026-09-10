@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, getApiErrorMessage } from '@/lib/api';
-import { API_PATHS, unwrapListItems, withQuery } from '@/lib/api/endpoints';
+import { API_PATHS, isIdentifiedItem, unwrapListItems, withQuery } from '@/lib/api/endpoints';
 import { getSession, isDevBypassToken } from '@/lib/auth/session';
 import type {
   OrganizationCreateRequest,
@@ -11,6 +11,16 @@ import type {
   OrganizationUpdateRequest,
   PaginationMeta,
 } from '@/types/api';
+
+function isOrganizationItem(value: unknown): value is OrganizationItem {
+  return (
+    isIdentifiedItem(value) &&
+    (typeof value.name === 'string' ||
+      typeof value.organization === 'string' ||
+      typeof value.contact_email === 'string' ||
+      typeof value.email === 'string')
+  );
+}
 
 const EMPTY_PAGINATION: PaginationMeta = {
   page: 1,
@@ -44,7 +54,7 @@ export function useOrganizations(page: number, pageSize: number, search: string)
           search: search || undefined,
         }),
       );
-      setItems(unwrapListItems<OrganizationItem>(response));
+      setItems(unwrapListItems(response, isOrganizationItem));
       setPagination(response.pagination ?? { ...EMPTY_PAGINATION, page, page_size: pageSize });
     } catch (err) {
       setItems([]);

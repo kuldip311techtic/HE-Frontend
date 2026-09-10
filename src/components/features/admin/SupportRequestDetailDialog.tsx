@@ -1,7 +1,3 @@
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,56 +7,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { SUPPORT_ACTIONS_UNAVAILABLE } from '@/hooks/useSupportRequests';
 import { displayText, formatDateTime } from '@/lib/format';
 import type { SupportRequestItem } from '@/types/api';
 
-const responseSchema = z.object({
-  response: z.string().trim().min(1, 'Response is required.'),
-});
-
-type ResponseFormValues = z.infer<typeof responseSchema>;
-
 interface SupportRequestDetailDialogProps {
   request: SupportRequestItem | null;
   onOpenChange: (open: boolean) => void;
-  isResponding: boolean;
-  isClosing: boolean;
-  actionError: string | null;
-  onRespond: (response: string) => Promise<void>;
-  onCloseRequest: () => void;
 }
 
-export function SupportRequestDetailDialog({
-  request,
-  onOpenChange,
-  isResponding,
-  isClosing,
-  actionError,
-  onRespond,
-  onCloseRequest,
-}: SupportRequestDetailDialogProps) {
-  const form = useForm<ResponseFormValues>({
-    resolver: zodResolver(responseSchema),
-    defaultValues: { response: '' },
-  });
-
-  useEffect(() => {
-    form.reset({ response: '' });
-  }, [request, form]);
-
-  const busy = isResponding || isClosing;
-
+export function SupportRequestDetailDialog({ request, onOpenChange }: SupportRequestDetailDialogProps) {
   return (
     <Dialog open={Boolean(request)} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
@@ -103,60 +61,34 @@ export function SupportRequestDetailDialog({
               </a>
             ) : null}
 
-            <Form {...form}>
-              <form
-                id="support-response-form"
-                className="space-y-3"
-                onSubmit={form.handleSubmit(async (values) => {
-                  await onRespond(values.response);
-                })}
-                noValidate
-              >
-                <FormField
-                  control={form.control}
-                  name="response"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Response</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          id="support-response"
-                          placeholder="Write A Response"
-                          disabled={busy}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </form>
-            </Form>
+            <div className="space-y-2">
+              <Label htmlFor="support-response">Response</Label>
+              <Textarea id="support-response" placeholder="Write A Response" readOnly value="" />
+            </div>
             <p id="support-actions-help" className="text-sm text-muted-foreground">
               {SUPPORT_ACTIONS_UNAVAILABLE}
             </p>
-            {actionError ? <ErrorMessage message={actionError} /> : null}
           </div>
         ) : null}
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button
             type="button"
             variant="outline"
-            onClick={onCloseRequest}
-            disabled={busy}
-            aria-busy={isClosing}
+            aria-disabled="true"
             aria-describedby="support-actions-help"
+            className="opacity-50"
+            onClick={(event) => event.preventDefault()}
           >
-            {isClosing ? 'Closing…' : 'Close Request'}
+            Close Request
           </Button>
           <Button
-            type="submit"
-            form="support-response-form"
-            disabled={busy}
-            aria-busy={isResponding}
+            type="button"
+            aria-disabled="true"
             aria-describedby="support-actions-help"
+            className="opacity-50"
+            onClick={(event) => event.preventDefault()}
           >
-            {isResponding ? 'Responding…' : 'Respond'}
+            Respond
           </Button>
         </DialogFooter>
       </DialogContent>

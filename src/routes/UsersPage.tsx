@@ -2,19 +2,13 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { Users } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { EmptyState } from '@/components/ui/empty-state';
-import { LoadingState } from '@/components/ui/loading-state';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ColumnVisibilityMenu, type ColumnOption } from '@/components/features/admin/ColumnVisibilityMenu';
+import { DataTable, type DataTableColumn } from '@/components/features/admin/DataTable';
 import { NativeSelect } from '@/components/features/admin/NativeSelect';
-import { ResourcePagination } from '@/components/features/admin/ResourcePagination';
 import { RowActionsMenu } from '@/components/features/admin/RowActionsMenu';
-import { SortableHeader } from '@/components/features/admin/SortableHeader';
 import { UserFormDialog, type UserFormValues } from '@/components/features/admin/UserFormDialog';
 import {
   Dialog,
@@ -24,35 +18,41 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useColumnVisibility } from '@/hooks/useColumnVisibility';
 import { useListQueryState } from '@/hooks/useListQueryState';
 import { useUsers } from '@/hooks/useUsers';
 import { getApiErrorMessage, getApiFieldErrors, getDuplicateEmailMessage } from '@/lib/api';
 import { displayText, formatDateTime, formatUserRole, SEARCH_DEBOUNCE_MS } from '@/lib/format';
-import { nextSortState, sortCollection, type SortState } from '@/lib/sort';
+import { sortCollection, type SortState } from '@/lib/sort';
 import type { AdminUserItem, UserRole } from '@/types/api';
 
-const COLUMN_OPTIONS: ColumnOption[] = [
-  { key: 'name', label: 'Name', alwaysVisible: true },
-  { key: 'first_name', label: 'First Name' },
-  { key: 'last_name', label: 'Last Name' },
-  { key: 'email', label: 'Email' },
-  { key: 'role', label: 'Role' },
-  { key: 'org_id', label: 'Organization Id' },
-  { key: 'is_active', label: 'Status' },
-  { key: 'is_super_admin', label: 'Super Admin' },
-  { key: 'last_sign_in_at', label: 'Last Sign In' },
-  { key: 'created_at', label: 'Created At' },
-  { key: 'description', label: 'Description' },
+const COLUMNS: DataTableColumn<AdminUserItem>[] = [
+  { key: 'name', label: 'Name', alwaysVisible: true, className: 'font-medium', render: (row) => displayText(row.name) },
+  { key: 'first_name', label: 'First Name', render: (row) => displayText(row.first_name) },
+  { key: 'last_name', label: 'Last Name', render: (row) => displayText(row.last_name) },
+  { key: 'email', label: 'Email', render: (row) => displayText(row.email) },
+  {
+    key: 'role',
+    label: 'Role',
+    render: (row) => (
+      <Badge variant={row.role === 'coach' || row.role === 'player' ? 'default' : 'secondary'}>
+        {formatUserRole(row.role)}
+      </Badge>
+    ),
+  },
+  { key: 'org_id', label: 'Organization Id', render: (row) => displayText(row.org_id) },
+  {
+    key: 'is_active',
+    label: 'Status',
+    render: (row) => <Badge variant={row.is_active ? 'default' : 'secondary'}>{row.is_active ? 'Active' : 'Inactive'}</Badge>,
+  },
+  { key: 'is_super_admin', label: 'Super Admin', render: (row) => (row.is_super_admin ? 'Yes' : 'No') },
+  { key: 'last_sign_in_at', label: 'Last Sign In', render: (row) => formatDateTime(row.last_sign_in_at) },
+  { key: 'created_at', label: 'Created At', render: (row) => formatDateTime(row.created_at) },
+  { key: 'description', label: 'Description', render: (row) => displayText(row.description) },
 ];
 
-const DEFAULT_VISIBLE_KEYS = [
-  'name',
-  'email',
-  'role',
-  'is_active',
-  'last_sign_in_at',
-  'created_at',
-];
+const DEFAULT_VISIBLE_KEYS = ['name', 'email', 'role', 'is_active', 'last_sign_in_at', 'created_at'];
 
 const FALLBACK_ROLE_FILTERS = [
   { value: '', label: 'All Roles' },
@@ -64,35 +64,6 @@ const FALLBACK_ROLE_FILTERS = [
 
 function userValue(row: AdminUserItem, key: string): unknown {
   return row[key as keyof AdminUserItem];
-}
-
-function renderUserCell(row: AdminUserItem, key: string): ReactNode {
-  switch (key) {
-    case 'name':
-      return displayText(row.name);
-    case 'first_name':
-      return displayText(row.first_name);
-    case 'last_name':
-      return displayText(row.last_name);
-    case 'email':
-      return displayText(row.email);
-    case 'role':
-      return <Badge variant={row.role === 'coach' || row.role === 'player' ? 'default' : 'secondary'}>{formatUserRole(row.role)}</Badge>;
-    case 'org_id':
-      return displayText(row.org_id);
-    case 'is_active':
-      return <Badge variant={row.is_active ? 'default' : 'secondary'}>{row.is_active ? 'Active' : 'Inactive'}</Badge>;
-    case 'is_super_admin':
-      return row.is_super_admin ? 'Yes' : 'No';
-    case 'last_sign_in_at':
-      return formatDateTime(row.last_sign_in_at);
-    case 'created_at':
-      return formatDateTime(row.created_at);
-    case 'description':
-      return displayText(row.description);
-    default:
-      return '—';
-  }
 }
 
 export function UsersPage() {
@@ -107,7 +78,7 @@ export function UsersPage() {
   );
 
   const [sort, setSort] = useState<SortState | null>(null);
-  const [visibleKeys, setVisibleKeys] = useState(DEFAULT_VISIBLE_KEYS);
+  const { visibleKeys, toggleColumn } = useColumnVisibility(COLUMNS, DEFAULT_VISIBLE_KEYS);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<AdminUserItem | null>(null);
   const [viewing, setViewing] = useState<AdminUserItem | null>(null);
@@ -134,8 +105,6 @@ export function UsersPage() {
       })),
     ];
   }, [roles]);
-
-  const visibleColumns = COLUMN_OPTIONS.filter((column) => visibleKeys.includes(column.key));
 
   const handleSave = async (values: UserFormValues) => {
     setIsSaving(true);
@@ -200,119 +169,78 @@ export function UsersPage() {
     setFormOpen(true);
   };
 
+  const filters: ReactNode = (
+    <>
+      <Input
+        value={searchInput}
+        onChange={(event) => setSearchInput(event.target.value)}
+        placeholder="Search Users"
+        aria-label="Search Users"
+        className="lg:max-w-sm"
+      />
+      <NativeSelect
+        aria-label="Filter By Role"
+        className="lg:w-56"
+        value={role}
+        onChange={(event) => setQuery({ role: event.target.value, page: 1 })}
+        options={roleFilterOptions}
+      />
+    </>
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader title="Users" description="Manage coaches, players, and other platform users." />
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <Input
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-          placeholder="Search Users"
-          aria-label="Search Users"
-          className="lg:max-w-sm"
-        />
-        <NativeSelect
-          aria-label="Filter By Role"
-          className="lg:w-56"
-          value={role}
-          onChange={(event) => setQuery({ role: event.target.value, page: 1 })}
-          options={roleFilterOptions}
-        />
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
-          <ColumnVisibilityMenu
-            columns={COLUMN_OPTIONS}
-            visibleKeys={visibleKeys}
-            onToggle={(key) =>
-              setVisibleKeys((current) => {
-                const column = COLUMN_OPTIONS.find((item) => item.key === key);
-                if (column?.alwaysVisible) return current;
-                return current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
-              })
-            }
-          />
+      <DataTable
+        columns={COLUMNS}
+        rows={sortedItems}
+        getRowId={(row) => row.id}
+        sort={sort}
+        onSortChange={setSort}
+        visibleKeys={visibleKeys}
+        onToggleColumn={toggleColumn}
+        filters={filters}
+        primaryAction={
           <Button type="button" onClick={openCreate}>
             Add User
           </Button>
-        </div>
-      </div>
-
-      {isLoading ? <LoadingState label="Loading Users…" /> : null}
-      {!isLoading && error ? (
-        <div className="space-y-3">
-          <ErrorMessage message={error} />
-          <Button type="button" variant="outline" onClick={() => void reload()}>
-            Retry
-          </Button>
-        </div>
-      ) : null}
-      {!isLoading && !error && items.length === 0 ? (
-        <EmptyState
-          icon={<Users className="h-6 w-6" aria-hidden="true" />}
-          title="No Users Yet"
-          description="Use Add User in the toolbar to create the first user."
-        />
-      ) : null}
-      {!isLoading && !error && items.length > 0 ? (
-        <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {visibleColumns.map((column) => (
-                  <SortableHeader
-                    key={column.key}
-                    label={column.label}
-                    columnKey={column.key}
-                    sort={sort}
-                    onSort={(key) => setSort(nextSortState(sort, key))}
-                  />
-                ))}
-                <TableHead className="w-12 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedItems.map((row) => (
-                <TableRow key={row.id}>
-                  {visibleColumns.map((column) => (
-                    <TableCell key={column.key} className={column.key === 'name' ? 'font-medium' : undefined}>
-                      {renderUserCell(row, column.key)}
-                    </TableCell>
-                  ))}
-                  <TableCell className="text-right">
-                    <RowActionsMenu
-                      label={`${displayText(row.name)} Actions`}
-                      actions={[
-                        { label: 'View', onSelect: () => setViewing(row) },
-                        {
-                          label: 'Edit',
-                          onSelect: () => {
-                            setEditing(row);
-                            setFormError(null);
-                            setFieldErrors({});
-                            setFormOpen(true);
-                          },
-                        },
-                        {
-                          label: 'Remove',
-                          destructive: true,
-                          disabled: row.is_self,
-                          title: row.is_self ? 'You cannot remove your own account' : undefined,
-                          onSelect: () => setRemoving(row),
-                        },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <ResourcePagination
-            pagination={pagination}
-            onPageChange={(nextPage) => setQuery({ page: nextPage })}
-            onPageSizeChange={(nextSize) => setQuery({ page: 1, page_size: nextSize })}
+        }
+        pagination={pagination}
+        onPageChange={(nextPage) => setQuery({ page: nextPage })}
+        onPageSizeChange={(nextSize) => setQuery({ page: 1, page_size: nextSize })}
+        isLoading={isLoading}
+        loadingLabel="Loading Users…"
+        error={error}
+        onRetry={() => void reload()}
+        emptyIcon={<Users className="h-6 w-6" aria-hidden="true" />}
+        emptyTitle="No Users Yet"
+        emptyDescription="Use Add User in the toolbar to create the first user."
+        renderRowActions={(row) => (
+          <RowActionsMenu
+            label={`${displayText(row.name)} Actions`}
+            actions={[
+              { label: 'View', onSelect: () => setViewing(row) },
+              {
+                label: 'Edit',
+                onSelect: () => {
+                  setEditing(row);
+                  setFormError(null);
+                  setFieldErrors({});
+                  setFormOpen(true);
+                },
+              },
+              {
+                label: 'Remove',
+                destructive: true,
+                disabled: row.is_self,
+                title: row.is_self ? 'You cannot remove your own account' : undefined,
+                onSelect: () => setRemoving(row),
+              },
+            ]}
           />
-        </>
-      ) : null}
+        )}
+      />
 
       <UserFormDialog
         open={formOpen}

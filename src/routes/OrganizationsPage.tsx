@@ -2,18 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Building2 } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { ErrorMessage } from '@/components/shared/ErrorMessage';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { EmptyState } from '@/components/ui/empty-state';
-import { LoadingState } from '@/components/ui/loading-state';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ColumnVisibilityMenu, type ColumnOption } from '@/components/features/admin/ColumnVisibilityMenu';
+import { DataTable, type DataTableColumn } from '@/components/features/admin/DataTable';
 import { OrganizationFormDialog, type OrganizationFormValues } from '@/components/features/admin/OrganizationFormDialog';
-import { ResourcePagination } from '@/components/features/admin/ResourcePagination';
 import { RowActionsMenu } from '@/components/features/admin/RowActionsMenu';
-import { SortableHeader } from '@/components/features/admin/SortableHeader';
 import {
   Dialog,
   DialogContent,
@@ -22,21 +16,36 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useColumnVisibility } from '@/hooks/useColumnVisibility';
 import { useListQueryState } from '@/hooks/useListQueryState';
 import { useOrganizations } from '@/hooks/useOrganizations';
 import { getApiErrorMessage, getApiFieldErrors } from '@/lib/api';
 import { displayText, formatDateTime, SEARCH_DEBOUNCE_MS } from '@/lib/format';
-import { nextSortState, sortCollection, type SortState } from '@/lib/sort';
+import { sortCollection, type SortState } from '@/lib/sort';
 import type { OrganizationItem } from '@/types/api';
 
-const COLUMN_OPTIONS: ColumnOption[] = [
-  { key: 'name', label: 'Organization Name', alwaysVisible: true },
-  { key: 'contact_email', label: 'Contact Email' },
-  { key: 'phone_number', label: 'Phone Number' },
-  { key: 'address', label: 'Address' },
-  { key: 'description', label: 'Description' },
-  { key: 'join_code', label: 'Join Code' },
-  { key: 'created_at', label: 'Created At' },
+const COLUMNS: DataTableColumn<OrganizationItem>[] = [
+  {
+    key: 'name',
+    label: 'Organization Name',
+    alwaysVisible: true,
+    className: 'font-medium',
+    render: (row) => displayText(row.name || row.organization),
+  },
+  {
+    key: 'contact_email',
+    label: 'Contact Email',
+    render: (row) => displayText(row.contact_email || row.email),
+  },
+  {
+    key: 'phone_number',
+    label: 'Phone Number',
+    render: (row) => displayText(row.phone_number || row.phone),
+  },
+  { key: 'address', label: 'Address', render: (row) => displayText(row.address) },
+  { key: 'description', label: 'Description', render: (row) => displayText(row.description) },
+  { key: 'join_code', label: 'Join Code', render: (row) => displayText(row.join_code) },
+  { key: 'created_at', label: 'Created At', render: (row) => formatDateTime(row.created_at) },
 ];
 
 const DEFAULT_VISIBLE_KEYS = ['name', 'contact_email', 'phone_number'];
@@ -54,27 +63,6 @@ function orgValue(row: OrganizationItem, key: string): unknown {
   }
 }
 
-function renderOrgCell(row: OrganizationItem, key: string) {
-  switch (key) {
-    case 'name':
-      return displayText(row.name || row.organization);
-    case 'contact_email':
-      return displayText(row.contact_email || row.email);
-    case 'phone_number':
-      return displayText(row.phone_number || row.phone);
-    case 'address':
-      return displayText(row.address);
-    case 'description':
-      return displayText(row.description);
-    case 'join_code':
-      return displayText(row.join_code);
-    case 'created_at':
-      return formatDateTime(row.created_at);
-    default:
-      return '—';
-  }
-}
-
 export function OrganizationsPage() {
   const { page, pageSize, search, setQuery } = useListQueryState();
   const [searchInput, setSearchInput] = useState(search);
@@ -86,7 +74,7 @@ export function OrganizationsPage() {
   );
 
   const [sort, setSort] = useState<SortState | null>(null);
-  const [visibleKeys, setVisibleKeys] = useState(DEFAULT_VISIBLE_KEYS);
+  const { visibleKeys, toggleColumn } = useColumnVisibility(COLUMNS, DEFAULT_VISIBLE_KEYS);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<OrganizationItem | null>(null);
   const [viewing, setViewing] = useState<OrganizationItem | null>(null);
@@ -102,9 +90,6 @@ export function OrganizationsPage() {
   }, [debouncedSearch, search, setQuery]);
 
   const sortedItems = useMemo(() => sortCollection(items, sort, orgValue), [items, sort]);
-  const visibleColumns = COLUMN_OPTIONS.filter(
-    (column) => column.alwaysVisible || visibleKeys.includes(column.key),
-  );
 
   const openCreate = () => {
     setEditing(null);
@@ -156,102 +141,57 @@ export function OrganizationsPage() {
     <div className="space-y-6">
       <PageHeader title="Organizations" description="Manage organizations on the platform." />
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <Input
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-          placeholder="Search Organizations"
-          aria-label="Search Organizations"
-          className="lg:max-w-sm"
-        />
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
-          <ColumnVisibilityMenu
-            columns={COLUMN_OPTIONS}
-            visibleKeys={visibleKeys}
-            onToggle={(key) =>
-              setVisibleKeys((current) => {
-                const column = COLUMN_OPTIONS.find((item) => item.key === key);
-                if (column?.alwaysVisible) return current;
-                return current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
-              })
-            }
+      <DataTable
+        columns={COLUMNS}
+        rows={sortedItems}
+        getRowId={(row) => row.id}
+        sort={sort}
+        onSortChange={setSort}
+        visibleKeys={visibleKeys}
+        onToggleColumn={toggleColumn}
+        filters={
+          <Input
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            placeholder="Search Organizations"
+            aria-label="Search Organizations"
+            className="lg:max-w-sm"
           />
+        }
+        primaryAction={
           <Button type="button" onClick={openCreate}>
             Add Organization
           </Button>
-        </div>
-      </div>
-
-      {isLoading ? <LoadingState label="Loading Organizations…" /> : null}
-      {!isLoading && error ? (
-        <div className="space-y-3">
-          <ErrorMessage message={error} />
-          <Button type="button" variant="outline" onClick={() => void reload()}>
-            Retry
-          </Button>
-        </div>
-      ) : null}
-      {!isLoading && !error && items.length === 0 ? (
-        <EmptyState
-          icon={<Building2 className="h-6 w-6" aria-hidden="true" />}
-          title="No Organizations Yet"
-          description="Use Add Organization in the toolbar to create the first organization."
-        />
-      ) : null}
-      {!isLoading && !error && items.length > 0 ? (
-        <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {visibleColumns.map((column) => (
-                  <SortableHeader
-                    key={column.key}
-                    label={column.label}
-                    columnKey={column.key}
-                    sort={sort}
-                    onSort={(nextKey) => setSort(nextSortState(sort, nextKey))}
-                  />
-                ))}
-                <TableHead className="w-12 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedItems.map((row) => (
-                <TableRow key={row.id}>
-                  {visibleColumns.map((column) => (
-                    <TableCell key={column.key} className={column.key === 'name' ? 'font-medium' : undefined}>
-                      {renderOrgCell(row, column.key)}
-                    </TableCell>
-                  ))}
-                  <TableCell className="text-right">
-                    <RowActionsMenu
-                      label={`${displayText(row.name || row.organization)} Actions`}
-                      actions={[
-                        { label: 'View', onSelect: () => setViewing(row) },
-                        {
-                          label: 'Edit',
-                          onSelect: () => {
-                            setEditing(row);
-                            setFormError(null);
-                            setFieldErrors({});
-                            setFormOpen(true);
-                          },
-                        },
-                        { label: 'Remove', destructive: true, onSelect: () => setRemoving(row) },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <ResourcePagination
-            pagination={pagination}
-            onPageChange={(nextPage) => setQuery({ page: nextPage })}
-            onPageSizeChange={(nextSize) => setQuery({ page: 1, page_size: nextSize })}
+        }
+        pagination={pagination}
+        onPageChange={(nextPage) => setQuery({ page: nextPage })}
+        onPageSizeChange={(nextSize) => setQuery({ page: 1, page_size: nextSize })}
+        isLoading={isLoading}
+        loadingLabel="Loading Organizations…"
+        error={error}
+        onRetry={() => void reload()}
+        emptyIcon={<Building2 className="h-6 w-6" aria-hidden="true" />}
+        emptyTitle="No Organizations Yet"
+        emptyDescription="Use Add Organization in the toolbar to create the first organization."
+        renderRowActions={(row) => (
+          <RowActionsMenu
+            label={`${displayText(row.name || row.organization)} Actions`}
+            actions={[
+              { label: 'View', onSelect: () => setViewing(row) },
+              {
+                label: 'Edit',
+                onSelect: () => {
+                  setEditing(row);
+                  setFormError(null);
+                  setFieldErrors({});
+                  setFormOpen(true);
+                },
+              },
+              { label: 'Remove', destructive: true, onSelect: () => setRemoving(row) },
+            ]}
           />
-        </>
-      ) : null}
+        )}
+      />
 
       <OrganizationFormDialog
         open={formOpen}

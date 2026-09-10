@@ -1,14 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api, ApiError, getApiErrorMessage } from '@/lib/api';
-import { API_PATHS, unwrapListItems, withQuery } from '@/lib/api/endpoints';
+import { api, getApiErrorMessage } from '@/lib/api';
+import { API_PATHS, isIdentifiedItem, unwrapListItems, withQuery } from '@/lib/api/endpoints';
 import { getSession, isDevBypassToken } from '@/lib/auth/session';
-import type {
-  PaginationMeta,
-  SupportRequestItem,
-  SupportRequestListResponse,
-  SupportRequestMutationResponse,
-  SupportRequestRespondRequest,
-} from '@/types/api';
+import type { PaginationMeta, SupportRequestItem, SupportRequestListResponse } from '@/types/api';
 
 const EMPTY_PAGINATION: PaginationMeta = {
   page: 1,
@@ -21,11 +15,8 @@ const EMPTY_PAGINATION: PaginationMeta = {
 
 export const SUPPORT_ACTIONS_UNAVAILABLE = 'Responding and closing are not available yet.';
 
-function rethrowSupportAction(err: unknown): never {
-  if (err instanceof ApiError && (err.status === 404 || err.status === 405 || err.status === 501)) {
-    throw new Error(SUPPORT_ACTIONS_UNAVAILABLE);
-  }
-  throw err;
+function isSupportRequestItem(value: unknown): value is SupportRequestItem {
+  return isIdentifiedItem(value) && typeof value.subject === 'string';
 }
 
 export function useSupportRequests(page: number, pageSize: number, search: string) {
@@ -51,7 +42,7 @@ export function useSupportRequests(page: number, pageSize: number, search: strin
           search: search || undefined,
         }),
       );
-      setItems(unwrapListItems<SupportRequestItem>(response));
+      setItems(unwrapListItems(response, isSupportRequestItem));
       setPagination(response.pagination ?? { ...EMPTY_PAGINATION, page, page_size: pageSize });
     } catch (err) {
       setItems([]);
@@ -65,30 +56,5 @@ export function useSupportRequests(page: number, pageSize: number, search: strin
     void load();
   }, [load]);
 
-  const respond = useCallback(async (body: SupportRequestRespondRequest) => {
-    try {
-      const response = await api.post<SupportRequestMutationResponse>(
-        '/api/super-admin/support-requests',
-        body,
-      );
-      await load();
-      return response;
-    } catch (err) {
-      rethrowSupportAction(err);
-    }
-  }, [load]);
-
-  const close = useCallback(async (id: string) => {
-    try {
-      const response = await api.put<SupportRequestMutationResponse>(
-        '/api/super-admin/support-requests/{id}'.replace('{id}', id),
-      );
-      await load();
-      return response;
-    } catch (err) {
-      rethrowSupportAction(err);
-    }
-  }, [load]);
-
-  return { items, pagination, isLoading, error, reload: load, respond, close };
+  return { items, pagination, isLoading, error, reload: load };
 }

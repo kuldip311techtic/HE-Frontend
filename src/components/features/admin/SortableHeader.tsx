@@ -23,7 +23,8 @@ export function SortableHeader({ label, columnKey, sort, onSort, className }: So
           'inline-flex items-center gap-1 rounded-md font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         )}
         onClick={() => onSort(columnKey)}
-        aria-label={`Sort By ${label}`}
+        title="Sorts The Current Page Only"
+        aria-label={`Sort This Page By ${label}`}
       >
         <span>{label}</span>
         {!isActive ? <ArrowUpDown className="h-3.5 w-3.5 opacity-70" aria-hidden="true" /> : null}
